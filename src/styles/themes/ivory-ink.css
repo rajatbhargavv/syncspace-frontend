@@ -1,0 +1,48 @@
+/* ── IVORY INK: professional / The Studio ── */
+[data-theme='IVORY_INK'][data-mode='dark'] {
+  --color-bg: #111311;
+  --color-surface: #1a1d1a;
+  --color-surface-hover: #222622;
+  --color-border: #2e332e;
+  --color-text: #e8e6e1;
+  --color-text-muted: #8c8a85;
+  --color-text-inverse: #111311;
+  --color-accent: #b8963a;
+  --color-accent-hover: #cca94d;
+  --color-accent-muted: rgba(184, 150, 58, 0.12);
+  --color-success: #4ade80;
+  --color-warning: #fde047;
+  --color-error: #fb7185;
+  --color-info: #93c5fd;
+  --radius-card: 8px;
+  --radius-button: 6px;
+  --radius-input: 6px;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Lora', 'Georgia', serif;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='IVORY_INK'][data-mode='light'] {
+  --color-bg: #f8f6f1;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f2efe9;
+  --color-border: #d9d5cc;
+  --color-text: #2d2d2a;
+  --color-text-muted: #6b6b65;
+  --color-text-inverse: #ffffff;
+  --color-accent: #1b6b4a;
+  --color-accent-hover: #155a3d;
+  --color-accent-muted: rgba(27, 107, 74, 0.08);
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #e11d48;
+  --color-info: #2563eb;
+  --radius-card: 8px;
+  --radius-button: 6px;
+  --radius-input: 6px;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Lora', 'Georgia', serif;
+  --shadow-card: 0 1px 2px rgba(45, 45, 42, 0.06);
+  --shadow-elevated: 0 4px 16px rgba(45, 45, 42, 0.1);
+}
