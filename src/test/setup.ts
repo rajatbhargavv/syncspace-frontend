@@ -27,8 +27,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   }),
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449

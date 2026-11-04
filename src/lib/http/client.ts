@@ -111,8 +111,4 @@ export const http = {
   delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return request<T>(path, { ...options, method: 'DELETE' });
   },
-<<<<<<< HEAD
 } as const;
-=======
-} as const;
->>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449
