@@ -47,4 +47,8 @@ export function toISODate(date: Date): string {
   return format(date, "yyyy-MM-dd'T'HH:mm");
 }
 
+<<<<<<< HEAD
 export { parseISO };
+=======
+export { parseISO };
+>>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449

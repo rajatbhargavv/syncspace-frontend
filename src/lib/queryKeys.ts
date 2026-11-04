@@ -53,4 +53,8 @@ export const queryKeys = {
     all: ['invites'] as const,
     preview: (token: string) => [...queryKeys.invites.all, 'preview', token] as const,
   },
+<<<<<<< HEAD
 } as const;
+=======
+} as const;
+>>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449

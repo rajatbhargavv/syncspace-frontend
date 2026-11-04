@@ -24,4 +24,8 @@ export class ApiError extends Error {
   get isPaymentRequired(): boolean {
     return this.status === 402;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449

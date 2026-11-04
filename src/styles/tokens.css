@@ -1,0 +1,36 @@
+:root {
+  /* ── Typography ── */
+  --font-sans: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Radius ── */
+  --radius-card: 20px;
+  --radius-button: 12px;
+  --radius-input: 12px;
+  --radius-badge: 9999px;
+  --radius-avatar: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* ── Motion ── */
+  --motion-duration: 200ms;
+  --motion-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Density ── */
+  --density-spacing: 16px;
+
+  /* ── Z-indices ── */
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+}

@@ -52,4 +52,8 @@ async function doRefresh(): Promise<boolean> {
   } catch {
     return false;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449

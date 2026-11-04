@@ -1,0 +1,52 @@
+/* ── NEON GRID: developers / Builders' Circle ── */
+[data-theme='NEON_GRID'][data-mode='dark'] {
+  --color-bg: #080b14;
+  --color-surface: #0e1221;
+  --color-surface-hover: #151a2e;
+  --color-border: #1e2740;
+  --color-text: #e2e8f0;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #080b14;
+  --color-accent: #22d3ee;
+  --color-accent-hover: #06b6d4;
+  --color-accent-muted: rgba(34, 211, 238, 0.12);
+  --color-success: #a3e635;
+  --color-warning: #facc15;
+  --color-error: #f472b6;
+  --color-info: #818cf8;
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --density-spacing: 12px;
+  --shadow-card: 0 0 1px rgba(34, 211, 238, 0.3), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 0 2px rgba(34, 211, 238, 0.4), 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='NEON_GRID'][data-mode='light'] {
+  --color-bg: #f0f4f8;
+  --color-surface: #ffffff;
+  --color-surface-hover: #e8eef4;
+  --color-border: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-inverse: #ffffff;
+  --color-accent: #0891b2;
+  --color-accent-hover: #0e7490;
+  --color-accent-muted: rgba(8, 145, 178, 0.1);
+  --color-success: #65a30d;
+  --color-warning: #ca8a04;
+  --color-error: #db2777;
+  --color-info: #6366f1;
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-heading: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --density-spacing: 12px;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-elevated: 0 8px 32px rgba(15, 23, 42, 0.12);
+}

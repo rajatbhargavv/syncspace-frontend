@@ -1,0 +1,59 @@
+@import './tokens.css';
+@import './themes/orbit.css';
+@import './themes/hearth.css';
+@import './themes/neon-grid.css';
+@import './themes/ivory-ink.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
+  }
+
+  body {
+    @apply bg-bg text-text antialiased;
+    font-family: var(--font-sans);
+    transition:
+      background-color var(--motion-duration) var(--motion-easing),
+      color var(--motion-duration) var(--motion-easing);
+  }
+
+  /* Visible focus for keyboard navigation, hidden for mouse */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

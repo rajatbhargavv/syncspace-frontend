@@ -45,4 +45,8 @@ describe('HTTP client', () => {
     expect(res.message).toBe('Success after refresh');
     expect(callCount).toBe(2);
   });
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 7a42eac4da9d7d72067212ae06555f7d94377449
