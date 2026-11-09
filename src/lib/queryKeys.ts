@@ -32,6 +32,11 @@ export const queryKeys = {
       [...queryKeys.spaces.all, id, 'analytics', range ?? '30d'] as const,
   },
 
+  members: {
+    all: ['members'] as const,
+    bySpace: (spaceId: string) => [...queryKeys.members.all, spaceId] as const,
+  },
+
   tasks: {
     all: ['tasks'] as const,
     bySpace: (spaceId: string, filters?: TaskFilters) =>
