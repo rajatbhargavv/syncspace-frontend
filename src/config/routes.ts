@@ -1,25 +1,31 @@
 export const ROUTES = {
+  // Uppercase constants
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
-
-  // App
   OVERVIEW: '/app',
-  MY_TASKS: '/app/my-tasks',
-  NOTIFICATIONS: '/app/notifications',
-  SETTINGS: '/app/settings',
-
-  // Spaces
-  SPACES: '/app/spaces',
-  SPACE: (id: string) => `/app/spaces/${id}` as const,
-  CREATE_SPACE: '/app/spaces/new',
-
-  // Profile
-  PROFILE: (id: string) => `/u/${id}` as const,
-
-  // Public space
+  MY_TASKS: '/my-tasks',
+  NOTIFICATIONS: '/notifications',
+  SETTINGS: '/settings',
+  SPACES: '/spaces',
+  SPACE_NEW: '/spaces/new',
+  SPACE: (id: string) => `/spaces/${id}` as const,
   PUBLIC_SPACE: (id: string) => `/s/${id}` as const,
-
-  // Invite
+  PROFILE: (id: string) => `/u/${id}` as const,
   INVITE_PREVIEW: (token: string) => `/invite/${token}` as const,
+
+  // Contract-compatible camelCase aliases
+  home: '/',
+  login: '/login',
+  register: '/register',
+  overview: '/app',
+  myTasks: '/my-tasks',
+  notifications: '/notifications',
+  settings: '/settings',
+  spaces: '/spaces',
+  spaceNew: '/spaces/new',
+  space: (id: string) => `/spaces/${id}` as const,
+  publicSpace: (id: string) => `/s/${id}` as const,
+  profile: (id: string) => `/u/${id}` as const,
+  invitePreview: (token: string) => `/invite/${token}` as const,
 } as const;

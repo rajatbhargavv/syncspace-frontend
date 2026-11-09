@@ -1,43 +1,91 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './guards/ProtectedRoute';
-import { AppLayout } from '@/app/layouts/AppLayout';
-import { DashboardOverview } from '@/app/pages/DashboardOverview';
+import { AppLayout, PublicLayout } from '@/app/layouts';
 import { authRoutes } from '@/features/auth/routes';
 import { ROUTES } from '@/config/routes';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { NotFoundPage } from '@/app/pages/NotFoundPage';
 
 export const router = createBrowserRouter(
   [
     // Auth routes (/login, /register)
     ...authRoutes,
 
+    // Public space route (/s/:id) - no auth required
+    {
+      element: <PublicLayout />,
+      children: [
+        {
+          path: 's/:id',
+          lazy: () =>
+            import('@/features/spaces/pages/PublicSpacePage').then((m) => ({
+              Component: m.PublicSpacePage,
+            })),
+        },
+      ],
+    },
+
     // Protected App routes
     {
-      path: 'app',
       element: <ProtectedRoute />,
       children: [
         {
           element: <AppLayout />,
           children: [
             {
-              index: true,
-              element: <DashboardOverview />,
+              path: 'app',
+              lazy: () =>
+                import('@/features/overview/pages/OverviewPage').then((m) => ({
+                  Component: m.OverviewPage,
+                })),
             },
             {
               path: 'spaces',
-              element: (
-                <div className="p-8">
-                  <h1 className="mb-2 font-heading text-2xl font-bold">Spaces</h1>
-                  <p className="text-text-muted">Your active spaces will appear here.</p>
-                </div>
-              ),
+              lazy: () =>
+                import('@/features/spaces/pages/SpacesPage').then((m) => ({
+                  Component: m.SpacesPage,
+                })),
+            },
+            {
+              path: 'spaces/new',
+              lazy: () =>
+                import('@/features/spaces/pages/CreateSpacePage').then((m) => ({
+                  Component: m.CreateSpacePage,
+                })),
+            },
+            {
+              path: 'spaces/:id',
+              lazy: () =>
+                import('@/features/spaces/pages/SpaceOverviewPage').then((m) => ({
+                  Component: m.SpaceOverviewPage,
+                })),
+            },
+            {
+              path: 'my-tasks',
+              lazy: () =>
+                import('@/features/tasks/pages/MyTasksPage').then((m) => ({
+                  Component: m.MyTasksPage,
+                })),
+            },
+            {
+              path: 'notifications',
+              lazy: () =>
+                import('@/features/notifications/pages/NotificationsPage').then((m) => ({
+                  Component: m.NotificationsPage,
+                })),
+            },
+            {
+              path: 'settings',
+              lazy: () =>
+                import('@/features/settings/pages/SettingsPage').then((m) => ({
+                  Component: m.SettingsPage,
+                })),
             },
           ],
         },
       ],
     },
 
-    // Root redirect
+    // Root redirect -> /app
     {
       path: '/',
       element: <Navigate to={ROUTES.OVERVIEW} replace />,
@@ -46,18 +94,7 @@ export const router = createBrowserRouter(
     // 404 Catch-all
     {
       path: '*',
-      element: (
-        <div className="flex h-screen w-full items-center justify-center bg-bg p-6 text-text">
-          <EmptyState
-            title="Page Not Found"
-            description="The page you are looking for doesn't exist or has been moved."
-            actionLabel="Return Home"
-            onAction={() => {
-              window.location.href = ROUTES.HOME;
-            }}
-          />
-        </div>
-      ),
+      element: <NotFoundPage />,
     },
   ],
   {
