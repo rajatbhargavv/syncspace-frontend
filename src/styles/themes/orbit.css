@@ -14,6 +14,13 @@
   --color-warning: #fbbf24;
   --color-error: #f87171;
   --color-info: #60a5fa;
+  --radius-card: 16px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='ORBIT'][data-mode='light'] {
@@ -31,4 +38,11 @@
   --color-warning: #d97706;
   --color-error: #dc2626;
   --color-info: #2563eb;
+  --radius-card: 16px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
