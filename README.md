@@ -3,8 +3,10 @@
 SyncSpace is a production-grade collaborative task application designed for families sharing chores, developer teams running sprints, companies, individuals managing personal workflows, and productivity enthusiasts seeking a refined UI.
 
 ## Table of Contents
+
 - [Tech Stack](#tech-stack)
 - [Architecture & Separation of Concerns](#architecture--separation-of-concerns)
+- [Phase 1 Shared Contract](#phase-1-shared-contract)
 - [Design Tokens & Themes](#design-tokens--themes)
 - [Getting Started](#getting-started)
 - [Available Scripts](#available-scripts)
@@ -13,6 +15,7 @@ SyncSpace is a production-grade collaborative task application designed for fami
 ---
 
 ## Tech Stack
+
 - **Framework & Language**: React 18, TypeScript (strict mode, `noUncheckedIndexedAccess`), Vite 6
 - **Styling**: Tailwind CSS with CSS-variable design tokens, dynamic runtime theme engine
 - **Routing**: React Router v6 (data router, lazy routes, layout guards)
@@ -43,6 +46,7 @@ UI Primitives        ->  components/ui/* (design system only, zero business logi
 ```
 
 ### Folder Structure
+
 ```text
 src/
 ├── app/
@@ -74,7 +78,7 @@ src/
 │   └── feedback/                   # Spinner, Toaster wrapper
 ├── features/
 │   ├── auth/                       # Authentication (login, register, session)
-│   ├── spaces/                     # Spaces management & views
+│   ├── spaces/                     # Spaces management, views & theme scoping
 │   ├── members/                    # Space membership & permissions
 │   ├── tasks/                      # Tasks management, board & lists
 │   ├── subtasks/                   # Subtask checklist
@@ -89,6 +93,7 @@ src/
 ```
 
 ### Dependency Rules
+
 1. `components/ui` may never import from `features`.
 2. `features` may import `components/ui`, `lib`, `config`, `hooks`, `types`, and other features ONLY through their public `index.ts`.
 3. Pages compose feature components and hooks; they contain zero HTTP and zero domain business logic.
@@ -96,26 +101,87 @@ src/
 
 ---
 
+## Phase 1 Shared Contract
+
+Phase 1 establishes the spaces data foundation, theme scoping system, and route skeleton across four parallel work streams:
+
+### 1. Route Paths (`config/routes.ts`)
+
+- `ROUTES.home` / `ROUTES.HOME`: `/`
+- `ROUTES.overview` / `ROUTES.OVERVIEW`: `/app`
+- `ROUTES.spaces` / `ROUTES.SPACES`: `/spaces`
+- `ROUTES.spaceNew` / `ROUTES.SPACE_NEW`: `/spaces/new`
+- `ROUTES.space(id)` / `ROUTES.SPACE(id)`: `/spaces/:id`
+- `ROUTES.publicSpace(id)` / `ROUTES.PUBLIC_SPACE(id)`: `/s/:id`
+- `ROUTES.myTasks` / `ROUTES.MY_TASKS`: `/my-tasks`
+- `ROUTES.notifications` / `ROUTES.NOTIFICATIONS`: `/notifications`
+- `ROUTES.settings` / `ROUTES.SETTINGS`: `/settings`
+
+### 2. Page Exports & Ownership
+
+| Route            | Page Component      | File Path                                            | Phase 1 Owner       |
+| ---------------- | ------------------- | ---------------------------------------------------- | ------------------- |
+| `/app`           | `OverviewPage`      | `features/overview/pages/OverviewPage.tsx`           | Member 2            |
+| `/spaces/new`    | `CreateSpacePage`   | `features/spaces/pages/CreateSpacePage.tsx`          | Member 3            |
+| `/spaces`        | `SpacesPage`        | `features/spaces/pages/SpacesPage.tsx`               | Member 4            |
+| `/spaces/:id`    | `SpaceOverviewPage` | `features/spaces/pages/SpaceOverviewPage.tsx`        | Member 4            |
+| `/s/:id`         | `PublicSpacePage`   | `features/spaces/pages/PublicSpacePage.tsx`          | Member 4            |
+| `/my-tasks`      | `MyTasksPage`       | `features/tasks/pages/MyTasksPage.tsx`               | Phase 2 Placeholder |
+| `/notifications` | `NotificationsPage` | `features/notifications/pages/NotificationsPage.tsx` | Phase 2 Placeholder |
+| `/settings`      | `SettingsPage`      | `features/settings/pages/SettingsPage.tsx`           | Phase 2 Placeholder |
+
+### 3. Space Types (`features/spaces/types/space.types.ts`)
+
+- `SpaceKind`: `"OUR_HOME" | "BUILDERS_CIRCLE" | "STUDIO" | "MY_CORNER" | "CUSTOM"`
+- `ThemePreset`: `"HEARTH" | "NEON_GRID" | "IVORY_INK" | "ORBIT"`
+- `ThemeMode`: `"light" | "dark"`
+- `SpaceVisibility`: `"PRIVATE" | "UNLISTED" | "PUBLIC"`
+- `SpaceJoinPolicy`: `"INVITE_ONLY" | "REQUEST" | "OPEN"`
+- `SpaceStatus`: `"Active" | "Inactive"`
+- `MemberRole`: `"OWNER" | "MEMBER"`
+- `SpaceSummary`: `Space & { myRole: MemberRole; memberCount: number }`
+- `PublicSpace`: public representation without sensitive membership or role info
+
+### 4. Space Hooks & React Query (`features/spaces/hooks/`)
+
+- `useSpaces()`: query for user's space summaries (`queryKeys.spaces.list()`)
+- `useSpace(id)`: query for single space (`queryKeys.spaces.byId(id)`)
+- `usePublicSpace(id)`: query for public space details (`queryKeys.spaces.public(id)`)
+- `useCreateSpace()`: mutation, automatically invalidates spaces list
+- `useUpdateSpace()`: mutation, invalidates spaces list and target space by ID
+- `useDeactivateSpace()`: mutation (soft delete), updates space status to `Inactive`
+- `useSpaceTheme(space)`: hook applying a space's theme on mount and restoring base theme on unmount
+
+### 5. Scoped Theming & Utilities
+
+- `<ThemeScope theme={preset} mode={mode}>`: Isolates theme tokens (`--color-*`, `--radius-*`, `--font-*`) to a local DOM subtree for real-time creation and preview cards.
+- `<SpaceThemeDot theme={preset} size="sm|md|lg">`: Small themed indicator dot with corresponding preset colors.
+- `SPACE_KIND_CONFIG`: Comprehensive presets, default themes, and contextual copy per kind (e.g. Our Home -> "Chores", Builders' Circle -> "Tickets", Studio -> "Deliverables").
+
+---
+
 ## Design Tokens & Themes
 
 The application features 4 distinct presets, each supporting both `light` and `dark` modes:
 
-- **ORBIT** (Default / Personal): Deep near-black (`#0A0A0B`), warm glow, radiant accent orange (`#FF8A1F`), 20px card radius.
-- **HEARTH** (Family / Our Home): Warm terracotta and amber, 24px soft radius, friendly typography (Nunito).
-- **NEON_GRID** (Developers / Builders' Circle): Deep navy/black, cyan + violet + lime accents, 12px compact density, JetBrains Mono IDs.
-- **IVORY_INK** (Professional / Studio): Graphite and ivory with deep gold/emerald accents, serif headings (Lora), minimal 8px radius.
+- **ORBIT** (Default / Personal): Deep near-black (`#0A0A0B`), surfaces `#141416` / `#1C1C1F`, radiant accent orange (`#FF8A1F`), 16px card radius.
+- **HEARTH** (Family / Our Home): Warm cream (`#FDF6F0`) and terracotta (`#C96A3C`), 24px soft radius, friendly typography (Nunito).
+- **NEON_GRID** (Developers / Builders' Circle): Deep navy/black (`#080B14`), cyan (`#22D3EE`) + violet (`#818CF8`) + lime (`#A3E635`) accents, 12px compact density, JetBrains Mono IDs.
+- **IVORY_INK** (Professional / Studio): Graphite (`#2D2D2A`) and ivory (`#F8F6F1`) with deep gold/emerald accents, serif headings (Lora), minimal 8px radius.
 
-Runtime theme switching is powered by `data-theme` and `data-mode` HTML attributes driven by `ThemeProvider`.
+Runtime theme switching is powered by `data-theme` and `data-mode` HTML attributes driven by `ThemeProvider` globally or `<ThemeScope>` locally.
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js >= 20.x
 - npm >= 10.x
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -129,32 +195,34 @@ cp .env.example .env
 ```
 
 ### Development
+
 ```bash
 # Start development server with Vite proxy pointing to backend
 npm run dev
 ```
 
-The frontend will run at `http://localhost:5173`. Requests to `/api` and `/socket.io` are proxied to `http://localhost:4000`.
+The frontend will run at `http://localhost:5173`. Requests to `/api` and `/socket.io` are proxied to `http://localhost:5000`.
 
 ---
 
 ## Available Scripts
 
-| Script | Purpose |
-|---|---|
-| `npm run dev` | Starts Vite dev server with Hot Module Replacement |
-| `npm run build` | Compiles TypeScript and builds production bundle |
-| `npm run preview` | Previews the production build locally |
-| `npm run typecheck` | Runs `tsc --noEmit` strict type check |
-| `npm run lint` | Runs ESLint across the codebase |
-| `npm run format:check`| Checks code formatting with Prettier |
-| `npm run format` | Auto-formats code with Prettier |
-| `npm run test` | Executes test suite with Vitest and MSW |
-| `npm run test:watch` | Runs test runner in watch mode |
+| Script                 | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
+| `npm run dev`          | Starts Vite dev server with Hot Module Replacement |
+| `npm run build`        | Compiles TypeScript and builds production bundle   |
+| `npm run preview`      | Previews the production build locally              |
+| `npm run typecheck`    | Runs `tsc --noEmit` strict type check              |
+| `npm run lint`         | Runs ESLint across the codebase                    |
+| `npm run format:check` | Checks code formatting with Prettier               |
+| `npm run format`       | Auto-formats code with Prettier                    |
+| `npm run test`         | Executes test suite with Vitest and MSW            |
+| `npm run test:watch`   | Runs test runner in watch mode                     |
 
 ---
 
 ## Coding Conventions
+
 - **Strict TypeScript**: No `any`, `noUncheckedIndexedAccess` enabled, explicit return types on all API functions.
 - **Single-Flight Token Refresh**: Transparent handling of expired JWTs with single concurrent refresh promise.
 - **Accessible UI**: Visible focus rings, ARIA roles, live regions, keyboard navigation.
