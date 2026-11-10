@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ApiError } from '@/lib/http/ApiError';
+import { ApiError } from '@/types';
 import { Button } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';

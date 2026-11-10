@@ -111,4 +111,3 @@ describe('space.schema', () => {
     });
   });
 });
-

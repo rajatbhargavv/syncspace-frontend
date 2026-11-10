@@ -175,4 +175,3 @@ describe('space.api', () => {
     expect(deactivated.status).toBe('Inactive');
   });
 });
-

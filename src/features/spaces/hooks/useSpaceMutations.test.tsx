@@ -110,4 +110,3 @@ describe('space mutation hooks', () => {
     expect(result.current.data?.status).toBe('Inactive');
   });
 });
-

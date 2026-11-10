@@ -152,7 +152,49 @@ Phase 1 establishes the spaces data foundation, theme scoping system, and route 
 - `useDeactivateSpace()`: mutation (soft delete), updates space status to `Inactive`
 - `useSpaceTheme(space)`: hook applying a space's theme on mount and restoring base theme on unmount
 
-### 5. Scoped Theming & Utilities
+### 5. Backend REST Endpoints (Phase 1)
+
+| Method   | Endpoint                          | Auth Required | Description                                                               |
+| -------- | --------------------------------- | ------------- | ------------------------------------------------------------------------- |
+| `POST`   | `/api/auth/register`              | No            | Register a new account                                                    |
+| `POST`   | `/api/auth/login`                 | No            | Login and receive session cookies & access token                          |
+| `POST`   | `/api/auth/refresh`               | Cookie/Body   | Single-flight token refresh                                               |
+| `POST`   | `/api/auth/logout`                | Optional      | Revoke session and clear cookies                                          |
+| `GET`    | `/api/users/me`                   | Yes           | Fetch authenticated profile                                               |
+| `GET`    | `/api/spaces`                     | Yes           | List authenticated user's spaces (`SpaceSummary[]`)                       |
+| `GET`    | `/api/spaces/:id`                 | Member only   | Get space details (returns `403` if not a member)                         |
+| `GET`    | `/api/spaces/public/:id`          | No            | Public space landing view with stats and owner name                       |
+| `POST`   | `/api/spaces`                     | Yes           | Create space (name 3-50, description <=500, kind, theme, policies)        |
+| `PUT`    | `/api/spaces/:id`                 | Owner only    | Update space name, description, kind, theme, or policies                  |
+| `PATCH`  | `/api/spaces/:id/deactivate`      | Owner only    | Soft-deactivate space (marks status `Inactive`)                           |
+| `GET`    | `/api/spaces/:id/members`         | Member only   | List space members with roles and statuses                                |
+| `POST`   | `/api/spaces/:id/join`            | Yes           | Join space (`OPEN` -> ACTIVE, `REQUEST` -> PENDING, `INVITE_ONLY` -> 403) |
+| `POST`   | `/api/spaces/:id/leave`           | Member only   | Leave space (owner cannot leave)                                          |
+| `DELETE` | `/api/spaces/:id/members/:userId` | Owner only    | Remove member from space                                                  |
+| `GET`    | `/api/notifications/unread-count` | Yes           | Unread notifications count badge                                          |
+
+### 6. Scoped Theming & Utilities
+
+| Method   | Endpoint                  | Auth Required  | Description                                                         |
+| -------- | ------------------------- | -------------- | ------------------------------------------------------------------- |
+| `POST`   | `/api/auth/register`      | No             | Register a new account                                              |
+| `POST`   | `/api/auth/login`         | No             | Login and receive session cookies & access token                    |
+| `POST`   | `/api/auth/refresh`       | Cookie/Body    | Single-flight token refresh                                         |
+| `POST`   | `/api/auth/logout`        | Optional       | Revoke session and clear cookies                                    |
+| `GET`    | `/api/users/me`           | Yes            | Fetch authenticated profile                                         |
+| `GET`    | `/api/spaces`             | Yes            | List authenticated user's spaces (`SpaceSummary[]`)                 |
+| `GET`    | `/api/spaces/:id`         | Member only    | Get space details (returns `403` if not a member)                   |
+| `GET`    | `/api/spaces/public/:id`  | No             | Public space landing view with stats and owner name                 |
+| `POST`   | `/api/spaces`             | Yes            | Create space (name 3-50, description <=500, kind, theme, policies) |
+| `PUT`    | `/api/spaces/:id`         | Owner only     | Update space name, description, kind, theme, or policies            |
+| `PATCH`  | `/api/spaces/:id/deactivate` | Owner only  | Soft-deactivate space (marks status `Inactive`)                     |
+| `GET`    | `/api/spaces/:id/members` | Member only    | List space members with roles and statuses                          |
+| `POST`   | `/api/spaces/:id/join`    | Yes            | Join space (`OPEN` -> ACTIVE, `REQUEST` -> PENDING, `INVITE_ONLY` -> 403) |
+| `POST`   | `/api/spaces/:id/leave`   | Member only    | Leave space (owner cannot leave)                                    |
+| `DELETE` | `/api/spaces/:id/members/:userId` | Owner only | Remove member from space                                      |
+| `GET`    | `/api/notifications/unread-count` | Yes   | Unread notifications count badge                                    |
+
+### 6. Scoped Theming & Utilities
 
 - `<ThemeScope theme={preset} mode={mode}>`: Isolates theme tokens (`--color-*`, `--radius-*`, `--font-*`) to a local DOM subtree for real-time creation and preview cards.
 - `<SpaceThemeDot theme={preset} size="sm|md|lg">`: Small themed indicator dot with corresponding preset colors.

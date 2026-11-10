@@ -113,4 +113,3 @@ describe('space query hooks', () => {
     expect(result.current.data?.contributorStats.totalTasks).toBe(10);
   });
 });
-

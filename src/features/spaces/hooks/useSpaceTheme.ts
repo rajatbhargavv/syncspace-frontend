@@ -2,9 +2,7 @@ import { useEffect } from 'react';
 import { useTheme } from '@/app/providers/useTheme';
 import type { Space, SpaceTheme } from '../types/space.types';
 
-export function useSpaceTheme(
-  spaceInput?: Pick<Space, 'theme'> | SpaceTheme | null,
-): void {
+export function useSpaceTheme(spaceInput?: Pick<Space, 'theme'> | SpaceTheme | null): void {
   const { setSpaceTheme } = useTheme();
 
   const theme =

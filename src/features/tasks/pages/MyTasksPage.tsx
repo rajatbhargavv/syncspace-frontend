@@ -16,4 +16,3 @@ export const MyTasksPage: React.FC = () => {
     </div>
   );
 };
-

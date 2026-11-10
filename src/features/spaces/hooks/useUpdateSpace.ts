@@ -20,4 +20,3 @@ export function useUpdateSpace(): UseMutationResult<Space, Error, UpdateSpaceVar
     },
   });
 }
-

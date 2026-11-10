@@ -14,4 +14,3 @@ export function useCreateSpace(): UseMutationResult<Space, Error, CreateSpaceInp
     },
   });
 }
-

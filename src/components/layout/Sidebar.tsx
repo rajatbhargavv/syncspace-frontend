@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { SpaceThemeDot, useSpaces } from '@/features/spaces';
 import { Logo } from '@/components/ui/Logo';
@@ -22,6 +22,7 @@ const navItems = [
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, forceExpanded = false }) => {
   const { isSidebarCollapsed } = useUiStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const spacesQuery = useSpaces();
   const spaces = spacesQuery.data?.filter((space) => space.status === 'Active') ?? [];
   const isCollapsed = forceExpanded ? false : isSidebarCollapsed;
@@ -43,27 +44,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, forceExpanded = fa
 
       <nav className="flex-1 overflow-y-auto p-3">
         <div className="space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.path}
-              end={item.path === ROUTES.home}
-              onClick={onNavigate}
-              title={isCollapsed ? item.label : undefined}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-accent-muted text-accent'
-                    : 'text-text-muted hover:bg-surface-hover hover:text-text'
-                } ${isCollapsed ? 'justify-center' : ''}`
-              }
-            >
-              <span className="w-5 text-center text-base" aria-hidden="true">
-                {item.icon}
-              </span>
-              {!isCollapsed && <span>{item.label}</span>}
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            const isOverview = item.path === ROUTES.home;
+            const isOverviewActive =
+              isOverview &&
+              (location.pathname === ROUTES.home || location.pathname === ROUTES.overview);
+
+            return (
+              <NavLink
+                key={item.label}
+                to={item.path}
+                end={item.path === ROUTES.home}
+                onClick={onNavigate}
+                title={isCollapsed ? item.label : undefined}
+                className={({ isActive }) => {
+                  const active = isActive || isOverviewActive;
+                  return `flex items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium transition-colors ${
+                    active
+                      ? 'bg-accent-muted text-accent'
+                      : 'text-text-muted hover:bg-surface-hover hover:text-text'
+                  } ${isCollapsed ? 'justify-center' : ''}`;
+                }}
+              >
+                <span className="w-5 text-center text-base" aria-hidden="true">
+                  {item.icon}
+                </span>
+                {!isCollapsed && <span>{item.label}</span>}
+              </NavLink>
+            );
+          })}
         </div>
 
         {!isCollapsed && (
@@ -113,18 +122,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, forceExpanded = fa
             )}
             {!spacesQuery.isLoading && spaces.length > 0 && (
               <div className="space-y-1">
-                {spaces.map((space) => (
-                  <Link
-                    key={space._id}
-                    to={ROUTES.space(space._id)}
-                    onClick={onNavigate}
-                    className="flex items-center gap-2.5 rounded-button px-3 py-2 text-sm text-text-muted hover:bg-surface-hover hover:text-text"
-                  >
-                    <SpaceThemeDot theme={space.theme} size="sm" />
-                    <span className="min-w-0 flex-1 truncate">{space.name}</span>
-                    <span className="text-[10px]">{space.memberCount}</span>
-                  </Link>
-                ))}
+                {spaces.map((space) => {
+                  const isActiveSpace = location.pathname === ROUTES.space(space._id);
+                  return (
+                    <Link
+                      key={space._id}
+                      to={ROUTES.space(space._id)}
+                      onClick={onNavigate}
+                      className={`flex items-center gap-2.5 rounded-button px-3 py-2 text-sm transition-colors ${
+                        isActiveSpace
+                          ? 'bg-accent-muted font-medium text-accent'
+                          : 'text-text-muted hover:bg-surface-hover hover:text-text'
+                      }`}
+                    >
+                      <SpaceThemeDot theme={space.theme} size="sm" />
+                      <span className="min-w-0 flex-1 truncate">{space.name}</span>
+                      <span className="text-[10px]">{space.memberCount}</span>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </section>

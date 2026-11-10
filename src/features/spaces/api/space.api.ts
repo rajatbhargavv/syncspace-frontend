@@ -56,4 +56,3 @@ export async function deactivateSpace(id: string): Promise<Space> {
   const response = await http.patch<SpaceResponse>(API_ENDPOINTS.SPACES.DEACTIVATE(id));
   return response.space;
 }
-

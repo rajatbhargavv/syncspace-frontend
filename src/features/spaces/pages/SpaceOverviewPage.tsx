@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
-import { ApiError } from '@/lib/http/ApiError';
+import { ApiError } from '@/types';
 import { ROUTES } from '@/config/routes';
 import { useSpace } from '../hooks/useSpace';
 import { useSpaceTheme } from '../hooks/useSpaceTheme';
