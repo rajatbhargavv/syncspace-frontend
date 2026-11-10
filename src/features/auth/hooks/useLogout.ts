@@ -11,8 +11,11 @@ export function useLogout(): UseMutationResult<{ message: string }, Error, void>
       // 1. Unsubscribe push for this device before logout
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         try {
-          const reg = await navigator.serviceWorker.ready;
-          const sub = await reg.pushManager.getSubscription();
+          const reg =
+            typeof navigator.serviceWorker.getRegistration === 'function'
+              ? (await navigator.serviceWorker.getRegistration()) || (await navigator.serviceWorker.ready)
+              : await navigator.serviceWorker.ready;
+          const sub = await reg?.pushManager.getSubscription();
           if (sub) {
             try {
               await unsubscribe(sub.endpoint);

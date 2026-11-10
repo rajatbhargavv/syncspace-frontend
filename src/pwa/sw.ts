@@ -6,6 +6,7 @@ import {
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { NetworkOnly } from 'workbox-strategies';
+import { clientsClaim } from 'workbox-core';
 import { validateRelativeUrl } from '../features/push/utils/pushUtils';
 import type { PushNotificationPayload } from './pwa.types';
 
@@ -16,6 +17,10 @@ declare let self: ServiceWorkerGlobalScope & {
 // 1. Precache build assets and clean outdated caches
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
+
+// Immediately take control of clients
+self.skipWaiting();
+clientsClaim();
 
 // 2. NEVER cache API responses or socket traffic (NetworkOnly) - never cache authenticated data
 registerRoute(
@@ -30,7 +35,7 @@ const navigationRoute = new NavigationRoute(navigationHandler, {
 });
 registerRoute(navigationRoute);
 
-// 4. Skip waiting only on user-approved update message ("SKIP_WAITING")
+// 4. Skip waiting on message as well
 self.addEventListener('message', (event) => {
   const data =
     typeof event.data === 'object' && event.data !== null

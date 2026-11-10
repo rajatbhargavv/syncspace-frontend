@@ -23,6 +23,25 @@ export interface UsePushNotificationsReturn {
   refetchState: () => Promise<void>;
 }
 
+async function getRegistration(): Promise<ServiceWorkerRegistration> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    throw new Error('Service Worker is not supported in this browser');
+  }
+
+  // 1. If getRegistration is supported, try it first
+  if (typeof navigator.serviceWorker.getRegistration === 'function') {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) return reg;
+    } catch {
+      // Fallback to ready
+    }
+  }
+
+  // 2. Fallback to ready
+  return await navigator.serviceWorker.ready;
+}
+
 export function usePushNotifications(): UsePushNotificationsReturn {
   const { user } = useAuth();
   const [state, setState] = useState<PushPermissionState>('default');
@@ -64,7 +83,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
     // Permission is granted; check active browser PushSubscription
     try {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await getRegistration();
       const sub = await reg.pushManager.getSubscription();
       return sub ? 'granted-subscribed' : 'granted-unsubscribed';
     } catch {
@@ -94,7 +113,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
     void (async () => {
       try {
         if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-        const reg = await navigator.serviceWorker.ready;
+        const reg = await getRegistration();
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
           const json = sub.toJSON();
@@ -159,7 +178,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         return false;
       }
 
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await getRegistration();
       const publicKey = await getPublicKey();
       if (!publicKey) {
         throw new Error('Push configuration is missing on the server');
@@ -206,8 +225,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
     try {
       if ('serviceWorker' in navigator) {
-        const reg = await navigator.serviceWorker.ready;
-        const sub = await reg.pushManager.getSubscription();
+        const reg = await getRegistration().catch(() => null);
+        const sub = await reg?.pushManager.getSubscription();
         if (sub) {
           try {
             await unsubscribe(sub.endpoint);
