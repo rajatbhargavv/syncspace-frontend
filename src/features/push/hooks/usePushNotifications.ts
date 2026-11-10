@@ -28,18 +28,23 @@ async function getRegistration(): Promise<ServiceWorkerRegistration> {
     throw new Error('Service Worker is not supported in this browser');
   }
 
-  // 1. If getRegistration is supported, try it first
+  // 1. If an active registration already exists, return it immediately
   if (typeof navigator.serviceWorker.getRegistration === 'function') {
     try {
       const reg = await navigator.serviceWorker.getRegistration();
-      if (reg) return reg;
+      if (reg?.active) return reg;
     } catch {
       // Fallback to ready
     }
   }
 
-  // 2. Fallback to ready
-  return await navigator.serviceWorker.ready;
+  // 2. Race ready with a 4s timeout so it NEVER hangs indefinitely
+  const readyPromise = navigator.serviceWorker.ready;
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Service Worker is not ready yet')), 4000),
+  );
+
+  return await Promise.race([readyPromise, timeoutPromise]);
 }
 
 export function usePushNotifications(): UsePushNotificationsReturn {
@@ -83,6 +88,13 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
     // Permission is granted; check active browser PushSubscription
     try {
+      if (typeof navigator.serviceWorker.getRegistration === 'function') {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          const sub = await reg.pushManager.getSubscription();
+          return sub ? 'granted-subscribed' : 'granted-unsubscribed';
+        }
+      }
       const reg = await getRegistration();
       const sub = await reg.pushManager.getSubscription();
       return sub ? 'granted-subscribed' : 'granted-unsubscribed';
@@ -104,6 +116,35 @@ export function usePushNotifications(): UsePushNotificationsReturn {
 
   useEffect(() => {
     void refetchState();
+  }, [refetchState]);
+
+  // Listen for permission changes (e.g. user toggled in browser site settings)
+  // and re-evaluate on window focus so external changes update the UI immediately
+  useEffect(() => {
+    let permissionStatus: PermissionStatus | null = null;
+    const handlePermissionChange = () => {
+      void refetchState();
+    };
+
+    if (typeof navigator !== 'undefined' && 'permissions' in navigator) {
+      navigator.permissions
+        .query({ name: 'notifications' as PermissionName })
+        .then((status) => {
+          permissionStatus = status;
+          status.addEventListener('change', handlePermissionChange);
+        })
+        .catch(() => {});
+    }
+
+    const handleFocus = () => {
+      void refetchState();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      permissionStatus?.removeEventListener('change', handlePermissionChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [refetchState]);
 
   // Re-sync subscription with backend when user logs in or switches account
@@ -185,10 +226,24 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       }
 
       const applicationServerKey = urlBase64ToUint8Array(publicKey);
-      const subscription = await reg.pushManager.subscribe({
+      const subscribePromise = reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey,
       });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                'Push subscription timed out. In Brave, ensure "Use Google services for push messaging" is allowed in brave://settings/privacy.',
+              ),
+            ),
+          12000,
+        ),
+      );
+
+      const subscription = await Promise.race([subscribePromise, timeoutPromise]);
 
       const subJson = subscription.toJSON();
       if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys.auth) {

@@ -10,13 +10,13 @@ export function registerAppServiceWorker(): () => void {
     return () => {};
   }
 
-  // Reload page when the new service worker takes control after skipWaiting
+  // Reload page only when a previous service worker is replaced by a newer version
+  const hadController = Boolean(navigator.serviceWorker.controller);
   let isRefreshing = false;
   const onControllerChange = () => {
-    if (!isRefreshing) {
-      isRefreshing = true;
-      window.location.reload();
-    }
+    if (!hadController || isRefreshing) return;
+    isRefreshing = true;
+    window.location.reload();
   };
   navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
 
