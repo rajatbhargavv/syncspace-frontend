@@ -23,3 +23,9 @@ export {
   updateComment,
   deleteComment,
 } from './api/comment.api';
+
+export { useTimeline } from './hooks/useTimeline';
+export { useCreateComment, type CreateCommentVariables } from './hooks/useCreateComment';
+export { useUpdateComment, type UpdateCommentVariables } from './hooks/useUpdateComment';
+export { useDeleteComment, type DeleteCommentVariables } from './hooks/useDeleteComment';
+
