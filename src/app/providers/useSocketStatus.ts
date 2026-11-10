@@ -1,7 +1,7 @@
-import { useSocket } from './useSocket';
-import type { SocketConnectionStatus } from './SocketContext';
+import { useContext } from 'react';
+import { SocketContext, type SocketConnectionStatus } from './SocketContext';
 
 export function useSocketStatus(): SocketConnectionStatus {
-  const { status } = useSocket();
-  return status;
+  const context = useContext(SocketContext);
+  return context?.status ?? 'connected';
 }

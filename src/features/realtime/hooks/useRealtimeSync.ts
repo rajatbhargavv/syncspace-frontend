@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { queryKeys } from '@/lib/queryKeys';
+import { getSocket } from '@/lib/socket';
 import { useSocketEvent } from '@/hooks/useSocketEvent';
 import {
   type NotificationItem,
@@ -15,8 +16,35 @@ export function useRealtimeSync(): void {
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
+  const isFirstMountRef = useRef(true);
 
-  // 1. Notification Event
+  // 1. Reconnect Invalidation
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleConnect = () => {
+      // Reconcile missed events after reconnection
+      if (isFirstMountRef.current) {
+        isFirstMountRef.current = false;
+        return;
+      }
+
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+    };
+
+    if (socket.connected) {
+      isFirstMountRef.current = false;
+    }
+
+    socket.on('connect', handleConnect);
+
+    return () => {
+      socket.off('connect', handleConnect);
+    };
+  }, [queryClient]);
+
+  // 2. Notification Event
   const handleNotification = useCallback(
     (notification: NotificationItem) => {
       // Optimistically increment unread count in bell
@@ -69,7 +97,7 @@ export function useRealtimeSync(): void {
     [location.search, navigate, queryClient],
   );
 
-  // 2. Task Updated Event
+  // 3. Task Updated Event
   const handleTaskUpdated = useCallback(
     (task: Task) => {
       const existing = queryClient.getQueryData<Task>(queryKeys.tasks.byId(task._id));
@@ -110,7 +138,7 @@ export function useRealtimeSync(): void {
     [queryClient],
   );
 
-  // 3. Comment Created Event
+  // 4. Comment Created Event
   const handleCommentCreated = useCallback(
     (comment: CommentItem) => {
       const timelineKey = queryKeys.comments.timeline(comment.taskId);
