@@ -13,7 +13,9 @@ import {
 } from 'date-fns';
 import { Button, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { AuthContext } from '@/app/providers/AuthContext';
-import { useOpenTask, useSpaceTasks, useTaskFilters } from '../index';
+import { useOpenTask } from '../hooks/useOpenTask';
+import { useSpaceTasks } from '../hooks/useSpaceTasks';
+import { useTaskFilters } from '../hooks/useTaskFilters';
 import { isOverdue } from '../utils/taskUtils';
 import { sortTasks } from '../utils/taskUtils';
 import { CalendarDay } from './CalendarDay';

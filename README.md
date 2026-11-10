@@ -7,6 +7,7 @@ SyncSpace is a production-grade collaborative task application designed for fami
 - [Tech Stack](#tech-stack)
 - [Architecture & Separation of Concerns](#architecture--separation-of-concerns)
 - [Phase 1 Shared Contract](#phase-1-shared-contract)
+- [Phase 2 Shared Contract (Tasks & Workspaces)](#phase-2-shared-contract-tasks--workspaces)
 - [Design Tokens & Themes](#design-tokens--themes)
 - [Getting Started](#getting-started)
 - [Available Scripts](#available-scripts)
@@ -175,30 +176,79 @@ Phase 1 establishes the spaces data foundation, theme scoping system, and route 
 
 ### 6. Scoped Theming & Utilities
 
-| Method   | Endpoint                  | Auth Required  | Description                                                         |
-| -------- | ------------------------- | -------------- | ------------------------------------------------------------------- |
-| `POST`   | `/api/auth/register`      | No             | Register a new account                                              |
-| `POST`   | `/api/auth/login`         | No             | Login and receive session cookies & access token                    |
-| `POST`   | `/api/auth/refresh`       | Cookie/Body    | Single-flight token refresh                                         |
-| `POST`   | `/api/auth/logout`        | Optional       | Revoke session and clear cookies                                    |
-| `GET`    | `/api/users/me`           | Yes            | Fetch authenticated profile                                         |
-| `GET`    | `/api/spaces`             | Yes            | List authenticated user's spaces (`SpaceSummary[]`)                 |
-| `GET`    | `/api/spaces/:id`         | Member only    | Get space details (returns `403` if not a member)                   |
-| `GET`    | `/api/spaces/public/:id`  | No             | Public space landing view with stats and owner name                 |
-| `POST`   | `/api/spaces`             | Yes            | Create space (name 3-50, description <=500, kind, theme, policies) |
-| `PUT`    | `/api/spaces/:id`         | Owner only     | Update space name, description, kind, theme, or policies            |
-| `PATCH`  | `/api/spaces/:id/deactivate` | Owner only  | Soft-deactivate space (marks status `Inactive`)                     |
-| `GET`    | `/api/spaces/:id/members` | Member only    | List space members with roles and statuses                          |
-| `POST`   | `/api/spaces/:id/join`    | Yes            | Join space (`OPEN` -> ACTIVE, `REQUEST` -> PENDING, `INVITE_ONLY` -> 403) |
-| `POST`   | `/api/spaces/:id/leave`   | Member only    | Leave space (owner cannot leave)                                    |
-| `DELETE` | `/api/spaces/:id/members/:userId` | Owner only | Remove member from space                                      |
-| `GET`    | `/api/notifications/unread-count` | Yes   | Unread notifications count badge                                    |
-
-### 6. Scoped Theming & Utilities
-
 - `<ThemeScope theme={preset} mode={mode}>`: Isolates theme tokens (`--color-*`, `--radius-*`, `--font-*`) to a local DOM subtree for real-time creation and preview cards.
 - `<SpaceThemeDot theme={preset} size="sm|md|lg">`: Small themed indicator dot with corresponding preset colors.
 - `SPACE_KIND_CONFIG`: Comprehensive presets, default themes, and contextual copy per kind (e.g. Our Home -> "Chores", Builders' Circle -> "Tickets", Studio -> "Deliverables").
+
+---
+
+## Phase 2 Shared Contract (Tasks & Workspaces)
+
+Phase 2 delivers the core interactive task management system across Board, List, and Calendar views with detailed task drawer, subtasks checklist, workload strip, URL-driven filtering, and cross-space aggregation:
+
+### 1. Route Paths & URL State
+
+- Space Workspace: `/spaces/:id`
+  - View State: `?view=board|list|calendar` (persisted per-space to `localStorage` key `syncspace:view:<spaceId>`)
+  - Drawer Deep Link: `?task=<taskId>` (opens task detail drawer)
+  - URL Filter Params: `?q=<search>&status=<TODO,IN_PROGRESS>&priority=<HIGH>&assignee=<userId|me|unassigned>&sort=<deadline|priority|createdAt>&dir=<asc|desc>`
+- Cross-Space Inbox: `/my-tasks` (aggregates active tasks assigned to the current user across all active spaces)
+
+### 2. Task & Subtask Types
+
+- **Task Progress Status**: `"TODO" | "IN_PROGRESS" | "COMPLETED"`
+- **Task Priority**: `"LOW" | "MEDIUM" | "HIGH" | "URGENT"`
+- **Assignee Status**: `"TODO" | "IN_PROGRESS" | "DONE"`
+- **Subtask Status**: `"TODO" | "IN_PROGRESS" | "DONE"`
+- **Task Model**: `{ _id, spaceId, createdBy, title, description?, priority, deadline, progressStatus, lifecycleStatus, assignees: [{ userId, status }], createdAt, updatedAt }`
+- **Subtask Model**: `{ _id, taskId, title, description?, assigneeId, priority, deadline, status, lifecycleStatus, createdAt, updatedAt }`
+
+### 3. Task Hooks & State Management
+
+- `useSpaceTasks(spaceId, filters?)`: Raw tasks query (`queryKeys.tasks.bySpace(spaceId, filters)`)
+- `useFilteredTasks(spaceId)`: Client-filtered and sorted task selector driven by `useTaskFilters()`
+- `useTask(taskId)`: Single task detail query
+- `useCreateTask()`: Task creation mutation with automatic space tasks cache invalidation
+- `useUpdateTask()`: Task metadata mutation (title, description, priority, deadline)
+- `useUpdateTaskStatus()`: Optimistic column drag and status transition with automatic rollback on error
+- `useDeleteTask()`: Soft delete mutation (creator / space owner only)
+- `useAddAssignee()`, `useRemoveAssignee()`: Member assignment management
+- `useUpdateMyAssigneeStatus()`: Self-status progress update (`PATCH /tasks/:id/assignees/me`)
+- `useSubtasks(taskId)`: Task subtasks query (`queryKeys.tasks.subtasks(taskId)`)
+- `useCreateSubtask()`, `useUpdateSubtask()`, `useDeleteSubtask()`: Subtask checklist mutations
+- `useMemberLookup(spaceId)`: Member resolver providing `getName(userId)` with fallback to "Former member"
+
+### 4. Components & Workspace Architecture
+
+- **BoardView**: 3-column drag-and-drop workspace using `@dnd-kit` (`PointerSensor`, `TouchSensor`, `KeyboardSensor` with `sortableKeyboardCoordinates`). Optimistic status drop with mobile horizontal snap scroll.
+- **ListView**: Density-toggleable list view with grouping by status, priority, or assignee, inline status select, and quick actions.
+- **CalendarView**: Month-grid calendar with day-level task bubbles, overdue styling, and month navigation.
+- **TaskDrawer**: Slide-over drawer deep-linked via `?task=<id>`, supporting title editing, priority selection, assignees management, markdown description editing, subtask checklist, and deletion modal.
+- **SubtaskList & SubtaskForm**: Checkbox toggle, status cycle, subtask creation with required deadline and assignee selection.
+- **WorkloadStrip**: 5-dot workload visualizer across all space members with one-click assignee filtering.
+- **TaskFilterBar**: Search input with debounce, multi-status chip filters, priority selector, assignee dropdown, and active filter reset.
+- **PendingRequests**: Owner join request moderation panel (`GET /spaces/:id/members?status=PENDING`, Approve / Reject).
+
+### 5. Backend REST Endpoints (Phase 2)
+
+| Method   | Endpoint                              | Auth Required  | Description                                                         |
+| -------- | ------------------------------------- | -------------- | ------------------------------------------------------------------- |
+| `GET`    | `/api/spaces/:id/tasks`               | Member only    | List tasks for space with optional query filters                    |
+| `POST`   | `/api/tasks`                          | Member only    | Create task (spaceId, title, description?, priority, deadline)      |
+| `GET`    | `/api/tasks/:id`                      | Member only    | Get task by ID                                                      |
+| `PATCH`  | `/api/tasks/:id`                      | Member only    | Update task metadata or status (`progressStatus`)                   |
+| `DELETE` | `/api/tasks/:id`                      | Creator/Owner  | Soft-delete task (returns `403` for non-authorized members)         |
+| `POST`   | `/api/tasks/:id/assignees`            | Member only    | Add member assignee to task                                         |
+| `DELETE` | `/api/tasks/:id/assignees/:userId`    | Member only    | Remove member assignee from task                                    |
+| `PATCH`  | `/api/tasks/:id/assignees/me`         | Assigned user  | Update authenticated user's assignee status (`TODO`, `IN_PROGRESS`, `DONE`) |
+| `GET`    | `/api/tasks/:taskId/subtasks`         | Member only    | List subtasks for a task                                            |
+| `POST`   | `/api/tasks/:taskId/subtasks`         | Member only    | Create subtask (title, assigneeId, priority, deadline, description?)|
+| `PATCH`  | `/api/subtasks/:id`                   | Member only    | Update subtask status or details                                    |
+| `DELETE` | `/api/subtasks/:id`                   | Member only    | Delete subtask                                                      |
+| `GET`    | `/api/spaces/:id/members?status=PENDING` | Owner only  | Query pending join requests waiting for review                      |
+| `POST`   | `/api/spaces/:id/members/:userId/approve` | Owner only | Approve join request into active member                            |
+| `POST`   | `/api/spaces/:id/members/:userId/reject`  | Owner only | Reject pending join request                                         |
+
 
 ---
 

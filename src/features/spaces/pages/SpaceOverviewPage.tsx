@@ -7,7 +7,13 @@ import { ROUTES } from '@/config/routes';
 import { useSpace } from '../hooks/useSpace';
 import { useSpaceTheme } from '../hooks/useSpaceTheme';
 import { usePublicSpace } from '../hooks/usePublicSpace';
-import { useSpaceMembers, useLeaveSpace, useRemoveMember, MemberCard } from '@/features/members';
+import {
+  useSpaceMembers,
+  useLeaveSpace,
+  useRemoveMember,
+  MemberCard,
+  PendingRequests,
+} from '@/features/members';
 import { SpaceHeader } from '../components/SpaceHeader';
 import { NotMemberScreen } from '../components/NotMemberScreen';
 import { SpaceSettingsDialog } from '../components/SpaceSettingsDialog';
@@ -161,6 +167,11 @@ export const SpaceOverviewPage: React.FC = () => {
           {view === 'calendar' && <CalendarView spaceId={currentSpace._id} />}
         </main>
       </section>
+
+      {/* Pending Join Requests (Owner only) */}
+      {isOwner && (
+        <PendingRequests spaceId={currentSpace._id} joinPolicy={currentSpace.joinPolicy} />
+      )}
 
       {/* Space Members Section */}
       <section aria-labelledby="members-heading">

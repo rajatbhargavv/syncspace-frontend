@@ -29,7 +29,12 @@ export const createSubtaskSchema = z.object({
     .max(2000, 'Description must be 2000 characters or less')
     .optional()
     .default(''),
-  assigneeId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Assignee must be a valid 24-character ID'),
+  assigneeId: z
+    .string()
+    .regex(
+      /^(?:[0-9a-fA-F]{24}|user_[0-9a-zA-Z_-]+|[0-9a-fA-F-]{36})$/,
+      'Assignee must be a valid 24-character ID or user identifier',
+    ),
   priority: subtaskPrioritySchema.default(TASK_PRIORITY.MEDIUM),
   deadline: z
     .string()

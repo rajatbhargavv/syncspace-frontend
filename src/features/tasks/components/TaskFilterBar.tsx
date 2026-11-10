@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Input, Select } from '@/components/ui';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSpace } from '@/features/spaces';
-import { useMemberLookup, useTaskFilters } from '../index';
+import { useMemberLookup } from '../hooks/useMemberLookup';
+import { useTaskFilters } from '../hooks/useTaskFilters';
 import { FilterChip } from './FilterChip';
 import type { TaskPriority, TaskProgressStatus } from '../types/task.types';
 

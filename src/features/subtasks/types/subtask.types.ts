@@ -1,5 +1,5 @@
 import { SUBTASK_STATUS } from '@/config/constants';
-import type { TaskPriority } from '@/features/tasks/types/task.types';
+import type { TaskPriority } from '@/features/tasks';
 
 // ── Enum-like union types ──
 export type SubtaskStatus = (typeof SUBTASK_STATUS)[keyof typeof SUBTASK_STATUS];

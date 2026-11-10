@@ -59,6 +59,7 @@ vi.mock('@/features/members', () => ({
   MemberCard: ({ member }: { member: { userId: { name: string } } }) => (
     <div data-testid="member-card">{member.userId.name}</div>
   ),
+  PendingRequests: () => <div data-testid="pending-requests" />,
 }));
 
 describe('SpaceOverviewPage (Workspace Shell)', () => {

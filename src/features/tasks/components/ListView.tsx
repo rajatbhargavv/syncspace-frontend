@@ -2,13 +2,11 @@ import React, { useContext, useMemo, useState } from 'react';
 import { EmptyState, ErrorState, Select, Skeleton } from '@/components/ui';
 import { useSpace } from '@/features/spaces';
 import { AuthContext } from '@/app/providers/AuthContext';
-import {
-  useMemberLookup,
-  useOpenTask,
-  useSpaceTasks,
-  useTaskFilters,
-  useUpdateTaskStatus,
-} from '../index';
+import { useMemberLookup } from '../hooks/useMemberLookup';
+import { useOpenTask } from '../hooks/useOpenTask';
+import { useSpaceTasks } from '../hooks/useSpaceTasks';
+import { useTaskFilters } from '../hooks/useTaskFilters';
+import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
 import { TaskRow } from './TaskRow';
 import type { Task, TaskProgressStatus } from '../types/task.types';
 import { sortTasks } from '../utils/taskUtils';
