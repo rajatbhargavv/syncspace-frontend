@@ -368,6 +368,107 @@ The frontend will run at `http://localhost:5173`. Requests to `/api` and `/socke
 
 ---
 
+## PWA & Web Push Notifications
+
+SyncSpace provides a full Progressive Web App (PWA) experience with offline shell loading and background Web Push notifications.
+
+### How It Works
+
+1. **Architecture & Build Strategy**:
+   - Built with `vite-plugin-pwa` using the `injectManifest` strategy and a custom TypeScript Service Worker (`src/pwa/sw.ts`).
+   - App shell assets are precached using Workbox (`precacheAndRoute`).
+   - SPA navigation fallback routes HTML requests to `index.html` with an explicit denylist for `/api` and `/socket.io`.
+   - Network policy strictly uses `NetworkOnly` for API and socket traffic—authenticated responses are **never** stored in SW caches.
+
+2. **Web Push & VAPID**:
+   - Uses standard Web Push protocol with VAPID (Voluntary Application Server Identification).
+   - Subscription lifecycle is managed via `PushManager.subscribe({ userVisibleOnly: true, applicationServerKey })`.
+   - On the backend, subscriptions are stored and pruned automatically when push services report `404` or `410 Gone`.
+   - On user logout or account switching, active subscriptions on the device are removed from the server before session destruction.
+
+3. **Presence Suppression (No Duplicate Alerts)**:
+   - When a user has an active, focused SyncSpace tab in the foreground (`document.visibilityState === 'visible'`), the backend detects presence via Socket.io and skips sending OS notifications to avoid duplicate interruptions.
+   - When the app is minimized, tab hidden, or browser closed, background OS notifications are dispatched immediately.
+
+4. **Offline Capability & Limitations**:
+   - The precached app shell loads instantly even with no network connection.
+   - An unobtrusive `<OfflineBanner />` alerts the user: *"You're offline. Changes can't be saved."*
+   - Note: **Mutations are NOT queued offline**; network connectivity is required for creating/updating spaces and tasks.
+
+### Environment Variables
+
+Both repositories share VAPID keys:
+
+```env
+# Backend (.env)
+VAPID_PUBLIC_KEY=BE0Knrj_4Ha7E_a1hqjBVkXSXRNszhObbYjiLrnACFSX1mCAY3rhuauxaGMA9wdxqxR8D9IfKiXdGatKILAiqHU
+VAPID_PRIVATE_KEY=ujLDzyNrbGy8Yd-hIgyeb5HaUKtDUGbAHqSj2oP3T6M
+VAPID_SUBJECT=mailto:support@syncspace.app
+```
+
+To generate fresh keys:
+```bash
+npx web-push generate-vapid-keys
+```
+
+### Testing Push & PWA
+
+#### 1. Desktop (Chrome, Edge, Firefox, Safari 16+)
+1. Build and preview the production app:
+   ```bash
+   npm run build && npm run preview
+   ```
+2. Navigate to `http://localhost:4173/settings`.
+3. In the **Push Notifications** section, toggle the switch to enable alerts.
+4. Click **"Send test notification"** or close the browser tab and trigger an assignment or comment from another user in a second browser.
+5. An OS banner will appear; clicking it focuses or opens the tab and navigates directly to the target task.
+
+#### 2. Mobile (Android & iOS) via HTTPS Tunnel
+Push notifications and Service Workers **require a secure context (HTTPS)**. For mobile device testing:
+
+1. Start the backend:
+   ```bash
+   cd syncspace-backend && npm run dev
+   ```
+2. Build and preview frontend:
+   ```bash
+   cd syncspace-frontend
+   npm run build && npm run preview -- --host 0.0.0.0
+   ```
+3. Expose port 4173 through an HTTPS tunnel (e.g. Cloudflare Tunnel or ngrok):
+   ```bash
+   # Using ngrok
+   ngrok http 4173
+
+   # Or using Cloudflare Tunnel
+   cloudflared tunnel --url http://localhost:4173
+   ```
+4. **Android Chrome**:
+   - Open the HTTPS tunnel URL on your phone.
+   - Tap the install prompt or menu &gt; *Add to Home screen*.
+   - In Settings, toggle Push Notifications and grant permission.
+   - Put Chrome in the background, send a test comment, and observe the OS push alert.
+5. **iPhone / iPad (iOS 16.4+)**:
+   - Open the HTTPS tunnel URL in Safari.
+   - Tap the **Share** button &gt; **Add to Home Screen** &gt; **Add**.
+   - Launch SyncSpace from the Home Screen (standalone mode).
+   - Go to Settings, turn on Push Notifications, and tap **Allow** on the native prompt.
+
+### Known Platform Limits
+
+- **iOS Safari**: Web Push **requires** adding the PWA to the Home Screen first. In regular Safari tabs, `Notification` and `PushManager` are unavailable.
+- **Desktop Quit**: On macOS and Windows, closing the browser application completely (e.g. Cmd+Q) stops background push delivery unless the browser's background service remains active.
+- **Offline Mutations**: Mutations are blocked with an error state while offline; offline write queues are intentionally deferred to future versions.
+
+### Resetting Denied Permissions
+
+If you accidentally clicked "Block" or "Don't Allow":
+- **Chrome / Edge**: Click the settings icon to the left of the URL in the address bar &gt; set *Notifications* to *Allow*.
+- **macOS Safari**: Safari Preferences &gt; Websites &gt; Notifications &gt; find SyncSpace &gt; select *Allow*.
+- **iOS / Android**: System Settings &gt; Apps &gt; Browser / SyncSpace &gt; Notifications &gt; Enable alerts.
+
+---
+
 ## Coding Conventions
 
 - **Strict TypeScript**: No `any`, `noUncheckedIndexedAccess` enabled, explicit return types on all API functions.
