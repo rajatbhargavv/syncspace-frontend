@@ -43,6 +43,10 @@ vi.mock('@/features/notifications', () => ({
   useMarkNotificationRead: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
+vi.mock('@/features/realtime', () => ({
+  useRealtimeSync: vi.fn(),
+}));
+
 vi.mock('@/app/providers/useAuth', () => ({
   useAuth: () => ({ user: { _id: 'user-1', name: 'Rishabh' } }),
 }));

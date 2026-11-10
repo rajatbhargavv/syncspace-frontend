@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { MobileNav, Sidebar, Topbar } from '@/components/layout';
+import { useRealtimeSync } from '@/features/realtime';
 
 export const AppLayout: React.FC = () => {
+  useRealtimeSync();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   return (
     <div className="flex min-h-screen bg-bg text-text">
