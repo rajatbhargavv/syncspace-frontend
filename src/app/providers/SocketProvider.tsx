@@ -24,9 +24,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const socket = connectSocket();
     setStatus(socket.connected ? 'connected' : 'connecting');
 
-    const emitPresence = (visible = document.visibilityState === 'visible') => {
+    const emitPresence = (visible?: boolean) => {
       if (socket.connected) {
-        socket.emit('presence:update', { visible });
+        const isVisible =
+          typeof visible === 'boolean'
+            ? visible
+            : document.visibilityState === 'visible' && document.hasFocus();
+        socket.emit('presence:update', { visible: isVisible });
       }
     };
 
@@ -41,11 +45,21 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       emitPresence();
     };
 
+    const handleFocus = () => {
+      emitPresence(true);
+    };
+
+    const handleBlur = () => {
+      emitPresence(false);
+    };
+
     const handlePageHide = () => {
       emitPresence(false);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
     window.addEventListener('pagehide', handlePageHide);
 
     const handleConnectError = async (err: Error) => {
@@ -73,6 +87,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
       window.removeEventListener('pagehide', handlePageHide);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
