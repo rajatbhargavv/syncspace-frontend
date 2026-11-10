@@ -125,6 +125,9 @@ export const SPACE_KIND_CONFIG: Record<SpaceKind, SpaceKindConfig> = {
   },
 };
 
-export function getSpaceKindConfig(kind: SpaceKind): SpaceKindConfig {
-  return SPACE_KIND_CONFIG[kind];
+export function getSpaceKindConfig(kind?: string | null): SpaceKindConfig {
+  if (kind && Object.prototype.hasOwnProperty.call(SPACE_KIND_CONFIG, kind)) {
+    return SPACE_KIND_CONFIG[kind as SpaceKind];
+  }
+  return SPACE_KIND_CONFIG[SPACE_KIND.CUSTOM];
 }
