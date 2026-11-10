@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
+import { socketActions } from '@/lib/socket';
 import { joinSpace, leaveSpace, removeMember } from '../api/member.api';
 import type { SpaceMember } from '../types/member.types';
 
@@ -13,7 +14,10 @@ export function useJoinSpace(): UseMutationResult<SpaceMember | undefined, Error
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: joinSpace,
-    onSuccess: (_data, spaceId) => invalidateSpaceQueries(queryClient, spaceId),
+    onSuccess: (_data, spaceId) => {
+      invalidateSpaceQueries(queryClient, spaceId);
+      socketActions.joinSpace(spaceId);
+    },
   });
 }
 
@@ -21,7 +25,10 @@ export function useLeaveSpace(): UseMutationResult<void, Error, string> {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: leaveSpace,
-    onSuccess: (_data, spaceId) => invalidateSpaceQueries(queryClient, spaceId),
+    onSuccess: (_data, spaceId) => {
+      invalidateSpaceQueries(queryClient, spaceId);
+      socketActions.leaveSpace(spaceId);
+    },
   });
 }
 

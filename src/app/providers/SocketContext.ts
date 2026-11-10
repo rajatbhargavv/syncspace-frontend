@@ -1,9 +1,12 @@
 import { createContext } from 'react';
-import type { Socket } from 'socket.io-client';
+import type { TypedSocket } from '@/lib/socket';
+
+export type SocketConnectionStatus = 'connected' | 'connecting' | 'disconnected';
 
 export interface SocketContextValue {
-  socket: Socket | null;
+  socket: TypedSocket | null;
   isConnected: boolean;
+  status: SocketConnectionStatus;
 }
 
 export const SocketContext = createContext<SocketContextValue | undefined>(undefined);

@@ -7,4 +7,5 @@ export * from './useAuth';
 export * from './AuthProvider';
 export * from './SocketContext';
 export * from './useSocket';
+export * from './useSocketStatus';
 export * from './SocketProvider';

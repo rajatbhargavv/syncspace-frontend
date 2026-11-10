@@ -48,6 +48,7 @@ export { useCreateSpace } from './hooks/useCreateSpace';
 export { useUpdateSpace, type UpdateSpaceVariables } from './hooks/useUpdateSpace';
 export { useDeactivateSpace } from './hooks/useDeactivateSpace';
 export { useSpaceTheme } from './hooks/useSpaceTheme';
+export { useSpaceSocket } from './hooks/useSpaceSocket';
 
 // ── Space Utils & Config ──
 export {

@@ -7,6 +7,7 @@ import { ROUTES } from '@/config/routes';
 import { useSpace } from '../hooks/useSpace';
 import { useSpaceTheme } from '../hooks/useSpaceTheme';
 import { usePublicSpace } from '../hooks/usePublicSpace';
+import { useSpaceSocket } from '../hooks/useSpaceSocket';
 import {
   useSpaceMembers,
   useLeaveSpace,
@@ -38,6 +39,7 @@ const VIEW_TABS: TabItem[] = [
 
 export const SpaceOverviewPage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
+  useSpaceSocket(id);
   const navigate = useNavigate();
   const space = useSpace(id);
   const publicSpace = usePublicSpace(id);
