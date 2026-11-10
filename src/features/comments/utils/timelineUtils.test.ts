@@ -5,9 +5,12 @@ import type { EventItem, CommentItem } from '../types/comment.types';
 const baseEvent: EventItem = {
   _id: 'ev_1',
   kind: 'event',
+  spaceId: 'sp_1',
+  taskId: 't_1',
   type: 'TASK_CREATED',
   actorId: { _id: 'u_1', name: 'Alice' },
   createdAt: '2026-03-01T12:00:00.000Z',
+  updatedAt: '2026-03-01T12:00:00.000Z',
 };
 
 describe('timelineUtils', () => {

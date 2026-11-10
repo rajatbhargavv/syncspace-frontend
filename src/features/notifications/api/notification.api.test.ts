@@ -12,7 +12,7 @@ import type { NotificationItem } from '../types/notification.types';
 
 const mockNotification: NotificationItem = {
   _id: 'notif_1',
-  userId: 'u_1',
+  recipientId: 'u_1',
   type: 'TASK_COMMENT',
   message: 'Alice commented on your task',
   isRead: false,

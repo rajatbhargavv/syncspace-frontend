@@ -139,7 +139,7 @@ export const CommentComposer: React.FC<CommentComposerProps> = ({
 
   if (disabled) {
     return (
-      <div className="rounded-card border border-border bg-surface-hover/40 p-4 text-center text-xs text-text-muted">
+      <div className="bg-surface-hover/40 rounded-card border border-border p-4 text-center text-xs text-text-muted">
         {disabledReason || 'Commenting is disabled for this item.'}
       </div>
     );
@@ -192,7 +192,7 @@ export const CommentComposer: React.FC<CommentComposerProps> = ({
       </div>
 
       {/* Footer controls */}
-      <footer className="flex items-center justify-between border-t border-border bg-surface-hover/30 px-3 py-2 text-xs">
+      <footer className="bg-surface-hover/30 flex items-center justify-between border-t border-border px-3 py-2 text-xs">
         <div className="flex items-center gap-2 text-text-muted">
           <span
             className={`font-mono text-[11px] ${
@@ -201,7 +201,7 @@ export const CommentComposer: React.FC<CommentComposerProps> = ({
           >
             {charCount} / {MAX_CHARS}
           </span>
-          <span className="hidden sm:inline text-text-muted/60">• Cmd+Enter to comment</span>
+          <span className="text-text-muted/60 hidden sm:inline">• Cmd+Enter to comment</span>
         </div>
 
         <Button

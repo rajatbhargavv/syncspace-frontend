@@ -5,10 +5,7 @@ import { toast } from 'sonner';
 import { queryKeys } from '@/lib/queryKeys';
 import { getSocket } from '@/lib/socket';
 import { useSocketEvent } from '@/hooks/useSocketEvent';
-import {
-  type NotificationItem,
-  resolveNotificationDestination,
-} from '@/features/notifications';
+import { type NotificationItem, resolveNotificationDestination } from '@/features/notifications';
 import type { Task } from '@/features/tasks';
 import type { CommentItem, TimelineItem } from '@/features/comments';
 
@@ -48,10 +45,7 @@ export function useRealtimeSync(): void {
   const handleNotification = useCallback(
     (notification: NotificationItem) => {
       // Optimistically increment unread count in bell
-      queryClient.setQueryData<number>(
-        queryKeys.notifications.unreadCount(),
-        (old = 0) => old + 1,
-      );
+      queryClient.setQueryData<number>(queryKeys.notifications.unreadCount(), (old = 0) => old + 1);
 
       // Prepend to infinite queries if not already present
       const infiniteQueries = queryClient.getQueriesData<InfiniteData<NotificationItem[], number>>({
@@ -111,9 +105,8 @@ export function useRealtimeSync(): void {
 
       if (task.lifecycleStatus === 'DELETED') {
         queryClient.setQueryData(queryKeys.tasks.byId(task._id), null);
-        queryClient.setQueriesData<Task[]>(
-          { queryKey: ['tasks', 'space', task.spaceId] },
-          (old) => old?.filter((t) => t._id !== task._id),
+        queryClient.setQueriesData<Task[]>({ queryKey: ['tasks', 'space', task.spaceId] }, (old) =>
+          old?.filter((t) => t._id !== task._id),
         );
       } else {
         queryClient.setQueryData(queryKeys.tasks.byId(task._id), task);
@@ -145,9 +138,7 @@ export function useRealtimeSync(): void {
 
       queryClient.setQueryData<TimelineItem[]>(timelineKey, (old) => {
         if (!old) return old;
-        const exists = old.some(
-          (item) => item.kind === 'comment' && item._id === comment._id,
-        );
+        const exists = old.some((item) => item.kind === 'comment' && item._id === comment._id);
         if (exists) return old;
         const commentItem: CommentItem = {
           ...comment,

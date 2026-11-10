@@ -1,4 +1,8 @@
-import { useInfiniteQuery, type InfiniteData, type UseInfiniteQueryResult } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  type InfiniteData,
+  type UseInfiniteQueryResult,
+} from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
 import { getNotifications } from '../api/notification.api';
 import type { NotificationItem } from '../types/notification.types';

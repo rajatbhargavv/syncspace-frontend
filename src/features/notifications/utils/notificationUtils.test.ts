@@ -13,7 +13,7 @@ vi.mock('@/features/tasks', () => ({
 
 const baseNotification: NotificationItem = {
   _id: 'n_1',
-  userId: 'u_1',
+  recipientId: 'u_1',
   type: 'TASK_COMMENT',
   message: 'New comment',
   isRead: false,

@@ -44,7 +44,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
           a: ({ href, children, ...props }) => {
             if (href === '#mention') {
               return (
-                <span className="inline-flex items-center rounded-badge bg-accent/15 px-1.5 py-0.5 text-xs font-semibold text-accent">
+                <span className="rounded-badge bg-accent/15 inline-flex items-center px-1.5 py-0.5 text-xs font-semibold text-accent">
                   {children}
                 </span>
               );
@@ -82,11 +82,11 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               </pre>
             );
           },
-          p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-          ul: ({ children }) => <ul className="my-2 list-disc pl-5 space-y-1">{children}</ul>,
-          ol: ({ children }) => <ol className="my-2 list-decimal pl-5 space-y-1">{children}</ol>,
+          p: ({ children }) => <p className="mb-2 leading-relaxed last:mb-0">{children}</p>,
+          ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>,
+          ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>,
           blockquote: ({ children }) => (
-            <blockquote className="my-2 border-l-2 border-accent/40 pl-3 italic text-text-muted">
+            <blockquote className="border-accent/40 my-2 border-l-2 pl-3 italic text-text-muted">
               {children}
             </blockquote>
           ),

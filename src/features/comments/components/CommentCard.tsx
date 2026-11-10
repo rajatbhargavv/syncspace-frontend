@@ -29,9 +29,7 @@ export const CommentCard: React.FC<CommentCardProps> = ({
   const deleteComment = useDeleteComment();
 
   const authorId =
-    typeof comment.userId === 'object'
-      ? comment.userId._id
-      : comment.author?._id || comment.userId;
+    typeof comment.userId === 'object' ? comment.userId._id : comment.author?._id || comment.userId;
   const authorName = comment.author?.name || 'Member';
   const isOwn = Boolean(currentUserId && authorId === currentUserId);
   const isSending = comment.isSending;
@@ -73,7 +71,7 @@ export const CommentCard: React.FC<CommentCardProps> = ({
       {/* GitHub PR style Comment Box */}
       <div className="flex-1 overflow-hidden rounded-card border border-border bg-surface shadow-card transition-colors">
         {/* Header strip */}
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface-hover/50 px-3.5 py-2 text-xs">
+        <header className="bg-surface-hover/50 flex flex-wrap items-center justify-between gap-2 border-b border-border px-3.5 py-2 text-xs">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-semibold text-text">{authorName}</span>
 
@@ -107,7 +105,7 @@ export const CommentCard: React.FC<CommentCardProps> = ({
 
             {comment.edited && (
               <span
-                className="text-[11px] text-text-muted/80"
+                className="text-text-muted/80 text-[11px]"
                 title={`Edited at ${formatDateTime(comment.updatedAt)}`}
               >
                 • edited
@@ -132,7 +130,7 @@ export const CommentCard: React.FC<CommentCardProps> = ({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded px-1.5 py-0.5 text-xs text-text-muted hover:bg-error/10 hover:text-error"
+                className="hover:bg-error/10 rounded px-1.5 py-0.5 text-xs text-text-muted hover:text-error"
                 aria-label="Delete comment"
               >
                 Delete

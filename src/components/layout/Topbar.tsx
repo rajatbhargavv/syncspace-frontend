@@ -62,7 +62,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenMenu }) => {
           role="status"
           aria-live="polite"
           data-testid="reconnecting-badge"
-          className="inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-2.5 py-1 text-xs font-medium text-warning"
+          className="bg-warning/15 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-warning"
         >
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning" aria-hidden="true" />
           Reconnecting...

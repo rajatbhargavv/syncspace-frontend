@@ -89,7 +89,9 @@ export const MentionAutocomplete: React.FC<MentionAutocompleteProps> = ({
                 if (e.key === 'Enter') onSelect(member.name);
               }}
               className={`flex cursor-pointer items-center gap-2.5 rounded-button px-2.5 py-1.5 text-xs transition-colors ${
-                isSelected ? 'bg-accent/15 text-accent font-medium' : 'text-text hover:bg-surface-hover'
+                isSelected
+                  ? 'bg-accent/15 font-medium text-accent'
+                  : 'text-text hover:bg-surface-hover'
               }`}
             >
               <Avatar name={member.name} size="sm" />

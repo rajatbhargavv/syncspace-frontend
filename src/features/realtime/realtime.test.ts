@@ -16,7 +16,6 @@ describe('realtime socket client', () => {
   it('socketActions.joinSpace emits space:join when connected', () => {
     const socket = getSocket();
     const emitSpy = vi.spyOn(socket, 'emit').mockImplementation(() => socket);
-    // @ts-expect-error - mock connected status for test
     socket.connected = true;
 
     socketActions.joinSpace('space_test_123');
@@ -26,7 +25,6 @@ describe('realtime socket client', () => {
   it('socketActions.leaveSpace emits space:leave when connected', () => {
     const socket = getSocket();
     const emitSpy = vi.spyOn(socket, 'emit').mockImplementation(() => socket);
-    // @ts-expect-error - mock connected status for test
     socket.connected = true;
 
     socketActions.leaveSpace('space_test_123');
@@ -36,7 +34,6 @@ describe('realtime socket client', () => {
   it('socketActions does not emit when socket is disconnected', () => {
     const socket = getSocket();
     const emitSpy = vi.spyOn(socket, 'emit').mockImplementation(() => socket);
-    // @ts-expect-error - mock connected status for test
     socket.connected = false;
 
     socketActions.joinSpace('space_test_456');

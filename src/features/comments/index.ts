@@ -39,12 +39,4 @@ export {
   type MentionMember,
 } from './components/MentionAutocomplete';
 export { CommentComposer, type CommentComposerProps } from './components/CommentComposer';
-export {
-  DiscussionTimeline,
-  type DiscussionTimelineProps,
-} from './components/DiscussionTimeline';
-
-
-
-
-
+export { DiscussionTimeline, type DiscussionTimelineProps } from './components/DiscussionTimeline';

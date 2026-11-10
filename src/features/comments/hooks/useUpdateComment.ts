@@ -51,7 +51,7 @@ export function useUpdateComment(): UseMutationResult<
       }
       toast.error(error.message || 'Failed to update comment');
     },
-    onSuccess: (updated, { taskId }) => {
+    onSuccess: (_updated, { taskId }) => {
       toast.success('Comment updated');
       void queryClient.invalidateQueries({ queryKey: queryKeys.comments.timeline(taskId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.comments.byTask(taskId) });

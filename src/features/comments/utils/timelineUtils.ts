@@ -64,8 +64,7 @@ export function formatEventText(
 }
 
 export type TimelineGroup =
-  | { type: 'comment'; item: CommentItem }
-  | { type: 'events'; items: EventItem[] };
+  { type: 'comment'; item: CommentItem } | { type: 'events'; items: EventItem[] };
 
 export function groupTimelineItems(items: TimelineItem[]): TimelineGroup[] {
   const groups: TimelineGroup[] = [];

@@ -108,7 +108,7 @@ export const DiscussionTimeline: React.FC<DiscussionTimelineProps> = ({ taskId, 
         {/* Continuous Left Line */}
         <div
           aria-hidden="true"
-          className="absolute bottom-4 left-4 top-4 w-0.5 bg-border pointer-events-none"
+          className="pointer-events-none absolute bottom-4 left-4 top-4 w-0.5 bg-border"
         />
 
         {items.length === 0 ? (

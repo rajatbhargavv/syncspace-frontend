@@ -12,10 +12,7 @@ export interface NotificationRowProps {
   onNavigate?: () => void;
 }
 
-export const NotificationRow: React.FC<NotificationRowProps> = ({
-  notification,
-  onNavigate,
-}) => {
+export const NotificationRow: React.FC<NotificationRowProps> = ({ notification, onNavigate }) => {
   const navigate = useNavigate();
   const markRead = useMarkNotificationRead();
   const meta = getNotificationMeta(notification.type);
@@ -68,8 +65,8 @@ export const NotificationRow: React.FC<NotificationRowProps> = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-1">
-        <p className="text-xs sm:text-sm font-medium leading-snug line-clamp-2 text-text">
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="line-clamp-2 text-xs font-medium leading-snug text-text sm:text-sm">
           {notification.message}
         </p>
 
