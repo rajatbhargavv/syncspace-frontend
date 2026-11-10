@@ -4,7 +4,7 @@ import { THEME_PRESET } from '@/config/constants';
 import type { ThemePreset, SpaceTheme } from '../types/space.types';
 
 export interface SpaceThemeDotProps {
-  theme: ThemePreset | SpaceTheme;
+  theme?: ThemePreset | SpaceTheme | null;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -23,8 +23,9 @@ const SIZES = {
 };
 
 export const SpaceThemeDot: React.FC<SpaceThemeDotProps> = ({ theme, className, size = 'md' }) => {
-  const preset: ThemePreset = typeof theme === 'string' ? theme : theme.preset;
-  const colorClass = THEME_DOT_COLORS[preset];
+  const preset: ThemePreset =
+    typeof theme === 'string' ? theme : (theme?.preset ?? THEME_PRESET.ORBIT);
+  const colorClass = THEME_DOT_COLORS[preset] || THEME_DOT_COLORS[THEME_PRESET.ORBIT];
 
   return (
     <span

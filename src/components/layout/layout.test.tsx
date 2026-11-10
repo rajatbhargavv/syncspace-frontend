@@ -31,6 +31,20 @@ vi.mock('@/features/spaces', () => ({
 
 vi.mock('@/features/notifications', () => ({
   useUnreadCount: () => ({ data: 103 }),
+  useNotifications: () => ({
+    data: { pages: [{ notifications: [], hasMore: false }] },
+    isLoading: false,
+    isError: false,
+    fetchNextPage: vi.fn(),
+    hasNextPage: false,
+    isFetchingNextPage: false,
+  }),
+  useMarkAllNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useMarkNotificationRead: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
+vi.mock('@/features/realtime', () => ({
+  useRealtimeSync: vi.fn(),
 }));
 
 vi.mock('@/app/providers/useAuth', () => ({

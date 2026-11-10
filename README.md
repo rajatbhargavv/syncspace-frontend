@@ -8,6 +8,7 @@ SyncSpace is a production-grade collaborative task application designed for fami
 - [Architecture & Separation of Concerns](#architecture--separation-of-concerns)
 - [Phase 1 Shared Contract](#phase-1-shared-contract)
 - [Phase 2 Shared Contract (Tasks & Workspaces)](#phase-2-shared-contract-tasks--workspaces)
+- [Phase 3 Shared Contract (Discussion, Notifications & Realtime)](#phase-3-shared-contract-discussion-notifications--realtime)
 - [Design Tokens & Themes](#design-tokens--themes)
 - [Getting Started](#getting-started)
 - [Available Scripts](#available-scripts)
@@ -248,6 +249,60 @@ Phase 2 delivers the core interactive task management system across Board, List,
 | `GET`    | `/api/spaces/:id/members?status=PENDING` | Owner only  | Query pending join requests waiting for review                      |
 | `POST`   | `/api/spaces/:id/members/:userId/approve` | Owner only | Approve join request into active member                            |
 | `POST`   | `/api/spaces/:id/members/:userId/reject`  | Owner only | Reject pending join request                                         |
+
+---
+
+## Phase 3 Shared Contract (Discussion, Notifications & Realtime)
+
+Phase 3 introduces real-time collaborative features: GitHub-PR-style discussion timeline in task drawers, notifications system with unread bell popover and dedicated page, and live bidirectional synchronization over Socket.io:
+
+### 1. Discussion Timeline (`features/comments`)
+
+- **Timeline Data Model**: Discriminant union `TimelineItem = CommentItem | EventItem` sorted chronologically.
+  - `CommentItem`: `{ _id, taskId, userId: { _id, name }, content, createdAt, updatedAt }`
+  - `EventItem`: `{ _id, type: ActivityEventType, actorId: { _id, name }, meta: Record<string, unknown>, createdAt }`
+- **Components**:
+  - `<DiscussionTimeline taskId spaceId />`: Primary discussion container mounted in `TaskDiscussionSlot` within `TaskDrawer`.
+  - `<CommentComposer />`: Dual-tab (Write / Preview) editor with `@mention` auto-completion listbox, keyboard shortcuts (`Cmd/Ctrl+Enter` to submit), draft persistence in `localStorage`, and error recovery.
+  - `<CommentCard />`: Clean user comment bubble with author metadata, timestamp, edit/delete actions for author/owner, and optimistic mutations.
+  - `<EventTimelineItem />`: Compact dot-and-line event row formatted according to space kind wording (e.g. "created this ticket" vs "created this task").
+  - `<MarkdownRenderer />`: Sanitized rendering via `react-markdown` and `remark-gfm` with interactive `@mention` badges and external link security (`target="_blank" rel="noopener noreferrer"`).
+
+### 2. Notifications System (`features/notifications`)
+
+- **Notification Model**: `{ _id, userId, type, message, isRead, resource?: 'SPACE' | 'TASK' | 'SUBTASK' | 'COMMENT', resourceId?: string, createdAt, updatedAt }`
+- **Components & Routing**:
+  - `<NotificationBell />`: Topbar bell with unread badge count (capped at `99+`), popover panel displaying 5 recent notifications, and one-click "Mark all as read".
+  - `<NotificationsPage />`: Full `/notifications` screen with filter tabs (All / Unread), day grouping (Today, Yesterday, Earlier), optimistic mark-as-read toggles, and responsive empty states.
+  - `resolveNotificationDestination`: Navigates to `/spaces/:id` or deep-links to `/spaces/:spaceId?task=:taskId`. Unresolvable resources (e.g. subtask/comment without space context) safely redirect to `/notifications`.
+
+### 3. Realtime Socket & Cache Synchronization (`features/realtime`, `lib/socket.ts`)
+
+- **Socket Lifecycle & Reconnection**:
+  - Connects to backend with credentials (`withCredentials: true`), joining `user:<id>` room and space rooms dynamically on view or membership update.
+  - Single-flight token refresh on `connect_error`: automatically refreshes JWT once, reconnects on success, or triggers auth failure logout on 401.
+  - Reconnection reconciliation: invalidates active task lists, task details, timelines, and notification queries when reconnecting after a drop.
+- **Event Cache Handlers**:
+  - `"notification"`: Increments unread count, prepends to infinite notification cache, and triggers a Sonner toast with "View" action (suppressed if the target task drawer is actively open).
+  - `"task:updated"`: Updates single-task and space-tasks caches, removes deleted tasks, and filters out older echoes via timestamp checks.
+  - `"comment:created"`: Appends comment to timeline cache and invalidates `timeline` query.
+- **Status Monitoring**:
+  - `useSocketStatus()`: Returns `'connected' | 'connecting' | 'disconnected'`.
+  - Subtle `Topbar` indicator appears only when disconnected for >3s to avoid flicker during transient network changes.
+
+### 4. Backend REST Endpoints (Phase 3)
+
+| Method   | Endpoint                          | Auth Required | Description                                                         |
+| -------- | --------------------------------- | ------------- | ------------------------------------------------------------------- |
+| `GET`    | `/api/tasks/:id/timeline`         | Member only   | Chronological timeline of comments and activity events              |
+| `GET`    | `/api/tasks/:taskId/comments`     | Member only   | List comments for a task                                            |
+| `POST`   | `/api/tasks/:taskId/comments`     | Member only   | Create a task comment (1-2000 characters)                           |
+| `PUT`    | `/api/comments/:id`               | Author only   | Update comment content                                              |
+| `DELETE` | `/api/comments/:id`               | Author/Owner  | Delete comment                                                      |
+| `GET`    | `/api/notifications`              | Yes           | List paginated notifications (`unread`, `page`, `limit`)            |
+| `GET`    | `/api/notifications/unread-count` | Yes           | Get unread notifications count                                      |
+| `PATCH`  | `/api/notifications/:id/read`     | Yes           | Mark single notification as read                                    |
+| `PATCH`  | `/api/notifications/read-all`     | Yes           | Mark all notifications as read                                      |
 
 
 ---
