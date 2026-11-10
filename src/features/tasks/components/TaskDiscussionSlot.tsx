@@ -1,4 +1,5 @@
 import React from 'react';
+import { DiscussionTimeline } from '@/features/comments';
 
 export interface TaskDiscussionSlotProps {
   taskId: string;
@@ -7,15 +8,11 @@ export interface TaskDiscussionSlotProps {
 
 export const TaskDiscussionSlot: React.FC<TaskDiscussionSlotProps> = ({ taskId, spaceId }) => {
   return (
-    <div
-      data-testid="task-discussion-slot"
-      className="rounded-card border border-dashed border-border p-4 text-center"
-    >
-      <p className="text-sm font-medium text-text">Discussion</p>
-      <p className="mt-1 text-xs text-text-muted">Discussion arrives in Phase 3.</p>
-      <p className="mt-1 text-xs text-text-muted">
-        Task: {taskId} | Space: {spaceId}
-      </p>
-    </div>
+    <section aria-labelledby="discussion-heading" className="space-y-3">
+      <h3 id="discussion-heading" className="font-heading text-base font-semibold text-text">
+        Discussion
+      </h3>
+      <DiscussionTimeline taskId={taskId} spaceId={spaceId} />
+    </section>
   );
 };
