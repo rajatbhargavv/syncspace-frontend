@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
 import { getSpaceKindConfig, SpaceThemeDot, useSpaces } from '@/features/spaces';
+import { PushNotificationSoftPrompt } from '@/features/push';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -23,6 +24,7 @@ export const OverviewPage: React.FC = () => {
         </h1>
         <p className="mt-2 text-text-muted">Here is what is happening across your spaces.</p>
       </section>
+      <PushNotificationSoftPrompt />
       <section aria-labelledby="spaces-summary">
         <div className="mb-4 flex items-center justify-between">
           <h2 id="spaces-summary" className="font-heading text-xl font-bold text-text">

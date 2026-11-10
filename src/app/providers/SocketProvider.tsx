@@ -24,9 +24,29 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const socket = connectSocket();
     setStatus(socket.connected ? 'connected' : 'connecting');
 
-    const handleConnect = () => setStatus('connected');
+    const emitPresence = (visible = document.visibilityState === 'visible') => {
+      if (socket.connected) {
+        socket.emit('presence:update', { visible });
+      }
+    };
+
+    const handleConnect = () => {
+      setStatus('connected');
+      emitPresence();
+    };
     const handleDisconnect = () => setStatus('disconnected');
     const handleConnecting = () => setStatus('connecting');
+
+    const handleVisibilityChange = () => {
+      emitPresence();
+    };
+
+    const handlePageHide = () => {
+      emitPresence(false);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
 
     const handleConnectError = async (err: Error) => {
       setStatus('disconnected');
@@ -52,6 +72,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     socket.io.on('reconnect_attempt', handleConnecting);
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
       socket.off('connect', handleConnect);
       socket.off('disconnect', handleDisconnect);
       socket.off('connect_error', handleConnectError);
