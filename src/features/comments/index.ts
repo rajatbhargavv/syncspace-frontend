@@ -31,5 +31,8 @@ export { useDeleteComment, type DeleteCommentVariables } from './hooks/useDelete
 
 export { formatEventText, groupTimelineItems, type TimelineGroup } from './utils/timelineUtils';
 export { EventTimelineItem, type EventTimelineItemProps } from './components/EventTimelineItem';
+export { MarkdownRenderer, type MarkdownRendererProps } from './components/MarkdownRenderer';
+export { CommentCard, type CommentCardProps } from './components/CommentCard';
+
 
 
