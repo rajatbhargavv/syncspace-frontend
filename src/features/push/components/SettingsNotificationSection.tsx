@@ -108,8 +108,8 @@ export const SettingsNotificationSection: React.FC = () => {
                   Deliver alerts to this device even when the browser or tab is inactive.
                 </p>
                 <p className="mt-1 text-[11px] text-text-muted">
-                  Using Brave? Ensure &quot;Use Google services for push messaging&quot; is enabled in{' '}
-                  <code className="text-text">brave://settings/privacy</code>.
+                  Using Brave? Ensure &quot;Use Google services for push messaging&quot; is enabled
+                  in <code className="text-text">brave://settings/privacy</code>.
                 </p>
               </div>
               <Toggle

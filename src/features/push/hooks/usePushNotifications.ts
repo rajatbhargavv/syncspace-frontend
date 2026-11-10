@@ -127,13 +127,18 @@ export function usePushNotifications(): UsePushNotificationsReturn {
     };
 
     if (typeof navigator !== 'undefined' && 'permissions' in navigator) {
-      navigator.permissions
-        .query({ name: 'notifications' as PermissionName })
-        .then((status) => {
-          permissionStatus = status;
-          status.addEventListener('change', handlePermissionChange);
-        })
-        .catch(() => {});
+      try {
+        const descriptor = { name: 'notifications' } as unknown as PermissionDescriptor;
+        navigator.permissions
+          .query(descriptor)
+          .then((status) => {
+            permissionStatus = status;
+            status.addEventListener('change', handlePermissionChange);
+          })
+          .catch(() => {});
+      } catch {
+        // Permissions API or 'notifications' name not supported in this browser
+      }
     }
 
     const handleFocus = () => {

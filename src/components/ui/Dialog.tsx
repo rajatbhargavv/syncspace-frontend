@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
 import { IconButton } from './IconButton';
 
@@ -42,6 +43,7 @@ export const Dialog: React.FC<DialogProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   const sizeStyles: Record<NonNullable<DialogProps['size']>, string> = {
     sm: 'max-w-sm',
@@ -50,11 +52,11 @@ export const Dialog: React.FC<DialogProps> = ({
     xl: 'max-w-xl',
   };
 
-  return (
-    <div className="z-modal fixed inset-0 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="animate-in fade-in fixed inset-0 bg-black/60 backdrop-blur-sm duration-200"
+        className="animate-in fade-in fixed inset-0 z-modal bg-black/60 backdrop-blur-sm duration-200"
         aria-hidden="true"
         onClick={onClose}
       />
@@ -67,7 +69,7 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-labelledby={title ? 'dialog-title' : undefined}
         aria-describedby={description ? 'dialog-description' : undefined}
         className={cn(
-          'z-modal relative w-full rounded-card border border-border bg-surface p-6 shadow-elevated transition-all',
+          'relative z-modal w-full rounded-card border border-border bg-surface p-6 shadow-elevated transition-all',
           sizeStyles[size],
           className,
         )}
@@ -108,8 +110,10 @@ export const Dialog: React.FC<DialogProps> = ({
             </svg>
           </IconButton>
         </div>
+
         <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { Drawer, EmptyState, ErrorState, Skeleton } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import {
   NotificationRow,
@@ -11,49 +11,16 @@ import {
 
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const bellRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
 
   const unreadCountQuery = useUnreadCount();
   const notificationsQuery = useNotifications();
   const markAllRead = useMarkAllNotificationsRead();
 
   const count = unreadCountQuery.data ?? 0;
-  const notifications = notificationsQuery.data?.pages.flatMap((page) => page).slice(0, 10) ?? [];
-
-  // Close panel on outside click or Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
-      if (
-        bellRef.current &&
-        !bellRef.current.contains(e.target as Node) &&
-        panelRef.current &&
-        !panelRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen]);
+  const notifications = notificationsQuery.data?.pages.flatMap((page) => page).slice(0, 15) ?? [];
 
   return (
-    <div ref={bellRef} className="relative">
+    <>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -72,80 +39,81 @@ export const NotificationBell: React.FC = () => {
         )}
       </button>
 
-      {/* Popover Panel / Mobile Drawer */}
+      {/* Notification Side Panel */}
       {isOpen && (
-        <div
-          ref={panelRef}
-          role="dialog"
-          aria-label="Notifications overview"
-          className="fixed inset-x-2 top-16 z-50 w-auto overflow-hidden rounded-card border border-border bg-surface shadow-elevated sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96"
-        >
-          {/* Header */}
-          <div className="bg-surface-hover/40 flex items-center justify-between border-b border-border px-4 py-2.5">
-            <div className="flex items-center gap-2">
-              <span className="font-heading text-sm font-semibold text-text">Notifications</span>
+        <Drawer
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          position="right"
+          size="md"
+          title={
+            <div className="flex items-center justify-between gap-3 pr-2">
+              <div className="flex items-center gap-2">
+                <span className="font-heading text-lg font-bold text-text">Notifications</span>
+                {count > 0 && (
+                  <span className="bg-accent/15 rounded-full px-2 py-0.5 text-xs font-semibold text-accent">
+                    {count} new
+                  </span>
+                )}
+              </div>
               {count > 0 && (
-                <span className="bg-accent/15 rounded-full px-2 py-0.5 text-[11px] font-semibold text-accent">
-                  {count} new
-                </span>
+                <button
+                  type="button"
+                  onClick={() => markAllRead.mutate()}
+                  disabled={markAllRead.isPending}
+                  className="text-xs font-medium text-accent hover:underline disabled:opacity-50"
+                >
+                  Mark all read
+                </button>
+              )}
+            </div>
+          }
+        >
+          <div className="flex h-full flex-col justify-between">
+            {/* List Content */}
+            <div className="flex-1 space-y-2 overflow-y-auto pr-1">
+              {notificationsQuery.isLoading ? (
+                <div className="space-y-3 p-2">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : notificationsQuery.isError ? (
+                <ErrorState
+                  message="Failed to load notifications."
+                  onRetry={() => void notificationsQuery.refetch()}
+                />
+              ) : notifications.length === 0 ? (
+                <div className="py-12">
+                  <EmptyState
+                    title="No notifications"
+                    description="You are all caught up with your spaces and tasks."
+                  />
+                </div>
+              ) : (
+                notifications.map((item) => (
+                  <NotificationRow
+                    key={item._id}
+                    notification={item}
+                    onNavigate={() => setIsOpen(false)}
+                  />
+                ))
               )}
             </div>
 
-            {count > 0 && (
-              <button
-                type="button"
-                onClick={() => markAllRead.mutate()}
-                disabled={markAllRead.isPending}
-                className="text-xs text-accent hover:underline disabled:opacity-50"
+            {/* Footer */}
+            <div className="mt-4 border-t border-border pt-3 text-center">
+              <Link
+                to={ROUTES.notifications}
+                onClick={() => setIsOpen(false)}
+                className="bg-surface-hover/80 inline-block w-full rounded-button py-2.5 text-center text-xs font-semibold text-accent transition-colors hover:bg-surface-hover hover:underline"
               >
-                Mark all read
-              </button>
-            )}
+                View all notifications →
+              </Link>
+            </div>
           </div>
-
-          {/* List Content */}
-          <div className="max-h-80 space-y-2 overflow-y-auto p-2">
-            {notificationsQuery.isLoading ? (
-              <div className="space-y-2 p-2">
-                <Skeleton className="h-14 w-full" />
-                <Skeleton className="h-14 w-full" />
-                <Skeleton className="h-14 w-full" />
-              </div>
-            ) : notificationsQuery.isError ? (
-              <ErrorState
-                message="Failed to load notifications."
-                onRetry={() => void notificationsQuery.refetch()}
-              />
-            ) : notifications.length === 0 ? (
-              <div className="py-4">
-                <EmptyState
-                  title="No notifications"
-                  description="You are all caught up with your spaces and tasks."
-                />
-              </div>
-            ) : (
-              notifications.map((item) => (
-                <NotificationRow
-                  key={item._id}
-                  notification={item}
-                  onNavigate={() => setIsOpen(false)}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-surface-hover/20 border-t border-border p-2 text-center">
-            <Link
-              to={ROUTES.notifications}
-              onClick={() => setIsOpen(false)}
-              className="inline-block w-full rounded-button py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-surface-hover"
-            >
-              View all notifications
-            </Link>
-          </div>
-        </div>
+        </Drawer>
       )}
-    </div>
+    </>
   );
 };

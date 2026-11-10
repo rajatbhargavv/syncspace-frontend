@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
 import { IconButton } from './IconButton';
 
@@ -40,6 +41,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   const sizeStyles: Record<NonNullable<DrawerProps['size']>, string> = {
     sm: 'max-w-sm',
@@ -53,11 +55,11 @@ export const Drawer: React.FC<DrawerProps> = ({
     left: 'left-0 top-0 bottom-0 border-r',
   };
 
-  return (
-    <div className="z-modal fixed inset-0 flex">
+  return createPortal(
+    <div className="fixed inset-0 z-modal flex">
       {/* Backdrop */}
       <div
-        className="animate-in fade-in fixed inset-0 bg-black/60 backdrop-blur-sm duration-200"
+        className="animate-in fade-in fixed inset-0 z-modal bg-black/60 backdrop-blur-sm duration-200"
         aria-hidden="true"
         onClick={onClose}
       />
@@ -67,7 +69,7 @@ export const Drawer: React.FC<DrawerProps> = ({
         role="dialog"
         aria-modal="true"
         className={cn(
-          'z-modal safe-top safe-bottom safe-right fixed flex h-full w-full flex-col overflow-y-auto border-border bg-surface p-6 shadow-elevated transition-transform',
+          'safe-top safe-bottom safe-right fixed z-modal flex h-full w-full flex-col overflow-y-auto border-border bg-surface p-6 shadow-elevated transition-transform',
           sizeStyles[size],
           positionStyles[position],
           className,
@@ -104,8 +106,10 @@ export const Drawer: React.FC<DrawerProps> = ({
             </svg>
           </IconButton>
         </div>
-        <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
+
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

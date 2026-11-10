@@ -13,9 +13,10 @@ export function useLogout(): UseMutationResult<{ message: string }, Error, void>
         try {
           const reg =
             typeof navigator.serviceWorker.getRegistration === 'function'
-              ? (await navigator.serviceWorker.getRegistration()) || (await navigator.serviceWorker.ready)
+              ? (await navigator.serviceWorker.getRegistration()) ||
+                (await navigator.serviceWorker.ready)
               : await navigator.serviceWorker.ready;
-          const sub = await reg?.pushManager.getSubscription();
+          const sub = await reg.pushManager.getSubscription();
           if (sub) {
             try {
               await unsubscribe(sub.endpoint);
@@ -40,12 +41,11 @@ export function useLogout(): UseMutationResult<{ message: string }, Error, void>
         }
       }
 
-      // 3. Complete logout request
-      return await logout();
-    },
-    onSuccess: () => {
+      // 3. Clear auth session on backend
+      const response = await logout();
       disconnectSocket();
       queryClient.clear();
+      return response;
     },
   });
 }

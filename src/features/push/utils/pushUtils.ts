@@ -96,7 +96,7 @@ export async function isBrave(): Promise<boolean> {
   };
   if (typeof nav.brave?.isBrave === 'function') {
     try {
-      return (await nav.brave.isBrave()) === true;
+      return await nav.brave.isBrave();
     } catch {
       return false;
     }

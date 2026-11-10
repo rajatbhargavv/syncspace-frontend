@@ -30,21 +30,26 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
     <section
       ref={setNodeRef}
       aria-label={`${label} column`}
-      className={`flex min-h-[18rem] min-w-[min(84vw,20rem)] snap-start flex-col rounded-card border p-3 transition-colors md:min-w-0 ${
-        isOver ? 'bg-accent-muted/30 border-accent' : 'bg-bg/50 border-border'
+      className={`flex min-h-[18rem] min-w-[min(84vw,20rem)] snap-start flex-col rounded-card border p-3.5 transition-colors md:min-w-0 ${
+        isOver
+          ? 'bg-accent/10 border-accent shadow-elevated'
+          : 'border-border/80 bg-surface/50 shadow-card'
       }`}
     >
-      <header className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="font-heading text-sm font-bold text-text">
-          {label} ({tasks.length})
-        </h2>
+      <header className="border-border/50 mb-3 flex items-center justify-between gap-2 border-b pb-2.5">
+        <div className="flex items-center gap-2">
+          <h2 className="font-heading text-sm font-bold text-text">{label}</h2>
+          <span className="bg-surface-hover/80 rounded-full px-2 py-0.5 text-xs font-semibold text-text-muted">
+            {tasks.length}
+          </span>
+        </div>
         <Button
           aria-label={`Add task to ${label}`}
           size="sm"
           variant="ghost"
           disabled={isInactive}
           onClick={() => onCreate(status)}
-          className="h-7 w-7 px-0 text-lg"
+          className="h-7 w-7 rounded-full px-0 text-base text-text-muted hover:bg-surface-hover hover:text-text"
         >
           +
         </Button>

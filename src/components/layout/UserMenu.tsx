@@ -21,7 +21,7 @@ export const UserMenu: React.FC = () => {
           {user.name}
         </span>
       </summary>
-      <div className="z-dropdown absolute right-0 top-full mt-2 w-48 rounded-card border border-border bg-surface py-1 shadow-elevated">
+      <div className="absolute right-0 top-full z-dropdown mt-2 w-48 rounded-card border border-border bg-surface py-1 shadow-elevated">
         <Link
           to={ROUTES.profile(user._id)}
           className="block px-3 py-2 text-sm text-text hover:bg-surface-hover"

@@ -32,9 +32,66 @@ import {
 } from '@/features/tasks';
 
 const VIEW_TABS: TabItem[] = [
-  { id: 'board', label: 'Board' },
-  { id: 'list', label: 'List' },
-  { id: 'calendar', label: 'Calendar' },
+  {
+    id: 'board',
+    label: 'Board',
+    icon: (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: 'list',
+    label: 'List',
+    icon: (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: 'calendar',
+    label: 'Calendar',
+    icon: (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+    ),
+  },
 ];
 
 export const SpaceOverviewPage: React.FC = () => {
@@ -140,22 +197,48 @@ export const SpaceOverviewPage: React.FC = () => {
       )}
 
       {/* Workspace Toolbar */}
-      <section aria-label="Task views and controls" className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Tabs
-            tabs={VIEW_TABS}
-            activeTab={view}
-            onChange={(tabId) => setView(tabId as SpaceViewType)}
-            variant="pills"
-          />
+      <section aria-label="Task views and controls" className="space-y-6">
+        <div className="border-border/80 bg-surface/50 rounded-card border p-3 shadow-card backdrop-blur-sm sm:p-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="inline-flex shrink-0">
+              <Tabs
+                tabs={VIEW_TABS}
+                activeTab={view}
+                onChange={(tabId) => setView(tabId as SpaceViewType)}
+                variant="pills"
+              />
+            </div>
 
-          <div className="flex items-center gap-3">
-            <TaskFilterBar spaceId={currentSpace._id} />
-            {!isInactive && (
-              <Button size="sm" onClick={() => setCreateTaskOpen(true)}>
-                New {kind.wording.taskNounSingular.toLowerCase()}
-              </Button>
-            )}
+            <div className="flex-1 lg:max-w-3xl">
+              <TaskFilterBar
+                spaceId={currentSpace._id}
+                action={
+                  !isInactive ? (
+                    <Button
+                      size="sm"
+                      onClick={() => setCreateTaskOpen(true)}
+                      className="shrink-0 gap-1.5 shadow-sm"
+                    >
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span>New {kind.wording.taskNounSingular.toLowerCase()}</span>
+                    </Button>
+                  ) : undefined
+                }
+              />
+            </div>
           </div>
         </div>
 
@@ -163,7 +246,7 @@ export const SpaceOverviewPage: React.FC = () => {
         <WorkloadStrip spaceId={currentSpace._id} />
 
         {/* Active View Component */}
-        <main aria-label={`${kind.wording.taskNoun} workspace`}>
+        <main aria-label={`${kind.wording.taskNoun} workspace`} className="mt-2">
           {view === 'board' && <BoardView spaceId={currentSpace._id} />}
           {view === 'list' && <ListView spaceId={currentSpace._id} />}
           {view === 'calendar' && <CalendarView spaceId={currentSpace._id} />}

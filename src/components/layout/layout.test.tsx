@@ -41,6 +41,7 @@ vi.mock('@/features/notifications', () => ({
   }),
   useMarkAllNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
   useMarkNotificationRead: () => ({ mutate: vi.fn(), isPending: false }),
+  NotificationRow: () => null,
 }));
 
 vi.mock('@/features/realtime', () => ({

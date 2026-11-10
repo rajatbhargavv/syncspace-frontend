@@ -53,7 +53,7 @@ try {
 }
 
 // Immediately take control of clients
-self.skipWaiting();
+void self.skipWaiting();
 clientsClaim();
 
 // 2. NEVER cache API responses or socket traffic (NetworkOnly) - never cache authenticated data
@@ -69,7 +69,7 @@ try {
     denylist: [/^\/api\//, /^\/socket\.io\//],
   });
   registerRoute(navigationRoute);
-} catch (_err) {
+} catch {
   // In development mode (devOptions.enabled: true), self.__WB_MANIFEST is empty,
   // so /index.html is not precached. Vite dev server handles SPA routing natively.
 }

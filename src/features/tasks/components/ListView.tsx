@@ -108,9 +108,9 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
     <section
       data-testid="list-view"
       aria-label="Task list"
-      className="overflow-hidden rounded-card border border-border bg-surface"
+      className="overflow-hidden rounded-card border border-border bg-surface shadow-card"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-3">
+      <div className="bg-surface-hover/20 flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
         <h2 className="font-heading text-lg font-semibold text-text">Tasks</h2>
         <Select
           aria-label="Group tasks by"
