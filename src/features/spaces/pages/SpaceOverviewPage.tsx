@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { Button, EmptyState, ErrorState, Skeleton, Tabs, type TabItem } from '@/components/ui';
 import { ApiError } from '@/types';
 import { ROUTES } from '@/config/routes';
 import { useSpace } from '../hooks/useSpace';
@@ -12,6 +12,23 @@ import { SpaceHeader } from '../components/SpaceHeader';
 import { NotMemberScreen } from '../components/NotMemberScreen';
 import { SpaceSettingsDialog } from '../components/SpaceSettingsDialog';
 import { getSpaceKindConfig } from '../utils/spaceKindConfig';
+import {
+  useSpaceView,
+  type SpaceViewType,
+  BoardView,
+  ListView,
+  CalendarView,
+  WorkloadStrip,
+  TaskFilterBar,
+  TaskDrawer,
+  CreateTaskDialog,
+} from '@/features/tasks';
+
+const VIEW_TABS: TabItem[] = [
+  { id: 'board', label: 'Board' },
+  { id: 'list', label: 'List' },
+  { id: 'calendar', label: 'Calendar' },
+];
 
 export const SpaceOverviewPage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
@@ -22,6 +39,9 @@ export const SpaceOverviewPage: React.FC = () => {
   const leave = useLeaveSpace();
   const remove = useRemoveMember();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const { view, setView } = useSpaceView(id);
+
   const visibleMembers = useMemo(
     () =>
       (members.data ?? [])
@@ -66,6 +86,7 @@ export const SpaceOverviewPage: React.FC = () => {
   const isOwner =
     currentSpace.owner === members.data?.find((member) => member.role === 'OWNER')?.userId._id;
   const kind = getSpaceKindConfig(currentSpace.kind);
+  const isInactive = currentSpace.status === 'Inactive';
 
   const handleLeave = () => {
     if (!window.confirm(`Leave ${currentSpace.name}?`)) return;
@@ -100,8 +121,52 @@ export const SpaceOverviewPage: React.FC = () => {
         onLeave={handleLeave}
         onSettings={() => setSettingsOpen(true)}
       />
-      <section>
-        <h2 className="font-heading text-xl font-semibold text-text">{kind.wording.memberNoun}</h2>
+
+      {isInactive && (
+        <div
+          role="alert"
+          className="border-warning/30 bg-warning/10 rounded-input border p-4 text-sm font-medium text-warning"
+        >
+          This space is inactive and read-only.
+        </div>
+      )}
+
+      {/* Workspace Toolbar */}
+      <section aria-label="Task views and controls" className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Tabs
+            tabs={VIEW_TABS}
+            activeTab={view}
+            onChange={(tabId) => setView(tabId as SpaceViewType)}
+            variant="pills"
+          />
+
+          <div className="flex items-center gap-3">
+            <TaskFilterBar spaceId={currentSpace._id} />
+            {!isInactive && (
+              <Button size="sm" onClick={() => setCreateTaskOpen(true)}>
+                New {kind.wording.taskNounSingular.toLowerCase()}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Workload strip */}
+        <WorkloadStrip spaceId={currentSpace._id} />
+
+        {/* Active View Component */}
+        <main aria-label={`${kind.wording.taskNoun} workspace`}>
+          {view === 'board' && <BoardView spaceId={currentSpace._id} />}
+          {view === 'list' && <ListView spaceId={currentSpace._id} />}
+          {view === 'calendar' && <CalendarView spaceId={currentSpace._id} />}
+        </main>
+      </section>
+
+      {/* Space Members Section */}
+      <section aria-labelledby="members-heading">
+        <h2 id="members-heading" className="font-heading text-xl font-semibold text-text">
+          {kind.wording.memberNoun}
+        </h2>
         <p className="mt-1 text-sm text-text-muted">People sharing this space.</p>
         <div className="mt-4">
           {members.isLoading ? (
@@ -134,12 +199,18 @@ export const SpaceOverviewPage: React.FC = () => {
           )}
         </div>
       </section>
-      <section className="bg-surface/50 rounded-card border border-dashed border-border p-8 text-center">
-        <h2 className="font-heading text-xl font-semibold text-text">
-          {kind.wording.taskNoun} board
-        </h2>
-        <p className="mt-2 text-sm text-text-muted">Tasks and the board arrive in Phase 2.</p>
-      </section>
+
+      {/* Task Drawer (URL-driven via ?task=) */}
+      <TaskDrawer spaceId={currentSpace._id} />
+
+      {/* Create Task Dialog */}
+      <CreateTaskDialog
+        spaceId={currentSpace._id}
+        open={createTaskOpen}
+        onOpenChange={setCreateTaskOpen}
+      />
+
+      {/* Settings Dialog */}
       <SpaceSettingsDialog
         space={currentSpace}
         isOpen={settingsOpen}
