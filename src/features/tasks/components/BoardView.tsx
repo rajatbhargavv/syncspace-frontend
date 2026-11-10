@@ -1,20 +1,159 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import {
+  closestCorners,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { CreateTaskDialog } from './CreateTaskDialog';
+import { BoardColumn } from './BoardColumn';
+import { TaskCard } from './TaskCard';
+import { useSpace } from '@/features/spaces';
+import { groupTasksByStatus, sortTasks, statusMeta } from '../utils/taskUtils';
+import { useSpaceTasks } from '../hooks/useSpaceTasks';
+import { useTaskFilters } from '../hooks/useTaskFilters';
+import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
+import type { Task, TaskProgressStatus } from '../types/task.types';
 
 export interface BoardViewProps {
   spaceId: string;
 }
 
+const STATUSES: TaskProgressStatus[] = ['TODO', 'IN_PROGRESS', 'COMPLETED'];
+
 export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
-  return (
-    <div
-      data-testid="board-view"
-      aria-label="Board view"
-      className="flex min-h-[320px] items-center justify-center rounded-card border border-dashed border-border p-8 text-center"
-    >
-      <div>
-        <p className="font-heading font-medium text-text">Board View</p>
-        <p className="mt-1 text-xs text-text-muted">Space: {spaceId}</p>
+  const spaceQuery = useSpace(spaceId);
+  const tasksQuery = useSpaceTasks(spaceId);
+  const { filters } = useTaskFilters();
+  const updateStatus = useUpdateTaskStatus();
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [createStatus, setCreateStatus] = useState<TaskProgressStatus | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const filteredTasks = useMemo(() => {
+    let result = tasksQuery.data ?? [];
+    const statuses = filters.status;
+    const priorities = filters.priority;
+    if (filters.search) {
+      const query = filters.search.toLowerCase();
+      result = result.filter(
+        (task) =>
+          task.title.toLowerCase().includes(query) ||
+          (task.description?.toLowerCase().includes(query) ?? false),
+      );
+    }
+    if (statuses?.length) {
+      result = result.filter((task) => statuses.includes(task.progressStatus));
+    }
+    if (priorities?.length) {
+      result = result.filter((task) => priorities.includes(task.priority));
+    }
+    return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
+  }, [filters, tasksQuery.data]);
+  const groups = useMemo(() => groupTasksByStatus(filteredTasks), [filteredTasks]);
+  const kind = spaceQuery.data?.kind;
+
+  if (tasksQuery.isLoading || spaceQuery.isLoading) {
+    return (
+      <div data-testid="board-view" className="grid gap-4 md:grid-cols-3">
+        {STATUSES.map((status) => (
+          <Skeleton key={status} className="h-96 w-full" />
+        ))}
       </div>
-    </div>
+    );
+  }
+  if (tasksQuery.isError || spaceQuery.isError || !spaceQuery.data || !kind) {
+    return (
+      <ErrorState
+        message="We could not load this board."
+        onRetry={() => {
+          void tasksQuery.refetch();
+          void spaceQuery.refetch();
+        }}
+      />
+    );
+  }
+  const space = spaceQuery.data;
+  const meta = statusMeta(kind);
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    const task = filteredTasks.find((item) => item._id === active.id);
+    setActiveTask(task ?? null);
+  };
+  const handleDragEnd = ({ active: _active, over }: DragEndEvent) => {
+    setActiveTask(null);
+    if (
+      !over ||
+      !activeTask ||
+      over.id === activeTask.progressStatus ||
+      space.status === 'Inactive'
+    )
+      return;
+    const nextStatus = STATUSES.find((status) => status === over.id);
+    if (!nextStatus) return;
+    updateStatus.mutate({ taskId: activeTask._id, spaceId, progressStatus: nextStatus });
+  };
+
+  return (
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        accessibility={{
+          announcements: {
+            onDragStart: ({ active: _active }) => `Picked up a task.`,
+            onDragOver: ({ over }) =>
+              over ? `Task moved over ${String(over.id)}.` : 'Task left a column.',
+            onDragEnd: ({ active, over }) =>
+              over
+                ? `Dropped task ${String(active.id)} in ${String(over.id)}.`
+                : `Cancelled moving task ${String(active.id)}.`,
+            onDragCancel: ({ active }) => `Cancelled moving task ${String(active.id)}.`,
+          },
+        }}
+      >
+        <div
+          data-testid="board-view"
+          className="grid snap-x auto-cols-[minmax(84vw,1fr)] grid-flow-col gap-4 overflow-x-auto pb-3 md:grid-flow-row md:grid-cols-3 md:overflow-visible"
+        >
+          {STATUSES.map((status) => (
+            <BoardColumn
+              key={status}
+              spaceId={spaceId}
+              status={status}
+              label={meta[status].label}
+              tasks={groups[status]}
+              onCreate={setCreateStatus}
+              isInactive={space.status === 'Inactive'}
+              activeTaskId={activeTask?._id}
+            />
+          ))}
+        </div>
+        <DragOverlay dropAnimation={null}>
+          {activeTask ? <TaskCard task={activeTask} spaceId={spaceId} /> : null}
+        </DragOverlay>
+      </DndContext>
+      <CreateTaskDialog
+        spaceId={spaceId}
+        open={createStatus !== null}
+        onOpenChange={(open) => {
+          if (!open) setCreateStatus(null);
+        }}
+        defaultStatus={createStatus ?? 'TODO'}
+      />
+    </>
   );
 };
