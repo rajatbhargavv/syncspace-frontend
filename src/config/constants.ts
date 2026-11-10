@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/api/subtasks/${id}`,
   },
   COMMENTS: {
+    BY_ID: (id: string) => `/api/comments/${id}`,
     UPDATE: (id: string) => `/api/comments/${id}`,
     DELETE: (id: string) => `/api/comments/${id}`,
   },

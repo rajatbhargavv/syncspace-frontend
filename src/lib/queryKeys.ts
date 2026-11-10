@@ -54,6 +54,12 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.subtasks.all, id] as const,
   },
 
+  comments: {
+    all: ['comments'] as const,
+    byTask: (taskId: string) => [...queryKeys.tasks.all, taskId, 'comments'] as const,
+    timeline: (taskId: string) => [...queryKeys.tasks.all, taskId, 'timeline'] as const,
+  },
+
   notifications: {
     all: ['notifications'] as const,
     list: (filters?: NotificationFilters) =>
