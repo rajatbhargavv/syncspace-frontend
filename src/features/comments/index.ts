@@ -29,3 +29,7 @@ export { useCreateComment, type CreateCommentVariables } from './hooks/useCreate
 export { useUpdateComment, type UpdateCommentVariables } from './hooks/useUpdateComment';
 export { useDeleteComment, type DeleteCommentVariables } from './hooks/useDeleteComment';
 
+export { formatEventText, groupTimelineItems, type TimelineGroup } from './utils/timelineUtils';
+export { EventTimelineItem, type EventTimelineItemProps } from './components/EventTimelineItem';
+
+
