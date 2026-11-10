@@ -263,9 +263,13 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       toast.success('Push notifications enabled for this device');
       return true;
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to enable notifications';
+      let msg = err instanceof Error ? err.message : 'Failed to enable notifications';
+      if (msg.toLowerCase().includes('push service error')) {
+        msg =
+          'Brave requires Google push services. Enable "Use Google services for push messaging" in brave://settings/privacy and relaunch Brave.';
+      }
       setError(msg);
-      toast.error(msg);
+      toast.error(msg, { duration: 7000 });
       await refetchState();
       return false;
     } finally {

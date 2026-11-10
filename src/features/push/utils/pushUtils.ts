@@ -87,6 +87,24 @@ export function isIos(): boolean {
 }
 
 /**
+ * Detects Brave browser via official navigator.brave API.
+ */
+export async function isBrave(): Promise<boolean> {
+  if (typeof navigator === 'undefined') return false;
+  const nav = navigator as unknown as {
+    brave?: { isBrave?: () => Promise<boolean> };
+  };
+  if (typeof nav.brave?.isBrave === 'function') {
+    try {
+      return (await nav.brave.isBrave()) === true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
  * Returns current Notification permission state or 'unsupported' if Push is unavailable.
  */
 export function getPermissionState(): NotificationPermission | 'unsupported' {
