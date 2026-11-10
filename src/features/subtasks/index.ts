@@ -29,3 +29,6 @@ export {
   type UpdateSubtaskVariables,
   type DeleteSubtaskVariables,
 } from './hooks/useSubtaskMutations';
+
+export { SubtaskForm, type SubtaskFormProps } from './components/SubtaskForm';
+export { SubtaskList, type SubtaskListProps } from './components/SubtaskList';
