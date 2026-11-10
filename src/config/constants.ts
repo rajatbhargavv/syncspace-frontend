@@ -59,6 +59,12 @@ export const API_ENDPOINTS = {
     MARK_READ: (id: string) => `/api/notifications/${id}/read`,
     MARK_ALL_READ: '/api/notifications/read-all',
   },
+  PUSH: {
+    PUBLIC_KEY: '/api/push/public-key',
+    SUBSCRIBE: '/api/push/subscribe',
+    UNSUBSCRIBE: '/api/push/subscribe',
+    TEST: '/api/push/test',
+  },
   INVITES: {
     JOIN: (token: string) => `/api/spaces/join/${token}`,
     PREVIEW: (token: string) => `/api/spaces/invite/${token}/preview`,

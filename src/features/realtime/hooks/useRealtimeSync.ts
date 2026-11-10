@@ -5,7 +5,11 @@ import { toast } from 'sonner';
 import { queryKeys } from '@/lib/queryKeys';
 import { getSocket } from '@/lib/socket';
 import { useSocketEvent } from '@/hooks/useSocketEvent';
-import { type NotificationItem, resolveNotificationDestination } from '@/features/notifications';
+import {
+  type NotificationItem,
+  resolveNotificationDestination,
+  useUnreadCount,
+} from '@/features/notifications';
 import type { Task } from '@/features/tasks';
 import type { CommentItem, TimelineItem } from '@/features/comments';
 
@@ -40,6 +44,27 @@ export function useRealtimeSync(): void {
       socket.off('connect', handleConnect);
     };
   }, [queryClient]);
+
+  const { data: unreadCount } = useUnreadCount();
+
+  // Sync native app badge with unread notifications count
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return;
+
+    try {
+      const nav = navigator as unknown as {
+        setAppBadge?: (c: number) => Promise<void>;
+        clearAppBadge?: () => Promise<void>;
+      };
+      if (typeof unreadCount === 'number' && unreadCount > 0) {
+        void nav.setAppBadge?.(unreadCount).catch(() => {});
+      } else {
+        void nav.clearAppBadge?.().catch(() => {});
+      }
+    } catch {
+      // Guarded against environments without badge API
+    }
+  }, [unreadCount]);
 
   // 2. Notification Event
   const handleNotification = useCallback(

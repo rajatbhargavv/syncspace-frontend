@@ -13,6 +13,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   'space:join': (spaceId: string) => void;
   'space:leave': (spaceId: string) => void;
+  'presence:update': (data: { visible: boolean }) => void;
 }
 
 export type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;

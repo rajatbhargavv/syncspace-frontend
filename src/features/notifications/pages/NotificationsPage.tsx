@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { isToday, isYesterday, parseISO } from 'date-fns';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button, EmptyState, ErrorState, Skeleton, Tabs, type TabItem } from '@/components/ui';
+import { PushNotificationSoftPrompt } from '@/features/push';
 import {
   NotificationRow,
   useMarkAllNotificationsRead,
@@ -79,6 +80,8 @@ export const NotificationsPage: React.FC = () => {
           </Button>
         )}
       </div>
+
+      <PushNotificationSoftPrompt />
 
       <div className="space-y-4">
         {/* Tabs Bar */}

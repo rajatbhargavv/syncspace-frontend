@@ -52,7 +52,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className="relative h-full w-[min(85vw,20rem)] bg-surface shadow-elevated"
+        className="safe-top safe-bottom safe-left relative h-full w-[min(85vw,20rem)] bg-surface shadow-elevated"
       >
         <Sidebar onNavigate={onClose} forceExpanded />
       </aside>

@@ -32,7 +32,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenMenu }) => {
   }, [socketStatus]);
 
   return (
-    <header className="bg-surface/90 flex h-16 items-center gap-3 border-b border-border px-4 backdrop-blur-md sm:px-6">
+    <header className="bg-surface/90 safe-top flex min-h-16 items-center gap-3 border-b border-border px-4 backdrop-blur-md sm:px-6">
       <button
         type="button"
         aria-label="Open navigation"
