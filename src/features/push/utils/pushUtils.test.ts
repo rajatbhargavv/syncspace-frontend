@@ -84,16 +84,17 @@ describe('pushUtils', () => {
     });
 
     it('isStandalone returns true for display-mode standalone matchMedia', () => {
-      vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
-        matches: query === '(display-mode: standalone)',
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }));
+      vi.spyOn(window, 'matchMedia').mockImplementation(
+        (query) =>
+          ({
+            matches: query === '(display-mode: standalone)',
+            media: query,
+            onchange: null,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+          }) as unknown as MediaQueryList,
+      );
 
       expect(isStandalone()).toBe(true);
     });

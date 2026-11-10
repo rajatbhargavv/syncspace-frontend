@@ -9,9 +9,10 @@ import type { TaskPriority, TaskProgressStatus } from '../types/task.types';
 
 export interface TaskFilterBarProps {
   spaceId: string;
+  action?: React.ReactNode;
 }
 
-export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId }) => {
+export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action }) => {
   const space = useSpace(spaceId);
   const { members } = useMemberLookup(spaceId);
   const { filters, setFilters, resetFilters } = useTaskFilters();
@@ -28,11 +29,13 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId }) => {
     { value: 'IN_PROGRESS', label: 'In progress' },
     { value: 'COMPLETED', label: 'Done' },
   ];
+
   const activeCount =
     (filters.status?.length ?? 0) +
     (filters.priority?.length ?? 0) +
     (filters.assigneeId ? 1 : 0) +
     (filters.search ? 1 : 0);
+
   const toggle = (key: 'status' | 'priority', value: TaskPriority | TaskProgressStatus) => {
     const current = (filters[key] ?? []) as Array<TaskPriority | TaskProgressStatus>;
     setFilters({
@@ -44,90 +47,138 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId }) => {
 
   return (
     <div data-testid="task-filter-bar" aria-label="Task filters" className="w-full">
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          aria-label="Search tasks"
-          placeholder="Search tasks..."
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          className="min-w-40 py-1.5 text-xs sm:w-44"
-        />
+      <div className="flex flex-wrap items-center justify-start gap-2.5 sm:justify-end">
+        <div className="relative w-44 sm:w-56">
+          <Input
+            aria-label="Search tasks"
+            placeholder="Search tasks..."
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="py-1.5 pl-8 text-xs"
+            startIcon={
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            }
+          />
+        </div>
+
         <Button
           size="sm"
-          variant="outline"
+          variant={expanded ? 'primary' : 'outline'}
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
+          className="shrink-0 gap-1.5"
         >
-          Filters{activeCount > 0 ? ` (${activeCount})` : ''}
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            />
+          </svg>
+          <span>Filters</span>
+          {activeCount > 0 && (
+            <span className="bg-accent/20 py-0.2 rounded-full px-1.5 text-[10px] font-bold text-accent">
+              {activeCount}
+            </span>
+          )}
         </Button>
+
         {activeCount > 0 && (
-          <Button size="sm" variant="ghost" onClick={resetFilters}>
+          <Button size="sm" variant="ghost" onClick={resetFilters} className="shrink-0 text-xs">
             Clear
           </Button>
         )}
+
+        {action}
       </div>
+
       {expanded && (
-        <div className="mt-3 grid gap-3 rounded-card border border-border bg-surface p-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p className="mb-2 text-xs font-semibold text-text">Status</p>
-            <div className="flex flex-wrap gap-1.5">
-              {statusOptions.map((option) => (
-                <FilterChip
-                  key={option.value}
-                  label={option.label}
-                  active={filters.status?.includes(option.value as TaskProgressStatus)}
-                  onClick={() => toggle('status', option.value as TaskProgressStatus)}
-                />
-              ))}
+        <div className="border-border/70 animate-in fade-in slide-in-from-top-2 mt-3 w-full border-t pt-3 duration-150">
+          <div className="grid gap-3.5 rounded-card border border-border bg-surface p-4 shadow-elevated sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <p className="mb-2 text-xs font-semibold text-text">Status</p>
+              <div className="flex flex-wrap gap-1.5">
+                {statusOptions.map((option) => (
+                  <FilterChip
+                    key={option.value}
+                    label={option.label}
+                    active={filters.status?.includes(option.value as TaskProgressStatus)}
+                    onClick={() => toggle('status', option.value as TaskProgressStatus)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="mb-2 text-xs font-semibold text-text">Priority</p>
-            <div className="flex flex-wrap gap-1.5">
-              {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as TaskPriority[]).map((priority) => (
-                <FilterChip
-                  key={priority}
-                  label={priority.toLowerCase()}
-                  active={filters.priority?.includes(priority)}
-                  onClick={() => toggle('priority', priority)}
-                />
-              ))}
+
+            <div>
+              <p className="mb-2 text-xs font-semibold text-text">Priority</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as TaskPriority[]).map((priority) => (
+                  <FilterChip
+                    key={priority}
+                    label={priority.toLowerCase()}
+                    active={filters.priority?.includes(priority)}
+                    onClick={() => toggle('priority', priority)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-          <Select
-            aria-label="Assignee"
-            label="Assignee"
-            value={filters.assigneeId ?? ''}
-            options={[
-              { value: '', label: 'Everyone' },
-              { value: 'me', label: 'Me' },
-              { value: 'unassigned', label: 'Unassigned' },
-              ...members.map((member) => ({ value: member._id, label: member.name })),
-            ]}
-            onChange={(event) => setFilters({ assigneeId: event.target.value || undefined })}
-          />
-          <div className="grid grid-cols-2 gap-2">
+
             <Select
-              aria-label="Sort tasks"
-              label="Sort"
-              value={filters.sort ?? 'deadline'}
+              aria-label="Assignee"
+              label="Assignee"
+              value={filters.assigneeId ?? ''}
               options={[
-                { value: 'deadline', label: 'Deadline' },
-                { value: 'priority', label: 'Priority' },
-                { value: 'createdAt', label: 'Created' },
+                { value: '', label: 'Everyone' },
+                { value: 'me', label: 'Me' },
+                { value: 'unassigned', label: 'Unassigned' },
+                ...members.map((member) => ({ value: member._id, label: member.name })),
               ]}
-              onChange={(event) =>
-                setFilters({ sort: event.target.value as 'deadline' | 'priority' | 'createdAt' })
-              }
+              onChange={(event) => setFilters({ assigneeId: event.target.value || undefined })}
             />
-            <Button
-              className="self-end"
-              size="sm"
-              variant="outline"
-              onClick={() => setFilters({ dir: filters.dir === 'asc' ? 'desc' : 'asc' })}
-            >
-              {filters.dir === 'desc' ? 'Desc' : 'Asc'}
-            </Button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Select
+                aria-label="Sort tasks"
+                label="Sort"
+                value={filters.sort ?? 'deadline'}
+                options={[
+                  { value: 'deadline', label: 'Deadline' },
+                  { value: 'priority', label: 'Priority' },
+                  { value: 'createdAt', label: 'Created' },
+                ]}
+                onChange={(event) =>
+                  setFilters({ sort: event.target.value as 'deadline' | 'priority' | 'createdAt' })
+                }
+              />
+              <Button
+                className="self-end"
+                size="sm"
+                variant="outline"
+                onClick={() => setFilters({ dir: filters.dir === 'asc' ? 'desc' : 'asc' })}
+              >
+                {filters.dir === 'desc' ? 'Desc' : 'Asc'}
+              </Button>
+            </div>
           </div>
         </div>
       )}

@@ -100,9 +100,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ spaceId }) => {
     <section
       data-testid="calendar-view"
       aria-label="Calendar view"
-      className="rounded-card border border-border bg-surface"
+      className="overflow-hidden rounded-card border border-border bg-surface shadow-card"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
+      <div className="bg-surface-hover/20 flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
         <h2 className="font-heading text-lg font-semibold text-text">
           {format(month, 'MMMM yyyy')}
         </h2>

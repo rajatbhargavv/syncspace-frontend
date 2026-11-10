@@ -6,16 +6,55 @@ import {
 } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
 import { NetworkOnly } from 'workbox-strategies';
-import { validateRelativeUrl } from '../features/push/utils/pushUtils';
+import { clientsClaim } from 'workbox-core';
 import type { PushNotificationPayload } from './pwa.types';
 
 declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ revision: string | null; url: string }>;
 };
 
+/**
+ * Validates that a destination URL is a safe, same-origin relative path.
+ * Disallows protocol-relative URLs (//evil.com), javascript:, data:, or absolute URLs.
+ */
+function validateRelativeUrl(url?: unknown, fallback = '/notifications'): string {
+  if (typeof url !== 'string') {
+    return fallback;
+  }
+
+  const trimmed = url.trim();
+  if (!trimmed || !trimmed.startsWith('/') || trimmed.startsWith('//')) {
+    return fallback;
+  }
+
+  try {
+    const dummyOrigin = 'https://syncspace.internal';
+    const parsed = new URL(trimmed, dummyOrigin);
+
+    if (parsed.origin !== dummyOrigin) {
+      return fallback;
+    }
+
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
 // 1. Precache build assets and clean outdated caches
-cleanupOutdatedCaches();
-precacheAndRoute(self.__WB_MANIFEST);
+try {
+  cleanupOutdatedCaches();
+  const manifest = self.__WB_MANIFEST;
+  if (Array.isArray(manifest) && manifest.length > 0) {
+    precacheAndRoute(manifest);
+  }
+} catch (err) {
+  console.warn('[SW] Precache initialization error:', err);
+}
+
+// Immediately take control of clients
+void self.skipWaiting();
+clientsClaim();
 
 // 2. NEVER cache API responses or socket traffic (NetworkOnly) - never cache authenticated data
 registerRoute(
@@ -24,13 +63,18 @@ registerRoute(
 );
 
 // 3. SPA navigation fallback to index.html with denylist for /api and /socket.io
-const navigationHandler = createHandlerBoundToURL('/index.html');
-const navigationRoute = new NavigationRoute(navigationHandler, {
-  denylist: [/^\/api\//, /^\/socket\.io\//],
-});
-registerRoute(navigationRoute);
+try {
+  const navigationHandler = createHandlerBoundToURL('/index.html');
+  const navigationRoute = new NavigationRoute(navigationHandler, {
+    denylist: [/^\/api\//, /^\/socket\.io\//],
+  });
+  registerRoute(navigationRoute);
+} catch {
+  // In development mode (devOptions.enabled: true), self.__WB_MANIFEST is empty,
+  // so /index.html is not precached. Vite dev server handles SPA routing natively.
+}
 
-// 4. Skip waiting only on user-approved update message ("SKIP_WAITING")
+// 4. Skip waiting on message as well
 self.addEventListener('message', (event) => {
   const data =
     typeof event.data === 'object' && event.data !== null

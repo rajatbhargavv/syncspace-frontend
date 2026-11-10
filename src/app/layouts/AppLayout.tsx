@@ -20,7 +20,7 @@ export const AppLayout: React.FC = () => {
           <Topbar onOpenMenu={() => setIsMobileNavOpen(true)} />
           <a
             href="#main-content"
-            className="z-tooltip sr-only rounded-button bg-accent px-3 py-2 text-sm text-text-inverse focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
+            className="sr-only z-tooltip rounded-button bg-accent px-3 py-2 text-sm text-text-inverse focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
           >
             Skip to content
           </a>

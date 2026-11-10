@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Sidebar } from './Sidebar';
 
 interface MobileNavProps {
@@ -8,6 +9,7 @@ interface MobileNavProps {
 
 export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
   const drawerRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     if (!isOpen) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -38,13 +40,16 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
       previous?.focus();
     };
   }, [isOpen, onClose]);
+
   if (!isOpen) return null;
-  return (
-    <div className="z-modal fixed inset-0 md:hidden">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-modal md:hidden">
       <button
         type="button"
         aria-label="Close navigation"
-        className="absolute inset-0 bg-black/60"
+        className="fixed inset-0 z-modal bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
       <aside
@@ -52,10 +57,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className="safe-top safe-bottom safe-left relative h-full w-[min(85vw,20rem)] bg-surface shadow-elevated"
+        className="safe-top safe-bottom safe-left relative z-modal h-full w-[min(85vw,20rem)] bg-surface shadow-elevated"
       >
         <Sidebar onNavigate={onClose} forceExpanded />
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 };

@@ -41,7 +41,7 @@ export const SpaceSwitcher: React.FC = () => {
       {isOpen && (
         <div
           role="listbox"
-          className="z-dropdown absolute left-0 top-full mt-2 w-72 rounded-card border border-border bg-surface p-2 shadow-elevated"
+          className="absolute left-0 top-full z-dropdown mt-2 w-72 rounded-card border border-border bg-surface p-2 shadow-elevated"
         >
           <input
             aria-label="Search spaces"

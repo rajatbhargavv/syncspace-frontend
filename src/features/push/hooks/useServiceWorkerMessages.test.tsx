@@ -33,11 +33,11 @@ describe('useServiceWorkerMessages hook', () => {
   });
 
   it('listens for NAVIGATE message from Service Worker, marks read, and navigates', () => {
-    let messageListener: ((e: MessageEvent) => void) | null = null;
+    let messageListener: (e: MessageEvent) => void = () => {};
 
     Object.defineProperty(navigator, 'serviceWorker', {
       value: {
-        addEventListener: vi.fn((event, listener) => {
+        addEventListener: vi.fn((event: string, listener: (e: MessageEvent) => void) => {
           if (event === 'message') {
             messageListener = listener;
           }
@@ -50,8 +50,6 @@ describe('useServiceWorkerMessages hook', () => {
 
     renderHook(() => useServiceWorkerMessages());
 
-    expect(messageListener).toBeTypeOf('function');
-
     // Simulate SW postMessage
     const msgEvent = new MessageEvent('message', {
       data: {
@@ -61,7 +59,7 @@ describe('useServiceWorkerMessages hook', () => {
       },
     });
 
-    messageListener!(msgEvent);
+    messageListener(msgEvent);
 
     expect(mockMarkRead.mutate).toHaveBeenCalledWith('notif_777');
     expect(mockNavigate).toHaveBeenCalledWith('/spaces/space_1?task=task_2');

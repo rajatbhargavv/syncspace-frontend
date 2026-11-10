@@ -58,7 +58,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         <div
           role="menu"
           className={cn(
-            'z-dropdown animate-in fade-in zoom-in-95 absolute mt-2 w-48 rounded-card border border-border bg-surface py-1 shadow-elevated duration-100',
+            'animate-in fade-in zoom-in-95 absolute z-dropdown mt-2 w-48 rounded-card border border-border bg-surface py-1 shadow-elevated duration-100',
             alignStyles,
             className,
           )}

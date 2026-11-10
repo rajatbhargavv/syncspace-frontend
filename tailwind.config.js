@@ -42,6 +42,13 @@ export default {
         'density-tight': 'var(--density-spacing)',
         'density-normal': 'var(--density-spacing)',
       },
+      zIndex: {
+        dropdown: '50',
+        sticky: '100',
+        modal: '200',
+        toast: '300',
+        tooltip: '400',
+      },
     },
   },
   plugins: [],

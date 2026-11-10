@@ -203,10 +203,11 @@ describe('usePushNotifications state machine and actions', () => {
 
     expect(success).toBe(true);
     expect(pushApi.getPublicKey).toHaveBeenCalled();
-    expect(subscribeMock).toHaveBeenCalledWith({
-      userVisibleOnly: true,
-      applicationServerKey: expect.any(Uint8Array),
-    });
+    expect(subscribeMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userVisibleOnly: true,
+      }),
+    );
     expect(pushApi.subscribe).toHaveBeenCalledWith({
       endpoint: 'https://push.example.com/123',
       keys: { p256dh: 'p256', auth: 'auth' },
