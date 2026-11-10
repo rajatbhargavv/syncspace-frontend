@@ -6,7 +6,7 @@ export function useUnreadCount(): UseQueryResult<number> {
   return useQuery({
     queryKey: queryKeys.notifications.unreadCount(),
     queryFn: getUnreadCount,
-    refetchInterval: 60_000,
+    refetchInterval: 120_000,
     refetchOnWindowFocus: true,
   });
 }
