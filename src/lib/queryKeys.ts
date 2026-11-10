@@ -42,9 +42,16 @@ export const queryKeys = {
     bySpace: (spaceId: string, filters?: TaskFilters) =>
       [...queryKeys.tasks.all, 'space', spaceId, filters ?? {}] as const,
     byId: (id: string) => [...queryKeys.tasks.all, id] as const,
+    detail: (id: string) => [...queryKeys.tasks.all, id] as const,
     subtasks: (taskId: string) => [...queryKeys.tasks.all, taskId, 'subtasks'] as const,
     comments: (taskId: string) => [...queryKeys.tasks.all, taskId, 'comments'] as const,
     timeline: (taskId: string) => [...queryKeys.tasks.all, taskId, 'timeline'] as const,
+  },
+
+  subtasks: {
+    all: ['subtasks'] as const,
+    byTask: (taskId: string) => [...queryKeys.subtasks.all, 'task', taskId] as const,
+    detail: (id: string) => [...queryKeys.subtasks.all, id] as const,
   },
 
   notifications: {
