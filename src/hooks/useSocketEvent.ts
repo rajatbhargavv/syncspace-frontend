@@ -3,6 +3,11 @@ import { getSocket, type ServerToClientEvents } from '@/lib/socket';
 
 type GenericListener = (...args: unknown[]) => void;
 
+interface EventTargetSocket {
+  on: (evt: string, fn: GenericListener) => void;
+  off: (evt: string, fn: GenericListener) => void;
+}
+
 export function useSocketEvent<K extends keyof ServerToClientEvents>(
   event: K,
   handler: ServerToClientEvents[K],
@@ -13,19 +18,17 @@ export function useSocketEvent<K extends keyof ServerToClientEvents>(
   useEffect(() => {
     const socket = getSocket();
 
-    const listener = (...args: Parameters<ServerToClientEvents[K]>) => {
-      // Invoke current handler ref to avoid stale closures
-      const fn = handlerRef.current as (...innerArgs: Parameters<ServerToClientEvents[K]>) => void;
+    const listener: GenericListener = (...args: unknown[]) => {
+      const fn = handlerRef.current as (...innerArgs: unknown[]) => void;
       fn(...args);
     };
 
-    const registerOn = socket.on as (evt: string, fn: GenericListener) => void;
-    const registerOff = socket.off as (evt: string, fn: GenericListener) => void;
+    const target = socket as unknown as EventTargetSocket;
 
-    registerOn(event, listener as GenericListener);
+    target.on(event, listener);
 
     return () => {
-      registerOff(event, listener as GenericListener);
+      target.off(event, listener);
     };
   }, [event]);
 }
