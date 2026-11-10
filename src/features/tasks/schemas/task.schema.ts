@@ -42,6 +42,7 @@ export const createTaskSchema = z.object({
     .refine((val) => !isNaN(Date.parse(val)), {
       message: 'Invalid deadline format',
     }),
+  assignees: z.array(z.string().min(1)).default([]),
 });
 
 export type CreateTaskFormValues = z.infer<typeof createTaskSchema>;
