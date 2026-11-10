@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { EmptyState, ErrorState, Select, Skeleton } from '@/components/ui';
 import { useSpace } from '@/features/spaces';
+import { AuthContext } from '@/app/providers/AuthContext';
 import {
   useMemberLookup,
   useOpenTask,
@@ -19,6 +20,7 @@ export interface ListViewProps {
 export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   const rawTasks = useSpaceTasks(spaceId);
   const { filters, resetFilters } = useTaskFilters();
+  const auth = useContext(AuthContext);
   const space = useSpace(spaceId);
   const { open } = useOpenTask();
   const updateStatus = useUpdateTaskStatus();
@@ -38,8 +40,14 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
       result = result.filter((task) => filters.status?.includes(task.progressStatus));
     if (filters.priority?.length)
       result = result.filter((task) => filters.priority?.includes(task.priority));
+    if (filters.assigneeId === 'unassigned')
+      result = result.filter((task) => task.assignees.length === 0);
+    if (filters.assigneeId === 'me' && auth?.user?._id)
+      result = result.filter((task) =>
+        task.assignees.some((assignee) => assignee.userId === auth.user?._id),
+      );
     return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
-  }, [filters, rawTasks.data]);
+  }, [auth?.user?._id, filters, rawTasks.data]);
   const groups = useMemo(() => {
     const result = data;
     if (groupBy === 'none') return [['All tasks', result] as const];

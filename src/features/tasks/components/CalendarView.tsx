@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   addMonths,
   eachDayOfInterval,
@@ -12,6 +12,7 @@ import {
   subMonths,
 } from 'date-fns';
 import { Button, EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import { AuthContext } from '@/app/providers/AuthContext';
 import { useOpenTask, useSpaceTasks, useTaskFilters } from '../index';
 import { isOverdue } from '../utils/taskUtils';
 import { sortTasks } from '../utils/taskUtils';
@@ -24,6 +25,7 @@ export interface CalendarViewProps {
 export const CalendarView: React.FC<CalendarViewProps> = ({ spaceId }) => {
   const tasks = useSpaceTasks(spaceId);
   const { filters } = useTaskFilters();
+  const auth = useContext(AuthContext);
   const taskData = useMemo(() => {
     let result = (tasks.data ?? []).filter((task) => task.lifecycleStatus !== 'DELETED');
     if (filters.search) {
@@ -38,8 +40,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ spaceId }) => {
       result = result.filter((task) => filters.status?.includes(task.progressStatus));
     if (filters.priority?.length)
       result = result.filter((task) => filters.priority?.includes(task.priority));
+    if (filters.assigneeId === 'unassigned')
+      result = result.filter((task) => task.assignees.length === 0);
+    if (filters.assigneeId === 'me' && auth?.user?._id)
+      result = result.filter((task) =>
+        task.assignees.some((assignee) => assignee.userId === auth.user?._id),
+      );
     return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
-  }, [filters, tasks.data]);
+  }, [auth?.user?._id, filters, tasks.data]);
   const { open } = useOpenTask();
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const days = useMemo(
