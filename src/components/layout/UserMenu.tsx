@@ -3,12 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
 import { useLogout } from '@/features/auth';
+import { useInstallPrompt } from '@/features/push';
 import { Avatar } from '@/components/ui/Avatar';
 
 export const UserMenu: React.FC = () => {
   const { user } = useAuth();
   const logoutMutation = useLogout();
   const navigate = useNavigate();
+  const { isInstallable, promptInstall } = useInstallPrompt();
+
   if (!user) return null;
   return (
     <details className="relative">
@@ -31,6 +34,21 @@ export const UserMenu: React.FC = () => {
         >
           Settings
         </Link>
+        {isInstallable && (
+          <button
+            type="button"
+            onClick={(e) => {
+              // Close details dropdown
+              const details = e.currentTarget.closest('details');
+              if (details) details.removeAttribute('open');
+              void promptInstall();
+            }}
+            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text hover:bg-surface-hover"
+          >
+            <span aria-hidden="true">📱</span>
+            Install app
+          </button>
+        )}
         <button
           type="button"
           disabled={logoutMutation.isPending}
