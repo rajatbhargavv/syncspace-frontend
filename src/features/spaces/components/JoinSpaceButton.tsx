@@ -13,15 +13,28 @@ import type { SpaceJoinPolicy } from '../types/space.types';
 export interface JoinSpaceButtonProps {
   spaceId: string;
   joinPolicy: SpaceJoinPolicy;
+  isMember?: boolean;
 }
 
-export const JoinSpaceButton: React.FC<JoinSpaceButtonProps> = ({ spaceId, joinPolicy }) => {
+export const JoinSpaceButton: React.FC<JoinSpaceButtonProps> = ({
+  spaceId,
+  joinPolicy,
+  isMember = false,
+}) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
   const join = useJoinSpace();
   const [requestSent, setRequestSent] = useState(false);
+
+  if (isMember) {
+    return (
+      <Button variant="outline" onClick={() => navigate(ROUTES.SPACE(spaceId))}>
+        Open space
+      </Button>
+    );
+  }
 
   if (joinPolicy === 'INVITE_ONLY') {
     return (

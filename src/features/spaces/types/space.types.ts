@@ -64,11 +64,18 @@ export interface PublicSpace {
     _id: string;
     name: string;
   };
+  memberCount?: number;
   contributorStats: {
     totalContributors: number;
     totalTasks: number;
     completedTasks: number;
   };
+  contributors?: Array<{
+    userId: string;
+    name: string;
+    tasksCompleted: number;
+    share: number;
+  }>;
 }
 
 // ── Mutation inputs ──
