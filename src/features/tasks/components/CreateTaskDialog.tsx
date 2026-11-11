@@ -31,6 +31,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       description: '',
       priority: 'MEDIUM',
       deadline: endOfToday(),
+      assignees: [],
     },
   });
   const members = useSpaceMembers(spaceId);
@@ -50,6 +51,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         description: '',
         priority: 'MEDIUM',
         deadline: endOfToday(),
+        assignees: [],
       });
     }
   }, [form, open, spaceId]);
@@ -63,6 +65,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         description: values.description,
         priority: values.priority,
         deadline: new Date(values.deadline).toISOString(),
+      }, () => {
+        toast.error('Please complete the required task fields');
       });
       for (const userId of selectedAssignees) {
         await addAssignee.mutateAsync({ taskId: task._id, userId, spaceId });
