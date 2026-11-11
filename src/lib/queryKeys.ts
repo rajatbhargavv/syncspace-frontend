@@ -28,8 +28,10 @@ export const queryKeys = {
     byId: (id: string) => [...queryKeys.spaces.all, id] as const,
     public: (id: string) => [...queryKeys.spaces.all, 'public', id] as const,
     members: (id: string) => [...queryKeys.spaces.all, id, 'members'] as const,
-    analytics: (id: string, range?: string) =>
-      [...queryKeys.spaces.all, id, 'analytics', range ?? '30d'] as const,
+  },
+  analytics: {
+    all: ['analytics'] as const,
+    bySpace: (id: string, range: string) => [...queryKeys.analytics.all, id, range] as const,
   },
 
   members: {
