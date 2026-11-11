@@ -15,6 +15,13 @@ export const router = createBrowserRouter(
       element: <PublicLayout />,
       children: [
         {
+          path: 'u/:id',
+          lazy: () =>
+            import('@/features/profile/pages/ProfilePage').then((m) => ({
+              Component: m.ProfilePage,
+            })),
+        },
+        {
           path: 's/:id',
           lazy: () =>
             import('@/features/spaces/pages/PublicSpacePage').then((m) => ({
