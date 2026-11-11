@@ -67,6 +67,13 @@ export const router = createBrowserRouter(
                 })),
             },
             {
+              path: 'spaces/:id/activity',
+              lazy: () =>
+                import('@/features/analytics/pages/ActivityPage').then((m) => ({
+                  Component: m.ActivityPage,
+                })),
+            },
+            {
               path: 'my-tasks',
               lazy: () =>
                 import('@/features/tasks/pages/MyTasksPage').then((m) => ({
@@ -85,6 +92,13 @@ export const router = createBrowserRouter(
               lazy: () =>
                 import('@/features/settings/pages/SettingsPage').then((m) => ({
                   Component: m.SettingsPage,
+                })),
+            },
+            {
+              path: 'upgrade',
+              lazy: () =>
+                import('@/features/billing/pages/UpgradePage').then((m) => ({
+                  Component: m.UpgradePage,
                 })),
             },
           ],

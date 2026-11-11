@@ -4,7 +4,7 @@ import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
 import { useLogout } from '@/features/auth';
 import { useInstallPrompt } from '@/features/push';
-import { Avatar } from '@/components/ui/Avatar';
+import { Avatar, PlanBadge } from '@/components/ui';
 
 export const UserMenu: React.FC = () => {
   const { user } = useAuth();
@@ -20,6 +20,7 @@ export const UserMenu: React.FC = () => {
         <span className="hidden max-w-28 truncate text-sm font-medium text-text sm:block">
           {user.name}
         </span>
+        <PlanBadge plan={user.plan} />
       </summary>
       <div className="absolute right-0 top-full z-dropdown mt-2 w-48 rounded-card border border-border bg-surface py-1 shadow-elevated">
         <Link

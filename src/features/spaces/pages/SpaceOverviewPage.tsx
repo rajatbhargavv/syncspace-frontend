@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button, EmptyState, ErrorState, Skeleton, Tabs, type TabItem } from '@/components/ui';
 import { ApiError } from '@/types';
@@ -208,6 +208,15 @@ export const SpaceOverviewPage: React.FC = () => {
                 variant="pills"
               />
             </div>
+            <Link
+              to={ROUTES.spaceActivity(currentSpace._id)}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-hover hover:text-text"
+            >
+              Activity{' '}
+              <span aria-label="Pro feature" title="Pro feature">
+                🔒
+              </span>
+            </Link>
 
             <div className="flex-1 lg:max-w-3xl">
               <TaskFilterBar

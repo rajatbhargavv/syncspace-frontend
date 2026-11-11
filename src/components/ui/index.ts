@@ -4,6 +4,7 @@ export * from './Input';
 export * from './Textarea';
 export * from './Select';
 export * from './Badge';
+export * from './PlanBadge';
 export * from './Avatar';
 export * from './Skeleton';
 export * from './Toggle';

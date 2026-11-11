@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { SpaceThemeDot, useSpaces } from '@/features/spaces';
@@ -6,6 +6,8 @@ import { Logo } from '@/components/ui/Logo';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useUiStore } from '@/stores/uiStore';
+import { useAuth } from '@/app/providers/useAuth';
+import { PlanBadge } from '@/components/ui';
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -25,7 +27,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, forceExpanded = fa
   const location = useLocation();
   const spacesQuery = useSpaces();
   const spaces = spacesQuery.data?.filter((space) => space.status === 'Active') ?? [];
+  const { user } = useAuth();
   const isCollapsed = forceExpanded ? false : isSidebarCollapsed;
+  const [upgradeDismissed, setUpgradeDismissed] = useState(false);
+  useEffect(() => {
+    const dismissedAt = Number(window.localStorage.getItem('syncspace-upgrade-dismissed-at'));
+    setUpgradeDismissed(Number.isFinite(dismissedAt) && Date.now() - dismissedAt < 7 * 86400000);
+  }, []);
 
   return (
     <aside
@@ -146,6 +154,39 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate, forceExpanded = fa
           </section>
         )}
       </nav>
+      {user?.plan === 'FREE' &&
+        !upgradeDismissed &&
+        !location.pathname.startsWith(ROUTES.upgrade) && (
+          <div className="border-t border-border p-3">
+            <div className="border-accent/30 relative rounded-card border bg-accent-muted p-3">
+              <button
+                type="button"
+                aria-label="Dismiss upgrade offer"
+                onClick={() => {
+                  window.localStorage.setItem('syncspace-upgrade-dismissed-at', String(Date.now()));
+                  setUpgradeDismissed(true);
+                }}
+                className="absolute right-1 top-1 text-xs text-text-muted hover:text-text"
+              >
+                ×
+              </button>
+              <Link to={ROUTES.upgrade} className="block">
+                {!isCollapsed && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-text">Upgrade to Pro</span>
+                      <PlanBadge plan="PRO" />
+                    </div>
+                    <p className="mt-1 text-[11px] text-text-muted">Unlock Activity analytics.</p>
+                  </>
+                )}
+                {isCollapsed && (
+                  <span className="text-center text-xs font-bold text-accent">Pro</span>
+                )}
+              </Link>
+            </div>
+          </div>
+        )}
     </aside>
   );
 };

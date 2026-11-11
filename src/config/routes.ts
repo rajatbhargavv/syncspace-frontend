@@ -13,6 +13,8 @@ export const ROUTES = {
   PUBLIC_SPACE: (id: string) => `/s/${id}` as const,
   PROFILE: (id: string) => `/u/${id}` as const,
   INVITE_PREVIEW: (token: string) => `/invite/${token}` as const,
+  SPACE_ACTIVITY: (id: string) => `/spaces/${id}/activity` as const,
+  UPGRADE: '/upgrade',
 
   // Contract-compatible camelCase aliases
   home: '/',
@@ -28,4 +30,6 @@ export const ROUTES = {
   publicSpace: (id: string) => `/s/${id}` as const,
   profile: (id: string) => `/u/${id}` as const,
   invitePreview: (token: string) => `/invite/${token}` as const,
+  spaceActivity: (id: string) => `/spaces/${id}/activity` as const,
+  upgrade: '/upgrade',
 } as const;

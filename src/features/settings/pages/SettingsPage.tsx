@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Badge, Button, Dialog, Input, Tabs } from '@/components/ui';
+import { Badge, Button, Dialog, Input, PlanBadge, Tabs } from '@/components/ui';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@/config/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SettingsNotificationSection } from '@/features/push';
 import { useAuth } from '@/app/providers/useAuth';
@@ -257,42 +259,64 @@ function AccountTab() {
     }
   };
   return (
-    <section className="border-error/30 max-w-2xl space-y-5 rounded-card border bg-surface p-5">
-      <div>
-        <h2 className="font-heading text-xl font-bold text-text">Account</h2>
-        <p className="text-sm text-text-muted">
-          Deactivation is permanent. Personal spaces are deleted; shared spaces are transferred to
-          another active member or deleted if empty. You will be logged out and this cannot be
-          undone from the app.
-        </p>
-      </div>
-      <Button variant="danger" onClick={() => setDialogOpen(true)}>
-        Deactivate account
-      </Button>
-      {import.meta.env.DEV && <DevPlanCard />}
-      <Dialog
-        isOpen={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        title="Deactivate account"
-        description="Type your email to confirm this permanent action."
-      >
-        <div className="space-y-4">
-          <Input
-            label="Your email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <Button
-            variant="danger"
-            disabled={email !== user?.email}
-            isLoading={pending}
-            onClick={() => void deactivate()}
-          >
-            Confirm deactivation
-          </Button>
+    <div className="max-w-2xl space-y-5">
+      <section className="space-y-4 rounded-card border border-border bg-surface p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-heading text-xl font-bold text-text">Plan</h2>
+            <p className="text-sm text-text-muted">
+              Your current SyncSpace plan and included features.
+            </p>
+          </div>
+          <PlanBadge plan={user?.plan ?? 'FREE'} size="md" />
         </div>
-      </Dialog>
-    </section>
+        <p className="text-sm text-text-muted">
+          Free includes unlimited spaces, tasks, comments, notifications, and a public profile. Pro
+          adds Activity analytics, performance reports, CSV export, and priority support.
+        </p>
+        {user?.plan === 'FREE' && (
+          <Link to={ROUTES.upgrade}>
+            <Button variant="outline">Explore Pro</Button>
+          </Link>
+        )}
+      </section>
+      <section className="border-error/30 space-y-5 rounded-card border bg-surface p-5">
+        <div>
+          <h2 className="font-heading text-xl font-bold text-text">Account</h2>
+          <p className="text-sm text-text-muted">
+            Deactivation is permanent. Personal spaces are deleted; shared spaces are transferred to
+            another active member or deleted if empty. You will be logged out and this cannot be
+            undone from the app.
+          </p>
+        </div>
+        <Button variant="danger" onClick={() => setDialogOpen(true)}>
+          Deactivate account
+        </Button>
+        {import.meta.env.DEV && <DevPlanCard />}
+        <Dialog
+          isOpen={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          title="Deactivate account"
+          description="Type your email to confirm this permanent action."
+        >
+          <div className="space-y-4">
+            <Input
+              label="Your email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            <Button
+              variant="danger"
+              disabled={email !== user?.email}
+              isLoading={pending}
+              onClick={() => void deactivate()}
+            >
+              Confirm deactivation
+            </Button>
+          </div>
+        </Dialog>
+      </section>
+    </div>
   );
 }
 
