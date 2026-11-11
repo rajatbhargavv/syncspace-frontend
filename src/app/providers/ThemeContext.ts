@@ -3,12 +3,13 @@ import { THEME_MODE, THEME_PRESET } from '@/config/constants';
 
 export type ThemePreset = keyof typeof THEME_PRESET;
 export type ThemeMode = (typeof THEME_MODE)[keyof typeof THEME_MODE];
+export type ThemePreferenceMode = ThemeMode | 'system';
 
 export interface ThemeContextValue {
   preset: ThemePreset;
-  mode: ThemeMode;
+  mode: ThemePreferenceMode;
   setPreset: (preset: ThemePreset) => void;
-  setMode: (mode: ThemeMode) => void;
+  setMode: (mode: ThemePreferenceMode) => void;
   toggleMode: () => void;
   setSpaceTheme: (theme: { preset: ThemePreset; mode: ThemeMode } | null) => void;
   effectivePreset: ThemePreset;

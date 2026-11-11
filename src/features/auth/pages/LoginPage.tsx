@@ -13,6 +13,7 @@ import { loginSchema, type LoginFormData } from '../schemas/auth.schema';
 interface LocationState {
   from?: {
     pathname: string;
+    search?: string;
   };
 }
 
@@ -43,7 +44,9 @@ export const LoginPage: React.FC = () => {
       await refetchUser();
       toast.success('Welcome back!');
       const state = location.state as LocationState | null;
-      const destination = state?.from?.pathname ?? ROUTES.OVERVIEW;
+      const destination = state?.from
+        ? `${state.from.pathname}${state.from.search ?? ''}`
+        : ROUTES.OVERVIEW;
       navigate(destination, { replace: true });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Invalid credentials. Please try again.';

@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { THEME_PRESET } from '@/config/constants';
 import { storage } from '@/lib/storage';
-import { ThemeContext, type ThemeMode, type ThemePreset } from './ThemeContext';
+import {
+  ThemeContext,
+  type ThemeMode,
+  type ThemePreferenceMode,
+  type ThemePreset,
+} from './ThemeContext';
 
 function isValidPreset(value: string | null): value is ThemePreset {
   return value !== null && Object.values(THEME_PRESET).includes(value as ThemePreset);
 }
 
-function isValidMode(value: string | null): value is ThemeMode {
-  return value === 'light' || value === 'dark';
+function isValidMode(value: string | null): value is ThemePreferenceMode {
+  return value === 'light' || value === 'dark' || value === 'system';
+}
+
+function getSystemMode(): ThemeMode {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches
+    ? 'light'
+    : 'dark';
 }
 
 export interface ThemeProviderProps {
@@ -22,16 +33,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return isValidPreset(stored) ? stored : 'ORBIT';
   });
 
-  const [mode, setModeState] = useState<ThemeMode>(() => {
+  const [mode, setModeState] = useState<ThemePreferenceMode>(() => {
     const stored = storage.getThemeMode();
     if (isValidMode(stored)) return stored;
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: light)').matches
-    ) {
-      return 'light';
-    }
-    return 'dark';
+    return 'system';
   });
 
   // Space-specific theme override (active when viewing a space)
@@ -40,7 +45,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   );
 
   const effectivePreset = spaceTheme?.preset ?? preset;
-  const effectiveMode = spaceTheme?.mode ?? mode;
+  const effectiveMode = spaceTheme?.mode ?? (mode === 'system' ? getSystemMode() : mode);
 
   // Apply data-theme and data-mode attributes to document root
   useEffect(() => {
@@ -60,7 +65,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     storage.setThemePreset(newPreset);
   };
 
-  const setMode = (newMode: ThemeMode) => {
+  const setMode = (newMode: ThemePreferenceMode) => {
     setModeState(newMode);
     storage.setThemeMode(newMode);
   };
@@ -69,6 +74,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const nextMode = effectiveMode === 'dark' ? 'light' : 'dark';
     setMode(nextMode);
   };
+
+  useEffect(() => {
+    if (mode !== 'system' || typeof window === 'undefined') return;
+    const media = window.matchMedia('(prefers-color-scheme: light)');
+    const handleChange = () => setModeState('system');
+    media.addEventListener('change', handleChange);
+    return () => media.removeEventListener('change', handleChange);
+  }, [mode]);
 
   return (
     <ThemeContext.Provider
