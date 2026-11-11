@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Avatar, Badge, NotchCard } from '@/components/ui';
 import { formatDate } from '@/lib/date';
+import { ROUTES } from '@/config/routes';
 import type { SpaceMember } from '../types/member.types';
 
 export interface MemberCardProps {
@@ -15,7 +17,12 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, onRemove }) => {
         <Avatar name={member.userId.name} size="md" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-text">{member.userId.name}</h3>
+            <Link
+              to={ROUTES.profile(member.userId._id)}
+              className="truncate text-sm font-semibold text-text hover:text-accent"
+            >
+              {member.userId.name}
+            </Link>
             <Badge variant={member.role === 'OWNER' ? 'accent' : 'default'} size="sm">
               {member.role === 'OWNER' ? 'Owner' : 'Member'}
             </Badge>

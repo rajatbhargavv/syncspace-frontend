@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { formatDateTime, formatRelative } from '@/lib/date';
 import { Avatar, Badge, Button } from '@/components/ui';
+import { ROUTES } from '@/config/routes';
 import type { CommentItem } from '../types/comment.types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { useUpdateComment } from '../hooks/useUpdateComment';
@@ -73,7 +75,16 @@ export const CommentCard: React.FC<CommentCardProps> = ({
         {/* Header strip */}
         <header className="bg-surface-hover/50 flex flex-wrap items-center justify-between gap-2 border-b border-border px-3.5 py-2 text-xs">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-text">{authorName}</span>
+            {authorId ? (
+              <Link
+                to={ROUTES.profile(authorId)}
+                className="font-semibold text-text hover:text-accent"
+              >
+                {authorName}
+              </Link>
+            ) : (
+              <span className="font-semibold text-text">{authorName}</span>
+            )}
 
             {isSpaceOwner && (
               <Badge variant="default" size="sm">
