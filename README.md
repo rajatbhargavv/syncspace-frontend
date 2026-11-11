@@ -121,16 +121,16 @@ Phase 1 establishes the spaces data foundation, theme scoping system, and route 
 
 ### 2. Page Exports & Ownership
 
-| Route            | Page Component      | File Path                                            | Phase 1 Owner       |
-| ---------------- | ------------------- | ---------------------------------------------------- | ------------------- |
-| `/app`           | `OverviewPage`      | `features/overview/pages/OverviewPage.tsx`           | Member 2            |
-| `/spaces/new`    | `CreateSpacePage`   | `features/spaces/pages/CreateSpacePage.tsx`          | Member 3            |
-| `/spaces`        | `SpacesPage`        | `features/spaces/pages/SpacesPage.tsx`               | Member 4            |
-| `/spaces/:id`    | `SpaceOverviewPage` | `features/spaces/pages/SpaceOverviewPage.tsx`        | Member 4            |
-| `/s/:id`         | `PublicSpacePage`   | `features/spaces/pages/PublicSpacePage.tsx`          | Member 4            |
-| `/my-tasks`      | `MyTasksPage`       | `features/tasks/pages/MyTasksPage.tsx`               | Phase 2 Placeholder |
-| `/notifications` | `NotificationsPage` | `features/notifications/pages/NotificationsPage.tsx` | Phase 2 Placeholder |
-| `/settings`      | `SettingsPage`      | `features/settings/pages/SettingsPage.tsx`           | Phase 2 Placeholder |
+| Route            | Page Component      | File Path                                            | Phase 1 Owner                                    |
+| ---------------- | ------------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| `/app`           | `OverviewPage`      | `features/overview/pages/OverviewPage.tsx`           | Member 2                                         |
+| `/spaces/new`    | `CreateSpacePage`   | `features/spaces/pages/CreateSpacePage.tsx`          | Member 3                                         |
+| `/spaces`        | `SpacesPage`        | `features/spaces/pages/SpacesPage.tsx`               | Member 4                                         |
+| `/spaces/:id`    | `SpaceOverviewPage` | `features/spaces/pages/SpaceOverviewPage.tsx`        | Member 4                                         |
+| `/s/:id`         | `PublicSpacePage`   | `features/spaces/pages/PublicSpacePage.tsx`          | Member 4                                         |
+| `/my-tasks`      | `MyTasksPage`       | `features/tasks/pages/MyTasksPage.tsx`               | Phase 2 Placeholder                              |
+| `/notifications` | `NotificationsPage` | `features/notifications/pages/NotificationsPage.tsx` | Phase 2 Placeholder                              |
+| `/settings`      | `SettingsPage`      | `features/settings/pages/SettingsPage.tsx`           | Profile, security, appearance & account settings |
 
 ### 3. Space Types (`features/spaces/types/space.types.ts`)
 
@@ -178,6 +178,12 @@ Phase 1 establishes the spaces data foundation, theme scoping system, and route 
 ### 6. Scoped Theming & Utilities
 
 - `<ThemeScope theme={preset} mode={mode}>`: Isolates theme tokens (`--color-*`, `--radius-*`, `--font-*`) to a local DOM subtree for real-time creation and preview cards.
+
+### Phase 4 Public Profiles, Spaces & Settings
+
+- `/u/:id` renders public profiles and their public spaces; `/s/:id` renders a shareable public-space view.
+- Public pages add best-effort document metadata and Open Graph tags in the browser. Production social previews still require SSR or prerendering.
+- `/settings` includes profile and password updates, local appearance preferences (including System mode), account deactivation, and the development-only plan switch.
 - `<SpaceThemeDot theme={preset} size="sm|md|lg">`: Small themed indicator dot with corresponding preset colors.
 - `SPACE_KIND_CONFIG`: Comprehensive presets, default themes, and contextual copy per kind (e.g. Our Home -> "Chores", Builders' Circle -> "Tickets", Studio -> "Deliverables").
 
@@ -232,23 +238,23 @@ Phase 2 delivers the core interactive task management system across Board, List,
 
 ### 5. Backend REST Endpoints (Phase 2)
 
-| Method   | Endpoint                              | Auth Required  | Description                                                         |
-| -------- | ------------------------------------- | -------------- | ------------------------------------------------------------------- |
-| `GET`    | `/api/spaces/:id/tasks`               | Member only    | List tasks for space with optional query filters                    |
-| `POST`   | `/api/tasks`                          | Member only    | Create task (spaceId, title, description?, priority, deadline)      |
-| `GET`    | `/api/tasks/:id`                      | Member only    | Get task by ID                                                      |
-| `PATCH`  | `/api/tasks/:id`                      | Member only    | Update task metadata or status (`progressStatus`)                   |
-| `DELETE` | `/api/tasks/:id`                      | Creator/Owner  | Soft-delete task (returns `403` for non-authorized members)         |
-| `POST`   | `/api/tasks/:id/assignees`            | Member only    | Add member assignee to task                                         |
-| `DELETE` | `/api/tasks/:id/assignees/:userId`    | Member only    | Remove member assignee from task                                    |
-| `PATCH`  | `/api/tasks/:id/assignees/me`         | Assigned user  | Update authenticated user's assignee status (`TODO`, `IN_PROGRESS`, `DONE`) |
-| `GET`    | `/api/tasks/:taskId/subtasks`         | Member only    | List subtasks for a task                                            |
-| `POST`   | `/api/tasks/:taskId/subtasks`         | Member only    | Create subtask (title, assigneeId, priority, deadline, description?)|
-| `PATCH`  | `/api/subtasks/:id`                   | Member only    | Update subtask status or details                                    |
-| `DELETE` | `/api/subtasks/:id`                   | Member only    | Delete subtask                                                      |
-| `GET`    | `/api/spaces/:id/members?status=PENDING` | Owner only  | Query pending join requests waiting for review                      |
-| `POST`   | `/api/spaces/:id/members/:userId/approve` | Owner only | Approve join request into active member                            |
-| `POST`   | `/api/spaces/:id/members/:userId/reject`  | Owner only | Reject pending join request                                         |
+| Method   | Endpoint                                  | Auth Required | Description                                                                 |
+| -------- | ----------------------------------------- | ------------- | --------------------------------------------------------------------------- |
+| `GET`    | `/api/spaces/:id/tasks`                   | Member only   | List tasks for space with optional query filters                            |
+| `POST`   | `/api/tasks`                              | Member only   | Create task (spaceId, title, description?, priority, deadline)              |
+| `GET`    | `/api/tasks/:id`                          | Member only   | Get task by ID                                                              |
+| `PATCH`  | `/api/tasks/:id`                          | Member only   | Update task metadata or status (`progressStatus`)                           |
+| `DELETE` | `/api/tasks/:id`                          | Creator/Owner | Soft-delete task (returns `403` for non-authorized members)                 |
+| `POST`   | `/api/tasks/:id/assignees`                | Member only   | Add member assignee to task                                                 |
+| `DELETE` | `/api/tasks/:id/assignees/:userId`        | Member only   | Remove member assignee from task                                            |
+| `PATCH`  | `/api/tasks/:id/assignees/me`             | Assigned user | Update authenticated user's assignee status (`TODO`, `IN_PROGRESS`, `DONE`) |
+| `GET`    | `/api/tasks/:taskId/subtasks`             | Member only   | List subtasks for a task                                                    |
+| `POST`   | `/api/tasks/:taskId/subtasks`             | Member only   | Create subtask (title, assigneeId, priority, deadline, description?)        |
+| `PATCH`  | `/api/subtasks/:id`                       | Member only   | Update subtask status or details                                            |
+| `DELETE` | `/api/subtasks/:id`                       | Member only   | Delete subtask                                                              |
+| `GET`    | `/api/spaces/:id/members?status=PENDING`  | Owner only    | Query pending join requests waiting for review                              |
+| `POST`   | `/api/spaces/:id/members/:userId/approve` | Owner only    | Approve join request into active member                                     |
+| `POST`   | `/api/spaces/:id/members/:userId/reject`  | Owner only    | Reject pending join request                                                 |
 
 ---
 
@@ -292,18 +298,17 @@ Phase 3 introduces real-time collaborative features: GitHub-PR-style discussion 
 
 ### 4. Backend REST Endpoints (Phase 3)
 
-| Method   | Endpoint                          | Auth Required | Description                                                         |
-| -------- | --------------------------------- | ------------- | ------------------------------------------------------------------- |
-| `GET`    | `/api/tasks/:id/timeline`         | Member only   | Chronological timeline of comments and activity events              |
-| `GET`    | `/api/tasks/:taskId/comments`     | Member only   | List comments for a task                                            |
-| `POST`   | `/api/tasks/:taskId/comments`     | Member only   | Create a task comment (1-2000 characters)                           |
-| `PUT`    | `/api/comments/:id`               | Author only   | Update comment content                                              |
-| `DELETE` | `/api/comments/:id`               | Author/Owner  | Delete comment                                                      |
-| `GET`    | `/api/notifications`              | Yes           | List paginated notifications (`unread`, `page`, `limit`)            |
-| `GET`    | `/api/notifications/unread-count` | Yes           | Get unread notifications count                                      |
-| `PATCH`  | `/api/notifications/:id/read`     | Yes           | Mark single notification as read                                    |
-| `PATCH`  | `/api/notifications/read-all`     | Yes           | Mark all notifications as read                                      |
-
+| Method   | Endpoint                          | Auth Required | Description                                              |
+| -------- | --------------------------------- | ------------- | -------------------------------------------------------- |
+| `GET`    | `/api/tasks/:id/timeline`         | Member only   | Chronological timeline of comments and activity events   |
+| `GET`    | `/api/tasks/:taskId/comments`     | Member only   | List comments for a task                                 |
+| `POST`   | `/api/tasks/:taskId/comments`     | Member only   | Create a task comment (1-2000 characters)                |
+| `PUT`    | `/api/comments/:id`               | Author only   | Update comment content                                   |
+| `DELETE` | `/api/comments/:id`               | Author/Owner  | Delete comment                                           |
+| `GET`    | `/api/notifications`              | Yes           | List paginated notifications (`unread`, `page`, `limit`) |
+| `GET`    | `/api/notifications/unread-count` | Yes           | Get unread notifications count                           |
+| `PATCH`  | `/api/notifications/:id/read`     | Yes           | Mark single notification as read                         |
+| `PATCH`  | `/api/notifications/read-all`     | Yes           | Mark all notifications as read                           |
 
 ---
 
@@ -392,7 +397,7 @@ SyncSpace provides a full Progressive Web App (PWA) experience with offline shel
 
 4. **Offline Capability & Limitations**:
    - The precached app shell loads instantly even with no network connection.
-   - An unobtrusive `<OfflineBanner />` alerts the user: *"You're offline. Changes can't be saved."*
+   - An unobtrusive `<OfflineBanner />` alerts the user: _"You're offline. Changes can't be saved."_
    - Note: **Mutations are NOT queued offline**; network connectivity is required for creating/updating spaces and tasks.
 
 ### Environment Variables
@@ -407,6 +412,7 @@ VAPID_SUBJECT=mailto:support@syncspace.app
 ```
 
 To generate fresh keys:
+
 ```bash
 npx web-push generate-vapid-keys
 ```
@@ -414,6 +420,7 @@ npx web-push generate-vapid-keys
 ### Testing Push & PWA
 
 #### 1. Desktop (Chrome, Edge, Firefox, Safari 16+)
+
 1. Build and preview the production app:
    ```bash
    npm run build && npm run preview
@@ -424,6 +431,7 @@ npx web-push generate-vapid-keys
 5. An OS banner will appear; clicking it focuses or opens the tab and navigates directly to the target task.
 
 #### 2. Mobile (Android & iOS) via HTTPS Tunnel
+
 Push notifications and Service Workers **require a secure context (HTTPS)**. For mobile device testing:
 
 1. Start the backend:
@@ -445,7 +453,7 @@ Push notifications and Service Workers **require a secure context (HTTPS)**. For
    ```
 4. **Android Chrome**:
    - Open the HTTPS tunnel URL on your phone.
-   - Tap the install prompt or menu &gt; *Add to Home screen*.
+   - Tap the install prompt or menu &gt; _Add to Home screen_.
    - In Settings, toggle Push Notifications and grant permission.
    - Put Chrome in the background, send a test comment, and observe the OS push alert.
 5. **iPhone / iPad (iOS 16.4+)**:
@@ -463,8 +471,9 @@ Push notifications and Service Workers **require a secure context (HTTPS)**. For
 ### Resetting Denied Permissions
 
 If you accidentally clicked "Block" or "Don't Allow":
-- **Chrome / Edge**: Click the settings icon to the left of the URL in the address bar &gt; set *Notifications* to *Allow*.
-- **macOS Safari**: Safari Preferences &gt; Websites &gt; Notifications &gt; find SyncSpace &gt; select *Allow*.
+
+- **Chrome / Edge**: Click the settings icon to the left of the URL in the address bar &gt; set _Notifications_ to _Allow_.
+- **macOS Safari**: Safari Preferences &gt; Websites &gt; Notifications &gt; find SyncSpace &gt; select _Allow_.
 - **iOS / Android**: System Settings &gt; Apps &gt; Browser / SyncSpace &gt; Notifications &gt; Enable alerts.
 
 ---
