@@ -23,9 +23,24 @@
       color var(--motion-duration) var(--motion-easing);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   /* Visible focus for keyboard navigation, hidden for mouse */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   :focus:not(:focus-visible) {

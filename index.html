@@ -11,6 +11,23 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="SyncSpace" />
+    <script>
+      (() => {
+        const presets = ['ORBIT', 'HEARTH', 'NEON_GRID', 'IVORY_INK'];
+        const modes = ['light', 'dark'];
+        const preset = localStorage.getItem('syncspace-theme-preset');
+        const storedMode = localStorage.getItem('syncspace-theme-mode');
+        const mode =
+          storedMode === 'light' || storedMode === 'dark'
+            ? storedMode
+            : window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark';
+        document.documentElement.dataset.theme = presets.includes(preset) ? preset : 'ORBIT';
+        document.documentElement.dataset.mode = modes.includes(mode) ? mode : 'dark';
+        document.documentElement.classList.toggle('dark', mode === 'dark');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

@@ -1,5 +1,6 @@
 import React, { Component, type ErrorInfo } from 'react';
 import { Button } from '@/components/ui/Button';
+import { reportError } from '@/lib/reportError';
 
 export interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -22,12 +23,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Uncaught error:', error, errorInfo);
+    reportError(error, { componentStack: errorInfo.componentStack });
   }
 
   private handleReset = (): void => {
     this.setState({ hasError: false, error: null });
-    window.location.reload();
+  };
+
+  private handleGoHome = (): void => {
+    window.location.assign('/');
   };
 
   public override render(): React.ReactNode {
@@ -54,13 +58,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
               />
             </svg>
           </div>
-          <h1 className="font-heading text-xl font-bold">Application Error</h1>
+          <h1 className="font-heading text-xl font-bold">Something went wrong</h1>
           <p className="mt-2 max-w-md text-sm text-text-muted">
-            {this.state.error?.message ?? 'An unexpected error occurred. Please refresh the page.'}
+            We could not load this part of SyncSpace. Try again, or return to the home page.
           </p>
           <div className="mt-6 flex gap-3">
             <Button variant="primary" onClick={this.handleReset}>
-              Reload Application
+              Try again
+            </Button>
+            <Button variant="secondary" onClick={this.handleGoHome}>
+              Go home
             </Button>
           </div>
         </div>

@@ -31,11 +31,11 @@
   --color-text: #1a1a1b;
   --color-text-muted: #6b6b70;
   --color-text-inverse: #ffffff;
-  --color-accent: #e67a15;
-  --color-accent-hover: #d06b0d;
+  --color-accent: #a85000;
+  --color-accent-hover: #914600;
   --color-accent-muted: rgba(230, 122, 21, 0.12);
-  --color-success: #059669;
-  --color-warning: #d97706;
+  --color-success: #087443;
+  --color-warning: #9a4d00;
   --color-error: #dc2626;
   --color-info: #2563eb;
   --radius-card: 16px;
