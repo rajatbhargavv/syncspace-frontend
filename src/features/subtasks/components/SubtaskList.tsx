@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Button, EmptyState, ErrorState, Input, Select, Skeleton } from '@/components/ui';
 import { useMemberLookup } from '@/features/tasks';
@@ -14,21 +14,36 @@ export interface SubtaskListProps {
 }
 
 export const SubtaskList: React.FC<SubtaskListProps> = ({ taskId, spaceId, readOnly = false }) => {
+  const [showAddForm, setShowAddForm] = useState(false);
   const subtasks = useSubtasks(taskId);
   const done = (subtasks.data ?? []).filter((subtask) => subtask.status === 'DONE').length;
+  const listEmpty = (subtasks.data?.length ?? 0) === 0;
+
   return (
     <section aria-label="Subtasks" className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text">Subtasks</h3>
-        <span className="text-xs text-text-muted">
-          {done}/{subtasks.data?.length ?? 0} done
-        </span>
+        <h3 className="text-lg font-semibold text-text">Subtasks</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-text-muted">
+            {done}/{subtasks.data?.length ?? 0} done
+          </span>
+          {!readOnly && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowAddForm((v) => !v)}
+              className="h-6 px-2 text-xs"
+            >
+              {showAddForm ? 'Cancel' : '+ Add subtask'}
+            </Button>
+          )}
+        </div>
       </div>
       {subtasks.isLoading ? <Skeleton className="h-24" /> : null}
       {subtasks.isError ? (
         <ErrorState message="Unable to load subtasks." onRetry={() => void subtasks.refetch()} />
       ) : null}
-      {!subtasks.isLoading && !subtasks.isError && subtasks.data?.length === 0 ? (
+      {!subtasks.isLoading && !subtasks.isError && listEmpty && !showAddForm ? (
         <EmptyState title="No subtasks" description="Break this task into smaller steps." />
       ) : null}
       <div className="space-y-2">
@@ -36,7 +51,11 @@ export const SubtaskList: React.FC<SubtaskListProps> = ({ taskId, spaceId, readO
           <SubtaskItem key={subtask._id} subtask={subtask} spaceId={spaceId} readOnly={readOnly} />
         ))}
       </div>
-      {!readOnly && <SubtaskForm taskId={taskId} spaceId={spaceId} />}
+      {!readOnly && (showAddForm || listEmpty) && (
+        <div className="bg-surface-hover/20 rounded-card border border-border p-3">
+          <SubtaskForm taskId={taskId} spaceId={spaceId} onCreated={() => setShowAddForm(false)} />
+        </div>
+      )}
     </section>
   );
 };

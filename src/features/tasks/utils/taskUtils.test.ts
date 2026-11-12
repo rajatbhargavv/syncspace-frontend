@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   groupTasksByStatus,
   sortTasks,
+  filterTasks,
   isOverdue,
   formatDeadline,
   priorityMeta,
@@ -155,6 +156,75 @@ describe('taskUtils', () => {
         },
       ];
       expect(computeWorkload(withCompleted, 'u1')).toEqual({ score: 3, activeTasksCount: 3 });
+    });
+  });
+
+  describe('filterTasks', () => {
+    const tasks: Task[] = [
+      {
+        ...baseTask,
+        _id: 't1',
+        title: 'Fix auth bug',
+        progressStatus: 'TODO',
+        priority: 'HIGH',
+        assignees: [{ userId: 'u1', status: 'TODO' }],
+      },
+      {
+        ...baseTask,
+        _id: 't2',
+        title: 'Design navbar',
+        progressStatus: 'IN_PROGRESS',
+        priority: 'MEDIUM',
+        assignees: [{ userId: 'u2', status: 'TODO' }],
+      },
+      {
+        ...baseTask,
+        _id: 't3',
+        title: 'Write docs',
+        progressStatus: 'COMPLETED',
+        priority: 'LOW',
+        assignees: [{ userId: 'u3', status: 'DONE' }],
+      },
+      {
+        ...baseTask,
+        _id: 't4',
+        title: 'Unassigned chore',
+        progressStatus: 'TODO',
+        priority: 'LOW',
+        assignees: [],
+      },
+      {
+        ...baseTask,
+        _id: 't5',
+        title: 'Deleted task',
+        lifecycleStatus: 'DELETED',
+      },
+    ];
+
+    it('ignores DELETED tasks', () => {
+      const result = filterTasks(tasks, {});
+      expect(result.find((t) => t._id === 't5')).toBeUndefined();
+      expect(result).toHaveLength(4);
+    });
+
+    it('filters by multiple assignees using assigneeIds', () => {
+      const result = filterTasks(tasks, { assigneeIds: ['u1', 'u2'] });
+      expect(result.map((t) => t._id)).toEqual(['t1', 't2']);
+    });
+
+    it('filters by unassigned', () => {
+      const result = filterTasks(tasks, { assigneeId: 'unassigned' });
+      expect(result.map((t) => t._id)).toEqual(['t4']);
+    });
+
+    it('filters by me', () => {
+      const result = filterTasks(tasks, { assigneeId: 'me' }, 'u2');
+      expect(result.map((t) => t._id)).toEqual(['t2']);
+    });
+
+    it('filters by text search and status', () => {
+      const result = filterTasks(tasks, { search: 'auth', status: ['TODO'] });
+      expect(result.map((t) => t._id)).toEqual(['t1']);
     });
   });
 });

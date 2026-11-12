@@ -32,3 +32,4 @@ export {
 
 export { SubtaskForm, type SubtaskFormProps } from './components/SubtaskForm';
 export { SubtaskList, type SubtaskListProps } from './components/SubtaskList';
+export { SubtasksModal, type SubtasksModalProps } from './components/SubtasksModal';

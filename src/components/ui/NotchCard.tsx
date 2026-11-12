@@ -32,6 +32,7 @@ export interface NotchCardTaskProps {
   statusBadge?: React.ReactNode;
   actions?: React.ReactNode;
   onArrowClick?: () => void;
+  subtasksContent?: React.ReactNode;
 }
 
 export interface NotchCardCustomProps {
@@ -54,7 +55,7 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
   const isHighlighted = props.variant === 'highlighted';
 
   const cardClassName = cn(
-    'group relative overflow-hidden rounded-card transition-all duration-200 p-5 flex flex-col justify-between select-none border',
+    'group relative isolate overflow-hidden rounded-card transition-all duration-200 p-5 flex flex-col justify-between select-none border',
     onClick && 'cursor-pointer hover:-translate-y-1',
     isHighlighted
       ? 'bg-accent text-text-inverse border-accent-hover shadow-elevated'
@@ -65,7 +66,7 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
   const content = (
     <>
       {/* Top right notch button container */}
-      <div className="absolute right-3 top-3 z-10">
+      <div className="absolute right-3 top-3 z-[1]">
         {props.variant === 'highlighted' ? (
           <button
             type="button"
@@ -100,8 +101,10 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
             aria-label="Open item"
             onClick={(e) => {
               e.stopPropagation();
-              if ('onArrowClick' in props) {
-                props.onArrowClick?.();
+              if ('onArrowClick' in props && props.onArrowClick) {
+                props.onArrowClick();
+              } else if (onClick) {
+                onClick();
               }
             }}
             className={cn(
@@ -154,6 +157,7 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
               <p className="mt-1 line-clamp-1 text-xs text-text-muted">{props.subtitle}</p>
             )}
           </div>
+          {props.subtasksContent}
           <div className="border-border/60 flex items-center justify-between border-t pt-2 text-xs">
             {props.deadline && (
               <span

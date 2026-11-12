@@ -23,7 +23,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={selectId} className="mb-1.5 block text-xs font-medium text-text">
+          <label htmlFor={selectId} className="text-md mb-1.5 block font-medium text-text">
             {label}
           </label>
         )}

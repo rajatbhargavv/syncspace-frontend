@@ -63,11 +63,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const setPreset = (newPreset: ThemePreset) => {
     setPresetState(newPreset);
     storage.setThemePreset(newPreset);
+    setSpaceTheme((current) => (current ? { ...current, preset: newPreset } : null));
   };
 
   const setMode = (newMode: ThemePreferenceMode) => {
     setModeState(newMode);
     storage.setThemeMode(newMode);
+    setSpaceTheme((current) =>
+      current
+        ? {
+            ...current,
+            mode: newMode === 'system' ? getSystemMode() : newMode,
+          }
+        : null,
+    );
   };
 
   const toggleMode = () => {

@@ -70,6 +70,7 @@ export {
 export {
   groupTasksByStatus,
   sortTasks,
+  filterTasks,
   isOverdue,
   formatDeadline,
   priorityMeta,

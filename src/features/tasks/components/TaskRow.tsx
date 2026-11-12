@@ -46,16 +46,18 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           <p className="mt-1 truncate text-xs text-text-muted">{task.description}</p>
         )}
       </div>
-      <div onPointerDown={(event) => event.stopPropagation()}>
-        <Select
-          aria-label={`Status for ${task.title}`}
-          value={task.progressStatus}
-          options={Object.values(meta).map((item) => ({ value: item.status, label: item.label }))}
-          onChange={(event) => onStatusChange(event.target.value as TaskProgressStatus)}
-          disabled={disabled}
-          className="py-1.5 text-xs"
-        />
-      </div>
+      <Select
+        aria-label={`Status for ${task.title}`}
+        value={task.progressStatus}
+        options={Object.values(meta).map((item) => ({ value: item.status, label: item.label }))}
+        onChange={(event) => onStatusChange(event.target.value as TaskProgressStatus)}
+        onClick={(event) => event.stopPropagation()}
+        onMouseDown={(event) => event.stopPropagation()}
+        onPointerDown={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+        disabled={disabled}
+        className="py-1.5 text-xs"
+      />
       <Badge variant={priority.badgeVariant} size="sm" className="w-fit">
         {priority.label}
       </Badge>

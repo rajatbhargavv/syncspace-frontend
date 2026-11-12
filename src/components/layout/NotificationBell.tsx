@@ -106,7 +106,7 @@ export const NotificationBell: React.FC = () => {
               <Link
                 to={ROUTES.notifications}
                 onClick={() => setIsOpen(false)}
-                className="bg-surface-hover/80 inline-block w-full rounded-button py-2.5 text-center text-xs font-semibold text-accent transition-colors hover:bg-surface-hover hover:underline"
+                className="bg-surface-hover/80 inline-block w-full rounded-button text-center text-xs font-semibold text-accent transition-colors hover:bg-surface-hover hover:underline"
               >
                 View all notifications →
               </Link>

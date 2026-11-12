@@ -1,18 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
-import { useLogout } from '@/features/auth';
 import { useInstallPrompt } from '@/features/push';
 import { Avatar, PlanBadge } from '@/components/ui';
 
 export const UserMenu: React.FC = () => {
-  const { user } = useAuth();
-  const logoutMutation = useLogout();
+  const { user, logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const { isInstallable, promptInstall } = useInstallPrompt();
 
   if (!user) return null;
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      navigate(ROUTES.LOGIN, { replace: true });
+    }
+  };
+
   return (
     <details className="relative">
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded-button p-1.5 hover:bg-surface-hover">
@@ -52,11 +61,11 @@ export const UserMenu: React.FC = () => {
         )}
         <button
           type="button"
-          disabled={logoutMutation.isPending}
-          onClick={() => void logoutMutation.mutateAsync().then(() => navigate(ROUTES.LOGIN))}
-          className="hover:bg-error/10 w-full px-3 py-2 text-left text-sm text-error"
+          disabled={isLoggingOut}
+          onClick={() => void handleLogout()}
+          className="hover:bg-error/10 w-full px-3 py-2 text-left text-sm text-error disabled:opacity-50"
         >
-          Log out
+          {isLoggingOut ? 'Logging out...' : 'Log out'}
         </button>
       </div>
     </details>

@@ -9,7 +9,10 @@ export interface TaskDiscussionSlotProps {
 export const TaskDiscussionSlot: React.FC<TaskDiscussionSlotProps> = ({ taskId, spaceId }) => {
   return (
     <section aria-labelledby="discussion-heading" className="space-y-3">
-      <h3 id="discussion-heading" className="font-heading text-base font-semibold text-text">
+      <h3
+        id="discussion-heading"
+        className="font-heading text-base text-lg font-semibold text-text"
+      >
         Discussion
       </h3>
       <DiscussionTimeline taskId={taskId} spaceId={spaceId} />

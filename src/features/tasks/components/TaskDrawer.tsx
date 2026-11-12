@@ -40,7 +40,7 @@ export const TaskDrawer: React.FC<TaskDrawerProps> = ({ spaceId }) => {
 
   return (
     <Drawer isOpen={isOpen} onClose={close} title={task?.title ?? 'Task Details'} size="lg">
-      <div data-testid="task-drawer-content" className="space-y-6 p-1 mr-5">
+      <div data-testid="task-drawer-content" className="mb-2 mr-5 space-y-6 p-1">
         {taskQuery.isLoading ? <Skeleton className="h-28" /> : null}
         {taskQuery.isError &&
         !(taskQuery.error instanceof ApiError && taskQuery.error.isNotFound) ? (

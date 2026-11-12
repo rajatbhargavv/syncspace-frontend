@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Input, Select } from '@/components/ui';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSpace } from '@/features/spaces';
@@ -19,6 +19,27 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
   const [query, setQuery] = useState(filters.search ?? '');
   const debouncedQuery = useDebounce(query, 250);
   const [expanded, setExpanded] = useState(false);
+  const filterBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterBarRef.current && !filterBarRef.current.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [expanded]);
 
   useEffect(() => {
     setFilters({ search: debouncedQuery || undefined });
@@ -30,10 +51,12 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
     { value: 'COMPLETED', label: 'Done' },
   ];
 
+  const isMultipleAssignees = (filters.assigneeIds?.length ?? 0) > 1;
+
   const activeCount =
     (filters.status?.length ?? 0) +
     (filters.priority?.length ?? 0) +
-    (filters.assigneeId ? 1 : 0) +
+    (filters.assigneeIds?.length ? filters.assigneeIds.length : filters.assigneeId ? 1 : 0) +
     (filters.search ? 1 : 0);
 
   const toggle = (key: 'status' | 'priority', value: TaskPriority | TaskProgressStatus) => {
@@ -46,7 +69,12 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
   };
 
   return (
-    <div data-testid="task-filter-bar" aria-label="Task filters" className="w-full">
+    <div
+      ref={filterBarRef}
+      data-testid="task-filter-bar"
+      aria-label="Task filters"
+      className="relative w-full"
+    >
       <div className="flex flex-wrap items-center justify-start gap-2.5 sm:justify-end">
         <div className="relative w-44 sm:w-56">
           <Input
@@ -113,7 +141,7 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
       </div>
 
       {expanded && (
-        <div className="border-border/70 animate-in fade-in slide-in-from-top-2 mt-3 w-full border-t pt-3 duration-150">
+        <div className="animate-in fade-in zoom-in-95 absolute right-0 top-full z-dropdown mt-2 w-full duration-150 sm:w-[560px] md:w-[680px]">
           <div className="grid gap-3.5 rounded-card border border-border bg-surface p-4 shadow-elevated sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="mb-2 text-xs font-semibold text-text">Status</p>
@@ -143,18 +171,76 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
               </div>
             </div>
 
-            <Select
-              aria-label="Assignee"
-              label="Assignee"
-              value={filters.assigneeId ?? ''}
-              options={[
-                { value: '', label: 'Everyone' },
-                { value: 'me', label: 'Me' },
-                { value: 'unassigned', label: 'Unassigned' },
-                ...members.map((member) => ({ value: member._id, label: member.name })),
-              ]}
-              onChange={(event) => setFilters({ assigneeId: event.target.value || undefined })}
-            />
+            <div>
+              <Select
+                aria-label="Assignee"
+                label="Assignee"
+                value={
+                  isMultipleAssignees
+                    ? '__multiple__'
+                    : (filters.assigneeIds?.[0] ?? filters.assigneeId ?? '')
+                }
+                options={[
+                  { value: '', label: 'Everyone' },
+                  ...(isMultipleAssignees
+                    ? [
+                        {
+                          value: '__multiple__',
+                          label: `${filters.assigneeIds?.length} members selected`,
+                        },
+                      ]
+                    : []),
+                  { value: 'me', label: 'Me' },
+                  { value: 'unassigned', label: 'Unassigned' },
+                  ...members.map((member) => ({ value: member._id, label: member.name })),
+                ]}
+                onChange={(event) => {
+                  const val = event.target.value;
+                  if (!val || val === '__multiple__') {
+                    setFilters({ assigneeId: undefined, assigneeIds: undefined });
+                  } else {
+                    setFilters({
+                      assigneeId: val,
+                      assigneeIds: [val],
+                    });
+                  }
+                }}
+              />
+              {isMultipleAssignees && (
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {filters.assigneeIds?.map((id) => {
+                    const memberName =
+                      id === 'me'
+                        ? 'Me'
+                        : id === 'unassigned'
+                          ? 'Unassigned'
+                          : (members.find((m) => m._id === id)?.name ?? id);
+                    return (
+                      <span
+                        key={id}
+                        className="bg-accent/15 inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium text-accent"
+                      >
+                        {memberName}
+                        <button
+                          type="button"
+                          aria-label={`Remove ${memberName} filter`}
+                          className="hover:text-text"
+                          onClick={() => {
+                            const remaining = filters.assigneeIds?.filter((x) => x !== id) ?? [];
+                            setFilters({
+                              assigneeIds: remaining.length > 0 ? remaining : undefined,
+                              assigneeId: remaining.length > 0 ? remaining[0] : undefined,
+                            });
+                          }}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-2">
               <Select

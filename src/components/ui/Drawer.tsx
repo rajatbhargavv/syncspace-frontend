@@ -69,7 +69,7 @@ export const Drawer: React.FC<DrawerProps> = ({
         role="dialog"
         aria-modal="true"
         className={cn(
-          'safe-top safe-bottom safe-right fixed z-modal flex h-full w-full flex-col overflow-y-auto border-border bg-surface p-6 shadow-elevated transition-transform',
+          'fixed z-modal flex h-full w-full flex-col overflow-y-auto border-border bg-surface p-6 pb-1 pr-1 shadow-elevated transition-transform',
           sizeStyles[size],
           positionStyles[position],
           className,

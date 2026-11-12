@@ -51,4 +51,18 @@ describe('useTaskFilters', () => {
     expect(result.current.filters.search).toBeUndefined();
     expect(result.current.filters.status).toBeUndefined();
   });
+
+  it('handles multiple assignees in filters', () => {
+    const wrapper = createWrapper('/spaces/s1?assignee=u1,u2');
+    const { result } = renderHook(() => useTaskFilters(), { wrapper });
+
+    expect(result.current.filters.assigneeIds).toEqual(['u1', 'u2']);
+    expect(result.current.filters.assigneeId).toBe('u1');
+
+    act(() => {
+      result.current.setFilters({ assigneeIds: ['u2', 'u3'] });
+    });
+
+    expect(result.current.filters.assigneeIds).toEqual(['u2', 'u3']);
+  });
 });

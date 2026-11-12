@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   closestCorners,
   DndContext,
@@ -18,7 +18,8 @@ import { CreateTaskDialog } from './CreateTaskDialog';
 import { BoardColumn } from './BoardColumn';
 import { TaskCard } from './TaskCard';
 import { useSpace } from '@/features/spaces';
-import { groupTasksByStatus, sortTasks, statusMeta } from '../utils/taskUtils';
+import { AuthContext } from '@/app/providers/AuthContext';
+import { filterTasks, groupTasksByStatus, statusMeta } from '../utils/taskUtils';
 import { useSpaceTasks } from '../hooks/useSpaceTasks';
 import { useTaskFilters } from '../hooks/useTaskFilters';
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
@@ -35,6 +36,8 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
   const tasksQuery = useSpaceTasks(spaceId);
   const { filters } = useTaskFilters();
   const updateStatus = useUpdateTaskStatus();
+  const auth = useContext(AuthContext);
+  const currentUserId = auth?.user?._id;
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [createStatus, setCreateStatus] = useState<TaskProgressStatus | null>(null);
   const sensors = useSensors(
@@ -43,25 +46,8 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
   const filteredTasks = useMemo(() => {
-    let result = tasksQuery.data ?? [];
-    const statuses = filters.status;
-    const priorities = filters.priority;
-    if (filters.search) {
-      const query = filters.search.toLowerCase();
-      result = result.filter(
-        (task) =>
-          task.title.toLowerCase().includes(query) ||
-          (task.description?.toLowerCase().includes(query) ?? false),
-      );
-    }
-    if (statuses?.length) {
-      result = result.filter((task) => statuses.includes(task.progressStatus));
-    }
-    if (priorities?.length) {
-      result = result.filter((task) => priorities.includes(task.priority));
-    }
-    return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
-  }, [filters, tasksQuery.data]);
+    return filterTasks(tasksQuery.data ?? [], filters, currentUserId);
+  }, [filters, tasksQuery.data, currentUserId]);
   const groups = useMemo(() => groupTasksByStatus(filteredTasks), [filteredTasks]);
   const kind = spaceQuery.data?.kind;
 

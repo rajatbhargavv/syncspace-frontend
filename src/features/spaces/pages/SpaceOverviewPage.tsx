@@ -196,63 +196,65 @@ export const SpaceOverviewPage: React.FC = () => {
         </div>
       )}
 
-      {/* Workspace Toolbar */}
-      <section aria-label="Task views and controls" className="space-y-6">
-        <div className="border-border/80 bg-surface/50 rounded-card border p-3 shadow-card backdrop-blur-sm sm:p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="inline-flex shrink-0">
-              <Tabs
-                tabs={VIEW_TABS}
-                activeTab={view}
-                onChange={(tabId) => setView(tabId as SpaceViewType)}
-                variant="pills"
-              />
-            </div>
-            <Link
-              to={ROUTES.spaceActivity(currentSpace._id)}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-hover hover:text-text"
-            >
-              Activity{' '}
-              <span aria-label="Pro feature" title="Pro feature">
-                🔒
-              </span>
-            </Link>
+      {/* Workload strip */}
+      <WorkloadStrip spaceId={currentSpace._id} />
 
-            <div className="flex-1 lg:max-w-3xl">
-              <TaskFilterBar
-                spaceId={currentSpace._id}
-                action={
-                  !isInactive ? (
-                    <Button
-                      size="sm"
-                      onClick={() => setCreateTaskOpen(true)}
-                      className="shrink-0 gap-1.5 shadow-sm"
-                    >
-                      <svg
-                        className="h-3.5 w-3.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+      {/* Workspace Toolbar */}
+      <section aria-label="Task views and controls" className="space-y-4">
+        <div className="sticky -top-4 z-20 -mx-4 bg-bg px-4 pb-2 pt-4 sm:-top-6 sm:-mx-6 sm:px-6 sm:pt-6 md:-top-8 md:-mx-8 md:px-8 md:pt-8">
+          <div className="border-border/80 rounded-card border bg-surface p-3 shadow-card sm:p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="inline-flex shrink-0">
+                <Tabs
+                  tabs={VIEW_TABS}
+                  activeTab={view}
+                  onChange={(tabId) => setView(tabId as SpaceViewType)}
+                  variant="pills"
+                />
+              </div>
+              <Link
+                to={ROUTES.spaceActivity(currentSpace._id)}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-hover hover:text-text"
+              >
+                Activity{' '}
+                <span aria-label="Pro feature" title="Pro feature">
+                  🔒
+                </span>
+              </Link>
+
+              <div className="flex-1 lg:max-w-3xl">
+                <TaskFilterBar
+                  spaceId={currentSpace._id}
+                  action={
+                    !isInactive ? (
+                      <Button
+                        size="sm"
+                        onClick={() => setCreateTaskOpen(true)}
+                        className="shrink-0 gap-1.5 shadow-sm"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      <span>New {kind.wording.taskNounSingular.toLowerCase()}</span>
-                    </Button>
-                  ) : undefined
-                }
-              />
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                        <span>New {kind.wording.taskNounSingular.toLowerCase()}</span>
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Workload strip */}
-        <WorkloadStrip spaceId={currentSpace._id} />
 
         {/* Active View Component */}
         <main aria-label={`${kind.wording.taskNoun} workspace`} className="mt-2">

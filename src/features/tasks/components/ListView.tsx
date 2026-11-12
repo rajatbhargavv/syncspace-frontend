@@ -9,7 +9,7 @@ import { useTaskFilters } from '../hooks/useTaskFilters';
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
 import { TaskRow } from './TaskRow';
 import type { Task, TaskProgressStatus } from '../types/task.types';
-import { sortTasks } from '../utils/taskUtils';
+import { filterTasks } from '../utils/taskUtils';
 
 export interface ListViewProps {
   spaceId: string;
@@ -25,26 +25,7 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   const { getName } = useMemberLookup(spaceId);
   const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority'>('none');
   const data = useMemo(() => {
-    let result = (rawTasks.data ?? []).filter((task) => task.lifecycleStatus !== 'DELETED');
-    if (filters.search) {
-      const query = filters.search.toLowerCase();
-      result = result.filter(
-        (task) =>
-          task.title.toLowerCase().includes(query) ||
-          task.description?.toLowerCase().includes(query),
-      );
-    }
-    if (filters.status?.length)
-      result = result.filter((task) => filters.status?.includes(task.progressStatus));
-    if (filters.priority?.length)
-      result = result.filter((task) => filters.priority?.includes(task.priority));
-    if (filters.assigneeId === 'unassigned')
-      result = result.filter((task) => task.assignees.length === 0);
-    if (filters.assigneeId === 'me' && auth?.user?._id)
-      result = result.filter((task) =>
-        task.assignees.some((assignee) => assignee.userId === auth.user?._id),
-      );
-    return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
+    return filterTasks(rawTasks.data ?? [], filters, auth?.user?._id);
   }, [auth?.user?._id, filters, rawTasks.data]);
   const groups = useMemo(() => {
     const result = data;
@@ -90,7 +71,11 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   }
   if (data.length === 0) {
     const hasFilters = Boolean(
-      filters.search || filters.status?.length || filters.priority?.length || filters.assigneeId,
+      filters.search ||
+      filters.status?.length ||
+      filters.priority?.length ||
+      filters.assigneeIds?.length ||
+      filters.assigneeId,
     );
     return (
       <div data-testid="list-view">

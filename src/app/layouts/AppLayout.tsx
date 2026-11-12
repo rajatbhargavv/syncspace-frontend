@@ -9,14 +9,14 @@ export const AppLayout: React.FC = () => {
   useServiceWorkerMessages();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   return (
-    <div className="flex min-h-screen flex-col bg-bg text-text">
+    <div className="flex h-screen flex-col overflow-hidden bg-bg text-text">
       <OfflineBanner />
       <InstallBanner />
-      <div className="flex flex-1">
-        <div className="hidden md:block">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="hidden h-full shrink-0 md:flex">
           <Sidebar />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <Topbar onOpenMenu={() => setIsMobileNavOpen(true)} />
           <a
             href="#main-content"
@@ -24,8 +24,10 @@ export const AppLayout: React.FC = () => {
           >
             Skip to content
           </a>
-          <main id="main-content" className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 md:p-8">
-            <Outlet />
+          <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+            <div className="mx-auto w-full max-w-7xl">
+              <Outlet />
+            </div>
           </main>
         </div>
         <MobileNav isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />

@@ -59,6 +59,7 @@ export interface TaskFilters {
   status?: TaskProgressStatus[];
   priority?: TaskPriority[];
   assigneeId?: 'me' | (string & {});
+  assigneeIds?: string[];
   sort?: 'deadline' | 'priority' | 'createdAt';
   dir?: 'asc' | 'desc';
 }

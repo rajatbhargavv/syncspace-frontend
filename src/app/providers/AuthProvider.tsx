@@ -28,7 +28,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
+    } catch {
+      // Ignore error to ensure client state is cleared
     } finally {
+      disconnectSocket();
       queryClient.setQueryData(queryKeys.auth.me(), null);
     }
   };

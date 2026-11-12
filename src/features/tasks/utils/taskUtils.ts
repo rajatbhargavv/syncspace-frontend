@@ -1,7 +1,7 @@
 import { TASK_PRIORITY, TASK_PROGRESS_STATUS } from '@/config/constants';
 import { getSpaceKindConfig } from '@/features/spaces';
 import type { SpaceKind } from '@/features/spaces';
-import type { Task, TaskPriority, TaskProgressStatus } from '../types/task.types';
+import type { Task, TaskFilters, TaskPriority, TaskProgressStatus } from '../types/task.types';
 
 // ── Group tasks by progress status ──
 export function groupTasksByStatus(tasks: Task[]): Record<TaskProgressStatus, Task[]> {
@@ -45,6 +45,56 @@ export function sortTasks(
 
     return dir === 'desc' ? -comparison : comparison;
   });
+}
+
+// ── Filter tasks ──
+export function filterTasks(tasks: Task[], filters: TaskFilters, currentUserId?: string): Task[] {
+  let result = tasks.filter((t) => t.lifecycleStatus !== 'DELETED');
+
+  // 1. Text Search (title & description)
+  if (filters.search) {
+    const q = filters.search.trim().toLowerCase();
+    result = result.filter(
+      (task) =>
+        task.title.toLowerCase().includes(q) ||
+        Boolean(task.description && task.description.toLowerCase().includes(q)),
+    );
+  }
+
+  // 2. Status filter
+  if (filters.status && filters.status.length > 0) {
+    const statusSet = new Set(filters.status);
+    result = result.filter((task) => statusSet.has(task.progressStatus));
+  }
+
+  // 3. Priority filter
+  if (filters.priority && filters.priority.length > 0) {
+    const prioritySet = new Set(filters.priority);
+    result = result.filter((task) => prioritySet.has(task.priority));
+  }
+
+  // 4. Assignee filter (supports multiple assignee IDs, 'me', and 'unassigned')
+  const effectiveAssignees =
+    filters.assigneeIds && filters.assigneeIds.length > 0
+      ? filters.assigneeIds
+      : filters.assigneeId
+        ? [filters.assigneeId]
+        : [];
+
+  if (effectiveAssignees.length > 0) {
+    result = result.filter((task) =>
+      effectiveAssignees.some((target) => {
+        if (target === 'unassigned') {
+          return task.assignees.length === 0;
+        }
+        const targetUserId = target === 'me' ? currentUserId : target;
+        return targetUserId ? task.assignees.some((a) => a.userId === targetUserId) : false;
+      }),
+    );
+  }
+
+  // 5. Client-side Sort
+  return sortTasks(result, filters.sort ?? 'deadline', filters.dir);
 }
 
 // ── Check if task is overdue ──

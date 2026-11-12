@@ -64,4 +64,23 @@ describe('useLogout hook', () => {
     expect(clearAppBadgeMock).toHaveBeenCalled();
     expect(authApi.logout).toHaveBeenCalled();
   });
+
+  it('clears client auth session even if backend logout throws an error', async () => {
+    vi.mocked(authApi.logout).mockRejectedValueOnce(new Error('Network error'));
+
+    const queryClient = new QueryClient();
+    const setQueryDataSpy = vi.spyOn(queryClient, 'setQueryData');
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useLogout(), { wrapper });
+
+    await act(async () => {
+      await result.current.mutateAsync();
+    });
+
+    expect(authApi.logout).toHaveBeenCalled();
+    expect(setQueryDataSpy).toHaveBeenCalledWith(['auth', 'me'], null);
+  });
 });

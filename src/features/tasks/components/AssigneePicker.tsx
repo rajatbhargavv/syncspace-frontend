@@ -46,7 +46,7 @@ export const AssigneePicker: React.FC<AssigneePickerProps> = ({ task, readOnly =
   return (
     <section aria-label="Assignees" className="space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-text">Assignees</h3>
+        <h3 className="text-lg font-semibold text-text">Assignees</h3>
         <p className="text-xs text-text-muted">
           Task status and each person&apos;s progress are separate.
         </p>
