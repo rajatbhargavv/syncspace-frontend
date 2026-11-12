@@ -14,6 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "check:contrast": "node --experimental-strip-types scripts/check-contrast.ts",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run check:contrast && npm test && npm run build",
     "prepare": "husky"
   },
   "dependencies": {
