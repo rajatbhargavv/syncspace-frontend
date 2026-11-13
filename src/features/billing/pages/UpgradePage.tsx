@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, PlanBadge } from '@/components/ui';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button, IconButton, PlanBadge } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { BILLING_CONTACT, PLANS, type BillingPeriod } from '@/config/plans';
 import { ROUTES } from '@/config/routes';
@@ -9,14 +9,36 @@ import { useCheckout } from '../hooks/useCheckout';
 
 export const UpgradePage: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [period, setPeriod] = useState<BillingPeriod>('monthly');
   const checkout = useCheckout();
+  const closeUpgrade = () => {
+    const state = location.state as unknown;
+    const returnTo = isReturnState(state) ? state.returnTo : null;
+    if (returnTo) {
+      navigate(returnTo, { replace: true });
+    } else {
+      navigate(-1);
+    }
+  };
   return (
     <div className="space-y-6">
       <PageHeader
         title="Upgrade to Pro"
         description="Unlock the performance insights your team deserves."
         badge={<PlanBadge plan={user?.plan ?? 'FREE'} />}
+        actions={
+          <IconButton
+            aria-label="Close upgrade page"
+            variant="ghost"
+            size="lg"
+            className="hover:bg-error/10 text-2xl text-error"
+            onClick={closeUpgrade}
+          >
+            ×
+          </IconButton>
+        }
       />
       <div className="flex justify-center">
         <div
@@ -96,3 +118,12 @@ export const UpgradePage: React.FC = () => {
     </div>
   );
 };
+
+function isReturnState(value: unknown): value is { returnTo: string } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'returnTo' in value &&
+    typeof value.returnTo === 'string'
+  );
+}

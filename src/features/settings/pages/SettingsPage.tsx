@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Badge, Button, Dialog, Input, PlanBadge, Tabs } from '@/components/ui';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SettingsNotificationSection } from '@/features/push';
@@ -15,7 +15,7 @@ import { ApiError } from '@/types';
 import { disconnectSocket } from '@/lib/socket';
 import { ThemeScope } from '@/features/spaces';
 import { checkPasswordCriteria } from '@/features/auth/schemas/auth.schema';
-import { updatePlan, updateUser, deactivateUser } from '../api/settings.api';
+import { updateUser, deactivateUser } from '../api/settings.api';
 import {
   passwordChangeSchema,
   profileSchema,
@@ -26,10 +26,15 @@ import {
 type Tab = 'profile' | 'security' | 'appearance' | 'account';
 
 export const SettingsPage: React.FC = () => {
+  const location = useLocation();
   const [tab, setTab] = useState<Tab>('profile');
   useEffect(() => {
     document.title = 'Settings | SyncSpace';
   }, []);
+  useEffect(() => {
+    const requestedTab = new URLSearchParams(location.search).get('tab');
+    if (requestedTab === 'account') setTab('account');
+  }, [location.search]);
   const tabs = [
     { id: 'profile', label: 'Profile' },
     { id: 'security', label: 'Security' },
@@ -228,12 +233,6 @@ function AppearanceTab() {
           Spaces retain their own theme.
         </div>
       </ThemeScope>
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <span className="text-sm text-text-muted">Upgrade to unlock more features</span>
-        <Button variant="outline" disabled>
-          Coming in Phase 5
-        </Button>
-      </div>
     </section>
   );
 }
@@ -322,30 +321,22 @@ function AccountTab() {
 
 function DevPlanCard() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const location = useLocation();
   return (
     <div className="border-t border-border pt-5">
       <p className="text-sm font-semibold text-text">Developer</p>
       <div className="mt-2 flex gap-2">
-        {(['FREE', 'PRO'] as const).map((plan) => (
-          <Button
-            key={plan}
-            size="sm"
-            variant={user?.plan === plan ? 'primary' : 'outline'}
-            onClick={() =>
-              void updatePlan(plan)
-                .then((updated) => {
-                  queryClient.setQueryData(queryKeys.auth.me(), updated);
-                  toast.success(`Plan set to ${plan}`);
-                })
-                .catch((error: unknown) =>
-                  toast.error(error instanceof Error ? error.message : 'Unable to update plan'),
-                )
-            }
+        {user?.plan === 'PRO' ? (
+          <span className="text-sm text-text-muted">Already a Pro</span>
+        ) : (
+          <Link
+            to={ROUTES.upgrade}
+            state={{ returnTo: `${location.pathname}?tab=account` }}
+            className="inline-flex items-center justify-center rounded-button border border-border bg-transparent px-3 py-1.5 text-xs font-medium text-text transition-colors hover:border-accent hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
-            {plan}
-          </Button>
-        ))}
+            Switch to Pro
+          </Link>
+        )}
       </div>
     </div>
   );
