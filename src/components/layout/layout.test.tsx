@@ -26,6 +26,7 @@ const spaces = [
 
 vi.mock('@/features/spaces', () => ({
   useSpaces: () => ({ data: spaces, isLoading: false, isError: false, refetch: vi.fn() }),
+  useDiscoverableSpaces: () => ({ data: [], isLoading: false, isError: false }),
   SpaceThemeDot: () => <span data-testid="space-theme-dot" />,
 }));
 
