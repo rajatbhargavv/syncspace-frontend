@@ -40,6 +40,7 @@ export const joinPolicySchema = z.enum([
 ]);
 
 export const spaceStatusSchema = z.enum([SPACE_STATUS.ACTIVE, SPACE_STATUS.INACTIVE]);
+export const spacePermissionSchema = z.enum(['OWNER_ONLY', 'OWNER_AND_CREATOR', 'ALL_MEMBERS']);
 
 export const spaceThemeSchema = z.object({
   preset: themePresetSchema,
@@ -82,6 +83,8 @@ export const updateSpaceSchema = z.object({
   theme: spaceThemeSchema.optional(),
   visibility: visibilitySchema.optional(),
   joinPolicy: joinPolicySchema.optional(),
+  assigneePermission: spacePermissionSchema.optional(),
+  invitePermission: spacePermissionSchema.optional(),
 });
 
 export type UpdateSpaceFormValues = z.infer<typeof updateSpaceSchema>;

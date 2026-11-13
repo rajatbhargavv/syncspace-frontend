@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar, Badge, Select } from '@/components/ui';
 import { useMemberLookup } from '../hooks/useMemberLookup';
 import { formatDeadline, isOverdue, priorityMeta, statusMeta } from '../utils/taskUtils';
@@ -10,6 +10,9 @@ export interface TaskRowProps {
   kind: Parameters<typeof statusMeta>[0];
   onOpen: () => void;
   onStatusChange: (status: TaskProgressStatus) => void;
+  assigneeOptions: Array<{ value: string; label: string }>;
+  canChangeAssignee: boolean;
+  onAssigneeChange: (assigneeIds: string[]) => void;
   disabled?: boolean;
 }
 
@@ -19,12 +22,31 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   kind,
   onOpen,
   onStatusChange,
+  assigneeOptions,
+  canChangeAssignee,
+  onAssigneeChange,
   disabled = false,
 }) => {
   const { getName } = useMemberLookup(spaceId);
   const meta = statusMeta(kind);
   const priority = priorityMeta[task.priority];
   const overdue = isOverdue(task);
+  const [isAssigneeMenuOpen, setIsAssigneeMenuOpen] = useState(false);
+  const selectedAssigneeIds = new Set(task.assignees.map((assignee) => assignee.userId));
+  const assigneeLabel =
+    task.assignees.length === 0
+      ? 'Unassigned'
+      : task.assignees.length === 1
+        ? (assigneeOptions.find((option) => option.value === task.assignees[0]?.userId)?.label ??
+          '1 assignee')
+        : `${task.assignees.length} assignees`;
+
+  const toggleAssignee = (assigneeId: string) => {
+    const nextIds = new Set(selectedAssigneeIds);
+    if (nextIds.has(assigneeId)) nextIds.delete(assigneeId);
+    else nextIds.add(assigneeId);
+    onAssigneeChange(Array.from(nextIds));
+  };
 
   return (
     <div
@@ -38,7 +60,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         }
       }}
       onKeyUp={() => undefined}
-      className="border-border/60 hover:bg-surface-hover/50 grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors md:grid-cols-[minmax(0,2fr)_140px_130px_120px] md:items-center"
+      className="border-border/60 hover:bg-surface-hover/50 grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors md:grid-cols-[minmax(0,2fr)_140px_130px_170px_120px] md:items-center"
     >
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold text-text">{task.title}</p>
@@ -61,6 +83,68 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       <Badge variant={priority.badgeVariant} size="sm" className="w-fit">
         {priority.label}
       </Badge>
+      <div className="relative">
+        <button
+          type="button"
+          aria-expanded={isAssigneeMenuOpen}
+          aria-haspopup="menu"
+          aria-label={`Assignees for ${task.title}`}
+          disabled={disabled || !canChangeAssignee}
+          onClick={(event) => {
+            event.stopPropagation();
+            setIsAssigneeMenuOpen((isOpen) => !isOpen);
+          }}
+          onKeyDown={(event) => event.stopPropagation()}
+          className="w-full rounded-input border border-border bg-surface px-3 py-1.5 text-left text-xs text-text transition-colors focus-visible:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="block truncate">{assigneeLabel}</span>
+        </button>
+        {isAssigneeMenuOpen && (
+          <div
+            role="menu"
+            aria-label={`Select assignees for ${task.title}`}
+            className="absolute left-0 top-full z-20 mt-1 max-h-52 w-full min-w-44 overflow-y-auto rounded-input border border-border bg-surface p-1 shadow-card"
+          >
+            {assigneeOptions.map((option) => (
+              <button
+                type="button"
+                role="menuitemcheckbox"
+                aria-checked={selectedAssigneeIds.has(option.value)}
+                key={option.value}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleAssignee(option.value);
+                }}
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-text hover:bg-surface-hover"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`flex h-3.5 w-3.5 items-center justify-center rounded border ${
+                    selectedAssigneeIds.has(option.value)
+                      ? 'border-accent bg-accent text-white'
+                      : 'border-border'
+                  }`}
+                >
+                  {selectedAssigneeIds.has(option.value) && '✓'}
+                </span>
+                <span className="truncate">{option.label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              role="menuitem"
+              disabled={task.assignees.length === 0}
+              onClick={(event) => {
+                event.stopPropagation();
+                onAssigneeChange([]);
+              }}
+              className="w-full rounded px-2 py-1.5 text-left text-xs text-error hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+      </div>
       <div className="flex items-center justify-between gap-2 text-xs">
         <div className="flex -space-x-2" aria-label="Assignees">
           {task.assignees.slice(0, 3).map((assignee) => (

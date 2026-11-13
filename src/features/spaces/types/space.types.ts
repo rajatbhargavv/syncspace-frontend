@@ -6,6 +6,7 @@ import {
   JOIN_POLICY,
   SPACE_STATUS,
   MEMBER_ROLE,
+  SPACE_PERMISSION,
 } from '@/config/constants';
 
 // ── Enum-like union types (derived from backend constants) ──
@@ -17,6 +18,7 @@ export type SpaceVisibility = (typeof VISIBILITY)[keyof typeof VISIBILITY];
 export type SpaceJoinPolicy = (typeof JOIN_POLICY)[keyof typeof JOIN_POLICY];
 export type SpaceStatus = (typeof SPACE_STATUS)[keyof typeof SPACE_STATUS];
 export type MemberRole = (typeof MEMBER_ROLE)[keyof typeof MEMBER_ROLE];
+export type SpacePermission = (typeof SPACE_PERMISSION)[keyof typeof SPACE_PERMISSION];
 
 // ── Theme shape ──
 
@@ -37,6 +39,9 @@ export interface Space {
   joinPolicy: SpaceJoinPolicy;
   status: SpaceStatus;
   owner: string;
+  ownerId?: string;
+  assigneePermission?: SpacePermission;
+  invitePermission?: SpacePermission;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,6 +83,22 @@ export interface PublicSpace {
   }>;
 }
 
+export interface DiscoverableSpace {
+  _id: string;
+  name: string;
+  description: string;
+  kind: SpaceKind;
+  theme: SpaceTheme;
+  visibility: 'PUBLIC';
+  joinPolicy: SpaceJoinPolicy;
+  owner: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ── Mutation inputs ──
 
 export interface CreateSpaceInput {
@@ -97,4 +118,6 @@ export interface UpdateSpaceInput {
   theme?: SpaceTheme;
   visibility?: SpaceVisibility;
   joinPolicy?: SpaceJoinPolicy;
+  assigneePermission?: SpacePermission;
+  invitePermission?: SpacePermission;
 }

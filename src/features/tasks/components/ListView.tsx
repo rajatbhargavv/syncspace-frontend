@@ -1,11 +1,14 @@
 import React, { useContext, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { EmptyState, ErrorState, Select, Skeleton } from '@/components/ui';
 import { useSpace } from '@/features/spaces';
+import { useSpaceMembers } from '@/features/members';
 import { AuthContext } from '@/app/providers/AuthContext';
 import { useMemberLookup } from '../hooks/useMemberLookup';
 import { useOpenTask } from '../hooks/useOpenTask';
 import { useSpaceTasks } from '../hooks/useSpaceTasks';
 import { useTaskFilters } from '../hooks/useTaskFilters';
+import { useAddAssignee, useRemoveAssignee } from '../hooks/useAssigneeMutations';
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
 import { TaskRow } from './TaskRow';
 import type { Task, TaskProgressStatus } from '../types/task.types';
@@ -22,6 +25,9 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   const space = useSpace(spaceId);
   const { open } = useOpenTask();
   const updateStatus = useUpdateTaskStatus();
+  const addAssignee = useAddAssignee();
+  const removeAssignee = useRemoveAssignee();
+  const spaceMembers = useSpaceMembers(spaceId);
   const { getName } = useMemberLookup(spaceId);
   const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority'>('none');
   const data = useMemo(() => {
@@ -46,6 +52,44 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
     }
     return Array.from(grouped.entries());
   }, [data, getName, groupBy]);
+  const assigneeOptions = (spaceMembers.data ?? []).map((member) => ({
+    value: member.userId._id,
+    label: member.userId.name,
+  }));
+  const canChangeAssignee = (task: Task) => {
+    const userId = auth?.user?._id;
+    if (!userId || !space.data) return false;
+    const ownerId = space.data.ownerId ?? space.data.owner;
+    if (ownerId === userId) return true;
+    if (!space.data.assigneePermission || space.data.assigneePermission === 'OWNER_AND_CREATOR') {
+      return task.createdBy === userId;
+    }
+    if (space.data.assigneePermission === 'ALL_MEMBERS') {
+      return (spaceMembers.data ?? []).some(
+        (member) => member.userId._id === userId && member.status === 'ACTIVE',
+      );
+    }
+    return false;
+  };
+  const changeAssignees = async (task: Task, assigneeIds: string[]) => {
+    if (!canChangeAssignee(task)) return;
+    const currentIds = new Set(task.assignees.map((assignment) => assignment.userId));
+    const nextIds = new Set(assigneeIds);
+    const removedIds = Array.from(currentIds).filter((userId) => !nextIds.has(userId));
+    const addedIds = assigneeIds.filter((userId) => !currentIds.has(userId));
+    if (removedIds.length === 0 && addedIds.length === 0) return;
+    try {
+      for (const userId of removedIds) {
+        await removeAssignee.mutateAsync({ taskId: task._id, userId, spaceId });
+      }
+      for (const userId of addedIds) {
+        await addAssignee.mutateAsync({ taskId: task._id, userId, spaceId });
+      }
+      toast.success(nextIds.size > 0 ? 'Assignees updated' : 'Task unassigned');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Unable to update assignee');
+    }
+  };
 
   if (rawTasks.isLoading || space.isLoading) {
     return (
@@ -128,6 +172,9 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
               onStatusChange={(progressStatus: TaskProgressStatus) =>
                 updateStatus.mutate({ taskId: task._id, spaceId, progressStatus })
               }
+              assigneeOptions={assigneeOptions}
+              canChangeAssignee={canChangeAssignee(task)}
+              onAssigneeChange={(assigneeIds) => void changeAssignees(task, assigneeIds)}
             />
           ))}
         </div>
