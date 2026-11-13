@@ -20,9 +20,26 @@ import type { AnalyticsRange, SpaceAnalytics } from '../types/analytics.types';
 interface ChartProps {
   analytics: SpaceAnalytics;
   range: AnalyticsRange;
+  onDistribute?: () => void;
+  isDistributing?: boolean;
+  canDistribute?: boolean;
+  distributeDisabledReason?: string;
+  onUndo?: () => void;
+  isUndoing?: boolean;
+  canUndo?: boolean;
 }
 
-export const AnalyticsCharts: React.FC<ChartProps> = ({ analytics, range }) => {
+export const AnalyticsCharts: React.FC<ChartProps> = ({
+  analytics,
+  range,
+  onDistribute,
+  isDistributing = false,
+  canDistribute = false,
+  distributeDisabledReason,
+  onUndo,
+  isUndoing = false,
+  canUndo = false,
+}) => {
   const colors = useChartColors();
   const [showTable, setShowTable] = useState(false);
   const points = useMemo(
@@ -134,7 +151,36 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({ analytics, range }) => {
         )}
       </ChartCard>
 
-      <ChartCard title="Current workload" summary="Active tasks assigned to each member.">
+      <ChartCard
+        title="Current workload"
+        summary="Active tasks assigned to each member."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {onDistribute && (
+              <button
+                type="button"
+                className="rounded-button border border-border px-3 py-1.5 text-xs font-medium text-text transition-colors hover:border-accent hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+                disabled={!canDistribute || isDistributing || isUndoing}
+                title={distributeDisabledReason}
+                onClick={onDistribute}
+              >
+                {isDistributing ? 'Distributing...' : 'Distribute equally'}
+              </button>
+            )}
+            {onUndo && (
+              <button
+                type="button"
+                className="rounded-button border border-border px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:border-accent hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+                disabled={!canUndo || isUndoing || isDistributing}
+                title={canUndo ? undefined : 'Distribute tasks first'}
+                onClick={onUndo}
+              >
+                {isUndoing ? 'Restoring...' : 'Return to previous state'}
+              </button>
+            )}
+          </div>
+        }
+      >
         <ChartTableToggle showTable={showTable} onChange={setShowTable} />
         {showTable ? (
           <SimpleTable
@@ -171,17 +217,22 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({ analytics, range }) => {
 function ChartCard({
   title,
   summary,
+  actions,
   children,
 }: {
   title: string;
   summary: string;
+  actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="rounded-card border border-border bg-surface p-4 shadow-card sm:p-5">
-      <div className="mb-3">
-        <h2 className="font-heading font-bold text-text">{title}</h2>
-        <p className="text-xs text-text-muted">{summary}</p>
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-heading font-bold text-text">{title}</h2>
+          <p className="text-xs text-text-muted">{summary}</p>
+        </div>
+        {actions}
       </div>
       {children}
     </section>

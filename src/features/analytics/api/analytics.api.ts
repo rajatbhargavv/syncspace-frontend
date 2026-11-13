@@ -21,6 +21,14 @@ interface AnalyticsResponse {
   };
 }
 
+interface DistributeTasksResponse {
+  updatedCount: number;
+}
+
+interface DistributionUndoStatusResponse {
+  canUndo: boolean;
+}
+
 function normalizeDate(value: string): string {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   return value.slice(0, 10);
@@ -56,4 +64,18 @@ export async function getSpaceAnalytics(
           )
         : null,
   };
+}
+
+export async function distributeTasksEqually(spaceId: string): Promise<DistributeTasksResponse> {
+  return http.post<DistributeTasksResponse>(API_ENDPOINTS.SPACES.DISTRIBUTE_TASKS(spaceId));
+}
+
+export async function getDistributionUndoStatus(
+  spaceId: string,
+): Promise<DistributionUndoStatusResponse> {
+  return http.get<DistributionUndoStatusResponse>(API_ENDPOINTS.SPACES.DISTRIBUTION_UNDO(spaceId));
+}
+
+export async function undoTaskDistribution(spaceId: string): Promise<{ restoredCount: number }> {
+  return http.post<{ restoredCount: number }>(API_ENDPOINTS.SPACES.DISTRIBUTION_UNDO(spaceId));
 }

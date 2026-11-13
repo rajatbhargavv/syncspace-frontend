@@ -22,6 +22,8 @@ import {
 } from '..';
 import { AnalyticsCharts } from '../components/AnalyticsCharts';
 import { UpgradeCard } from '../components/UpgradeCard';
+import { useDistributeTasksEqually } from '../hooks/useDistributeTasksEqually';
+import { useDistributionUndo } from '../hooks/useDistributionUndo';
 import type { AnalyticsRange } from '../types/analytics.types';
 
 const RANGES: AnalyticsRange[] = ['7d', '30d', '90d'];
@@ -30,9 +32,15 @@ export const ActivityPage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { user } = useAuth();
   const spaceQuery = useSpace(id);
+  const canManageDistribution =
+    user !== null &&
+    user.plan === 'PRO' &&
+    (spaceQuery.data?.ownerId ?? spaceQuery.data?.owner) === user._id;
   const publicSpace = usePublicSpace(id);
   const { range, setRange } = useAnalyticsRange();
   const analyticsQuery = useSpaceAnalytics(id, range);
+  const distributeTasks = useDistributeTasksEqually(id, range);
+  const distributionUndo = useDistributionUndo(id, range, canManageDistribution);
   const tasksQuery = useSpaceTasks(id);
   const { open } = useOpenTask();
   useSpaceTheme(spaceQuery.data);
@@ -54,7 +62,7 @@ export const ActivityPage: React.FC = () => {
     );
 
   const currentSpace = spaceQuery.data;
-  const ownerCanUpgrade = currentSpace.owner === user?._id;
+  const ownerCanUpgrade = canManageDistribution;
   const currentPath = `${ROUTES.spaceActivity(id)}?range=${range}`;
   const locked =
     analyticsQuery.isLocked ||
@@ -119,6 +127,47 @@ export const ActivityPage: React.FC = () => {
           analytics={analyticsQuery.data}
           tasks={tasksQuery.data ?? []}
           onOpenTask={open}
+          onDistribute={() =>
+            distributeTasks.mutate(undefined, {
+              onSuccess: ({ updatedCount }) => {
+                toast.success(
+                  updatedCount > 0
+                    ? `${updatedCount} task${updatedCount === 1 ? '' : 's'} distributed equally`
+                    : 'No active tasks to distribute',
+                );
+              },
+              onError: (error) =>
+                toast.error(
+                  error instanceof Error ? error.message : 'Unable to distribute tasks equally',
+                ),
+            })
+          }
+          isDistributing={distributeTasks.isPending}
+          canDistribute={user?.plan === 'PRO' && ownerCanUpgrade}
+          distributeDisabledReason={
+            user?.plan !== 'PRO'
+              ? 'Available with Pro'
+              : !ownerCanUpgrade
+                ? 'Only the space owner can distribute tasks'
+                : undefined
+          }
+          onUndo={() =>
+            distributionUndo.undoMutation.mutate(undefined, {
+              onSuccess: ({ restoredCount }) => {
+                toast.success(
+                  restoredCount > 0
+                    ? `${restoredCount} task${restoredCount === 1 ? '' : 's'} restored`
+                    : 'No tasks needed restoring',
+                );
+              },
+              onError: (error) =>
+                toast.error(
+                  error instanceof Error ? error.message : 'Unable to restore task distribution',
+                ),
+            })
+          }
+          isUndoing={distributionUndo.undoMutation.isPending}
+          canUndo={distributionUndo.data?.canUndo ?? false}
         />
       ) : (
         <Skeleton className="h-[30rem]" />
@@ -156,10 +205,24 @@ function ActivityContent({
   analytics,
   tasks,
   onOpenTask,
+  onDistribute,
+  isDistributing,
+  canDistribute,
+  distributeDisabledReason,
+  onUndo,
+  isUndoing,
+  canUndo,
 }: {
   analytics: NonNullable<ReturnType<typeof useSpaceAnalytics>['data']>;
   tasks: ReturnType<typeof useSpaceTasks>['data'];
   onOpenTask: (id: string) => void;
+  onDistribute: () => void;
+  isDistributing: boolean;
+  canDistribute: boolean;
+  distributeDisabledReason?: string;
+  onUndo: () => void;
+  isUndoing: boolean;
+  canUndo: boolean;
 }) {
   const completed = sumCompleted(analytics.tasksCompletedPerDay);
   const active = analytics.workloadPerMember.reduce(
@@ -187,7 +250,17 @@ function ActivityContent({
         />
         <Kpi label="Active workload" value={active} />
       </div>
-      <AnalyticsCharts analytics={analytics} range={analytics.range} />
+      <AnalyticsCharts
+        analytics={analytics}
+        range={analytics.range}
+        onDistribute={onDistribute}
+        isDistributing={isDistributing}
+        canDistribute={canDistribute}
+        distributeDisabledReason={distributeDisabledReason}
+        onUndo={onUndo}
+        isUndoing={isUndoing}
+        canUndo={canUndo}
+      />
       {insights.length > 0 && (
         <section className="border-accent/30 bg-accent-muted/30 rounded-card border p-5">
           <h2 className="font-heading font-bold text-text">Insights</h2>
