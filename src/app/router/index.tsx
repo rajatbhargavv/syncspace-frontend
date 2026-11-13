@@ -15,6 +15,13 @@ export const router = createBrowserRouter(
       element: <PublicLayout />,
       children: [
         {
+          path: 'invite/:token',
+          lazy: () =>
+            import('@/features/spaces/pages/InvitePage').then((m) => ({
+              Component: m.InvitePage,
+            })),
+        },
+        {
           path: 'u/:id',
           lazy: () =>
             import('@/features/profile/pages/ProfilePage').then((m) => ({

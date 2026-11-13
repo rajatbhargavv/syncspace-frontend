@@ -69,7 +69,7 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-labelledby={title ? 'dialog-title' : undefined}
         aria-describedby={description ? 'dialog-description' : undefined}
         className={cn(
-          'relative z-modal w-full rounded-card border border-border bg-surface p-6 shadow-elevated transition-all',
+          'relative z-modal max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-card border border-border bg-surface p-6 shadow-elevated transition-all',
           sizeStyles[size],
           className,
         )}

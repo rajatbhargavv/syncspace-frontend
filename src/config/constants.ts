@@ -18,10 +18,13 @@ export const API_ENDPOINTS = {
     CREATE: '/api/spaces',
     BY_ID: (id: string) => `/api/spaces/${id}`,
     PUBLIC: (id: string) => `/api/spaces/public/${id}`,
+    DISCOVER: '/api/spaces/discover',
     UPDATE: (id: string) => `/api/spaces/${id}`,
     DEACTIVATE: (id: string) => `/api/spaces/${id}/deactivate`,
     TASKS: (id: string) => `/api/spaces/${id}/tasks`,
     ANALYTICS: (id: string) => `/api/spaces/${id}/analytics`,
+    DISTRIBUTE_TASKS: (id: string) => `/api/spaces/${id}/distribute-equally`,
+    DISTRIBUTION_UNDO: (id: string) => `/api/spaces/${id}/distribution-undo`,
     INVITES: (id: string) => `/api/spaces/${id}/invites`,
     MEMBERS: (id: string) => `/api/spaces/${id}/members`,
     JOIN: (id: string) => `/api/spaces/${id}/join`,
@@ -141,6 +144,12 @@ export const MEMBER_STATUS = {
 export const MEMBER_ROLE = {
   OWNER: 'OWNER',
   MEMBER: 'MEMBER',
+} as const;
+
+export const SPACE_PERMISSION = {
+  OWNER_ONLY: 'OWNER_ONLY',
+  OWNER_AND_CREATOR: 'OWNER_AND_CREATOR',
+  ALL_MEMBERS: 'ALL_MEMBERS',
 } as const;
 
 export const USER_PLAN = {

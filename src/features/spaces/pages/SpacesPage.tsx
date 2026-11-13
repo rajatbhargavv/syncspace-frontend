@@ -4,13 +4,16 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button, EmptyState, ErrorState, Input, Skeleton } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { SpaceCard } from '../components/SpaceCard';
+import { DiscoverableSpaceCard } from '../components/DiscoverableSpaceCard';
 import { useSpaces } from '../hooks/useSpaces';
+import { useDiscoverableSpaces } from '../hooks/useDiscoverableSpaces';
 
 export const SpacesPage: React.FC = () => {
   const navigate = useNavigate();
   const spaces = useSpaces();
-  const [filter, setFilter] = useState<'all' | 'owned' | 'joined'>('all');
+  const [filter, setFilter] = useState<'all' | 'owned' | 'joined' | 'discover'>('all');
   const [search, setSearch] = useState('');
+  const discoverable = useDiscoverableSpaces(search, filter === 'discover');
 
   const filteredSpaces = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -26,7 +29,9 @@ export const SpacesPage: React.FC = () => {
       );
   }, [filter, search, spaces.data]);
 
-  if (spaces.isLoading) {
+  const discoverableSpaces = discoverable.data ?? [];
+
+  if (spaces.isLoading || (filter === 'discover' && discoverable.isLoading)) {
     return (
       <div className="space-y-6">
         <PageHeader title="Your Spaces" description="Your collaborative spaces." />
@@ -39,7 +44,7 @@ export const SpacesPage: React.FC = () => {
     );
   }
 
-  if (spaces.isError) {
+  if (spaces.isError || (filter === 'discover' && discoverable.isError)) {
     return (
       <div className="space-y-6">
         <PageHeader title="Your Spaces" />
@@ -60,14 +65,20 @@ export const SpacesPage: React.FC = () => {
       />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter spaces">
-          {(['all', 'owned', 'joined'] as const).map((value) => (
+          {(['all', 'owned', 'joined', 'discover'] as const).map((value) => (
             <Button
               key={value}
               size="sm"
               variant={filter === value ? 'primary' : 'outline'}
               onClick={() => setFilter(value)}
             >
-              {value === 'all' ? 'All' : value === 'owned' ? 'Owned' : 'Joined'}
+              {value === 'all'
+                ? 'All'
+                : value === 'owned'
+                  ? 'Owned'
+                  : value === 'joined'
+                    ? 'Joined'
+                    : 'Discover'}
             </Button>
           ))}
         </div>
@@ -79,7 +90,20 @@ export const SpacesPage: React.FC = () => {
           className="sm:max-w-xs"
         />
       </div>
-      {filteredSpaces.length === 0 ? (
+      {filter === 'discover' ? (
+        discoverableSpaces.length === 0 ? (
+          <EmptyState
+            title="No discoverable spaces"
+            description="Try a different search. Public spaces must allow requests or open joining."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {discoverableSpaces.map((space) => (
+              <DiscoverableSpaceCard key={space._id} space={space} />
+            ))}
+          </div>
+        )
+      ) : filteredSpaces.length === 0 ? (
         <EmptyState
           title={search || filter !== 'all' ? 'No matching spaces' : 'No spaces yet'}
           description={

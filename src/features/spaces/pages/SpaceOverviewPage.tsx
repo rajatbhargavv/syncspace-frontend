@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AuthContext } from '@/app/providers/AuthContext';
 import { Button, EmptyState, ErrorState, Skeleton, Tabs, type TabItem } from '@/components/ui';
 import { ApiError } from '@/types';
 import { ROUTES } from '@/config/routes';
@@ -18,6 +19,7 @@ import {
 import { SpaceHeader } from '../components/SpaceHeader';
 import { NotMemberScreen } from '../components/NotMemberScreen';
 import { SpaceSettingsDialog } from '../components/SpaceSettingsDialog';
+import { SpaceInvitePanel } from '../components/SpaceInvitePanel';
 import { getSpaceKindConfig } from '../utils/spaceKindConfig';
 import {
   useSpaceView,
@@ -96,6 +98,8 @@ const VIEW_TABS: TabItem[] = [
 
 export const SpaceOverviewPage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
+  const auth = useContext(AuthContext);
+  const user = auth?.user;
   useSpaceSocket(id);
   const navigate = useNavigate();
   const space = useSpace(id);
@@ -148,8 +152,14 @@ export const SpaceOverviewPage: React.FC = () => {
   }
 
   const currentSpace = space.data;
-  const isOwner =
-    currentSpace.owner === members.data?.find((member) => member.role === 'OWNER')?.userId._id;
+  const isOwner = (currentSpace.ownerId ?? currentSpace.owner) === user?._id;
+  const canInvite = Boolean(
+    isOwner ||
+    (currentSpace.invitePermission === 'ALL_MEMBERS' &&
+      members.data?.some(
+        (member) => member.userId._id === user?._id && member.status === 'ACTIVE',
+      )),
+  );
   const kind = getSpaceKindConfig(currentSpace.kind);
   const isInactive = currentSpace.status === 'Inactive';
 
@@ -186,6 +196,9 @@ export const SpaceOverviewPage: React.FC = () => {
         onLeave={handleLeave}
         onSettings={() => setSettingsOpen(true)}
       />
+      {isOwner && (
+        <PendingRequests spaceId={currentSpace._id} joinPolicy={currentSpace.joinPolicy} />
+      )}
 
       {isInactive && (
         <div
@@ -264,12 +277,8 @@ export const SpaceOverviewPage: React.FC = () => {
         </main>
       </section>
 
-      {/* Pending Join Requests (Owner only) */}
-      {isOwner && (
-        <PendingRequests spaceId={currentSpace._id} joinPolicy={currentSpace.joinPolicy} />
-      )}
-
       {/* Space Members Section */}
+      <SpaceInvitePanel spaceId={currentSpace._id} canInvite={canInvite} />
       <section aria-labelledby="members-heading">
         <h2 id="members-heading" className="font-heading text-xl font-semibold text-text">
           {kind.wording.memberNoun}

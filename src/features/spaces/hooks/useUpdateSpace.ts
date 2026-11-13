@@ -13,10 +13,15 @@ export function useUpdateSpace(): UseMutationResult<Space, Error, UpdateSpaceVar
 
   return useMutation({
     mutationFn: ({ id, data }: UpdateSpaceVariables) => updateSpace(id, data),
-    onSuccess: (updatedSpace) => {
+    onSuccess: (updatedSpace, { id, data }) => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.list() });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.byId(updatedSpace._id) });
-      void queryClient.setQueryData(queryKeys.spaces.byId(updatedSpace._id), updatedSpace);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.byId(id) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.spaces.public(id) });
+      void queryClient.setQueryData<Space>(queryKeys.spaces.byId(id), (current) => ({
+        ...current,
+        ...updatedSpace,
+        ...data,
+      }));
     },
   });
 }

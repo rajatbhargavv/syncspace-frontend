@@ -42,6 +42,7 @@ export {
 
 // ── Space Query Hooks ──
 export { useSpaces } from './hooks/useSpaces';
+export { useDiscoverableSpaces } from './hooks/useDiscoverableSpaces';
 export { useSpace } from './hooks/useSpace';
 export { usePublicSpace } from './hooks/usePublicSpace';
 export { useCreateSpace } from './hooks/useCreateSpace';
