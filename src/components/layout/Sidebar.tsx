@@ -17,6 +17,7 @@ interface SidebarProps {
 const navItems = [
   { label: 'Overview', path: ROUTES.home, icon: '⌂' },
   { label: 'My tasks', path: ROUTES.myTasks, icon: '✓' },
+  { label: 'Activity Calendar', path: ROUTES.calendar, icon: '📅' },
   { label: 'Notifications', path: ROUTES.notifications, icon: '◌' },
   { label: 'Settings', path: ROUTES.settings, icon: '⚙' },
 ];

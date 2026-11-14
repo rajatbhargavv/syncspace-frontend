@@ -9,22 +9,49 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { NotchCard } from '@/components/ui/NotchCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useCrossSpaceTasks } from '@/features/tasks/hooks/useCrossSpaceTasks';
+import { TodayAgenda } from '../components/TodayAgenda';
+import { ActivityHeatmapCalendar } from '../components/ActivityHeatmapCalendar';
 
 export const OverviewPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const spacesQuery = useSpaces();
   const spaces = spacesQuery.data?.filter((space) => space.status === 'Active') ?? [];
+
+  const {
+    spaces: activeCrossSpaces,
+    agenda,
+    activityData,
+    isLoading: isCrossTasksLoading,
+  } = useCrossSpaceTasks();
+
   return (
     <div className="space-y-8">
+      {/* Welcome Banner */}
       <section>
         <p className="text-sm font-medium text-accent">Good to see you</p>
         <h1 className="mt-1 font-heading text-3xl font-bold text-text">
           Welcome back, {user?.name ?? 'there'}
         </h1>
-        <p className="mt-2 text-text-muted">Here is what is happening across your spaces.</p>
+        <p className="mt-2 text-text-muted">
+          Here is your centralized agenda, cross-space task radar, and activity streak.
+        </p>
       </section>
+
       <PushNotificationSoftPrompt />
+
+      {/* Feature 11: Cross-Space Today's Agenda & Due Tasks */}
+      <TodayAgenda agenda={agenda} isLoading={isCrossTasksLoading} />
+
+      {/* Feature 10: LeetCode / GitHub style Productivity Heatmap Calendar */}
+      <ActivityHeatmapCalendar
+        spaces={activeCrossSpaces.length > 0 ? activeCrossSpaces : spaces}
+        activityData={activityData}
+        isLoading={isCrossTasksLoading}
+      />
+
+      {/* Spaces Summary */}
       <section aria-labelledby="spaces-summary">
         <div className="mb-4 flex items-center justify-between">
           <h2 id="spaces-summary" className="font-heading text-xl font-bold text-text">
@@ -34,6 +61,7 @@ export const OverviewPage: React.FC = () => {
             Create a space
           </Button>
         </div>
+
         {spacesQuery.isLoading && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => (
@@ -41,12 +69,14 @@ export const OverviewPage: React.FC = () => {
             ))}
           </div>
         )}
+
         {spacesQuery.isError && (
           <ErrorState
             message="We could not load your spaces."
             onRetry={() => void spacesQuery.refetch()}
           />
         )}
+
         {!spacesQuery.isLoading && !spacesQuery.isError && spaces.length === 0 && (
           <EmptyState
             title="No spaces yet"
@@ -55,6 +85,7 @@ export const OverviewPage: React.FC = () => {
             onAction={() => navigate(ROUTES.spaceNew)}
           />
         )}
+
         {!spacesQuery.isLoading && !spacesQuery.isError && spaces.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {spaces.map((space) => (
@@ -81,11 +112,18 @@ export const OverviewPage: React.FC = () => {
           </div>
         )}
       </section>
+
+      {/* Quick Actions */}
       <section className="rounded-card border border-border bg-surface p-5">
         <h2 className="font-heading font-bold text-text">Quick actions</h2>
-        <Button className="mt-4" variant="secondary" onClick={() => navigate(ROUTES.spaceNew)}>
-          Create a space
-        </Button>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Button variant="secondary" onClick={() => navigate(ROUTES.spaceNew)}>
+            Create a space
+          </Button>
+          <Button variant="secondary" onClick={() => navigate(ROUTES.myTasks)}>
+            View all assigned tasks
+          </Button>
+        </div>
       </section>
     </div>
   );

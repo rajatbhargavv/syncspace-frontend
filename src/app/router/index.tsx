@@ -4,6 +4,7 @@ import { AppLayout, PublicLayout } from '@/app/layouts';
 import { authRoutes } from '@/features/auth/routes';
 import { ROUTES } from '@/config/routes';
 import { NotFoundPage } from '@/app/pages/NotFoundPage';
+import { ErrorPage } from '@/app/pages/ErrorPage';
 
 export const router = createBrowserRouter(
   [
@@ -41,6 +42,7 @@ export const router = createBrowserRouter(
     // Protected App routes
     {
       element: <ProtectedRoute />,
+      errorElement: <ErrorPage />,
       children: [
         {
           element: <AppLayout />,
@@ -85,6 +87,13 @@ export const router = createBrowserRouter(
               lazy: () =>
                 import('@/features/tasks/pages/MyTasksPage').then((m) => ({
                   Component: m.MyTasksPage,
+                })),
+            },
+            {
+              path: 'calendar',
+              lazy: () =>
+                import('@/features/calendar/pages/CalendarPage').then((m) => ({
+                  Component: m.CalendarPage,
                 })),
             },
             {

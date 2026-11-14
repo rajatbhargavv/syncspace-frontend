@@ -40,6 +40,7 @@ export interface Space {
   status: SpaceStatus;
   owner: string;
   ownerId?: string;
+  spaceType?: 'Personal' | 'Shared';
   assigneePermission?: SpacePermission;
   invitePermission?: SpacePermission;
   createdAt: string;
