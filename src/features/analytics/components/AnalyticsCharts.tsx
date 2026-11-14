@@ -21,6 +21,7 @@ interface ChartProps {
   analytics: SpaceAnalytics;
   range: AnalyticsRange;
   onDistribute?: () => void;
+  onDistributeByTags?: () => void;
   isDistributing?: boolean;
   canDistribute?: boolean;
   distributeDisabledReason?: string;
@@ -33,6 +34,7 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
   analytics,
   range,
   onDistribute,
+  onDistributeByTags,
   isDistributing = false,
   canDistribute = false,
   distributeDisabledReason,
@@ -165,6 +167,17 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
                 onClick={onDistribute}
               >
                 {isDistributing ? 'Distributing...' : 'Distribute equally'}
+              </button>
+            )}
+            {onDistributeByTags && (
+              <button
+                type="button"
+                className="rounded-button border border-border px-3 py-1.5 text-xs font-medium text-text transition-colors hover:border-accent hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+                disabled={!canDistribute || isDistributing || isUndoing}
+                title={distributeDisabledReason}
+                onClick={onDistributeByTags}
+              >
+                Distribute by tags
               </button>
             )}
             {onUndo && (

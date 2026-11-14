@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     TASKS: (id: string) => `/api/spaces/${id}/tasks`,
     ANALYTICS: (id: string) => `/api/spaces/${id}/analytics`,
     DISTRIBUTE_TASKS: (id: string) => `/api/spaces/${id}/distribute-equally`,
+    DISTRIBUTE_BY_TAGS: (id: string) => `/api/spaces/${id}/distribute-by-tags`,
     DISTRIBUTION_UNDO: (id: string) => `/api/spaces/${id}/distribution-undo`,
     INVITES: (id: string) => `/api/spaces/${id}/invites`,
     MEMBERS: (id: string) => `/api/spaces/${id}/members`,

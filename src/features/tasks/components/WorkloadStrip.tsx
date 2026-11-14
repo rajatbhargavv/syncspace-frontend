@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { NotchCard } from '@/components/ui/NotchCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useSpaceMembers } from '@/features/members';
+import { DistributeByTagsDialog } from '@/features/analytics';
 import { useSpaceTasks } from '../hooks/useSpaceTasks';
 import { useTaskFilters } from '../hooks/useTaskFilters';
 import { computeWorkload } from '../utils/taskUtils';
@@ -11,6 +12,7 @@ export interface WorkloadStripProps {
 }
 
 export const WorkloadStrip: React.FC<WorkloadStripProps> = ({ spaceId }) => {
+  const [isDistributeOpen, setIsDistributeOpen] = useState(false);
   const membersQuery = useSpaceMembers(spaceId);
   const tasksQuery = useSpaceTasks(spaceId);
   const { filters, setFilters } = useTaskFilters();
@@ -47,15 +49,27 @@ export const WorkloadStrip: React.FC<WorkloadStripProps> = ({ spaceId }) => {
             more members.
           </p>
         </div>
-        {selectedAssigneeIds.size > 0 && (
-          <button
-            type="button"
-            onClick={() => setFilters({ assigneeId: undefined, assigneeIds: undefined })}
-            className="text-xs font-medium text-accent hover:underline"
-          >
-            Clear member filter ({selectedAssigneeIds.size})
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedAssigneeIds.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setFilters({ assigneeId: undefined, assigneeIds: undefined })}
+              className="text-xs font-medium text-accent hover:underline"
+            >
+              Clear filter ({selectedAssigneeIds.size})
+            </button>
+          )}
+          {members.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setIsDistributeOpen(true)}
+              className="rounded-button border border-accent/40 bg-accent/5 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/15 transition-colors"
+              title="Distribute tasks to members based on tags (PRO)"
+            >
+              🏷️ Distribute by tags
+            </button>
+          )}
+        </div>
       </div>
       {members.length === 0 ? (
         <p className="rounded-card border border-dashed border-border p-4 text-sm text-text-muted">
@@ -104,6 +118,11 @@ export const WorkloadStrip: React.FC<WorkloadStripProps> = ({ spaceId }) => {
           })}
         </div>
       )}
+      <DistributeByTagsDialog
+        isOpen={isDistributeOpen}
+        onClose={() => setIsDistributeOpen(false)}
+        spaceId={spaceId}
+      />
     </section>
   );
 };

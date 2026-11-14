@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Badge, Button, EmptyState, ErrorState, Skeleton } from '@/components/ui';
@@ -21,6 +21,7 @@ import {
   useSpaceAnalytics,
 } from '..';
 import { AnalyticsCharts } from '../components/AnalyticsCharts';
+import { DistributeByTagsDialog } from '../components/DistributeByTagsDialog';
 import { UpgradeCard } from '../components/UpgradeCard';
 import { useDistributeTasksEqually } from '../hooks/useDistributeTasksEqually';
 import { useDistributionUndo } from '../hooks/useDistributionUndo';
@@ -40,6 +41,7 @@ export const ActivityPage: React.FC = () => {
   const { range, setRange } = useAnalyticsRange();
   const analyticsQuery = useSpaceAnalytics(id, range);
   const distributeTasks = useDistributeTasksEqually(id, range);
+  const [isDistributeByTagsOpen, setIsDistributeByTagsOpen] = useState(false);
   const distributionUndo = useDistributionUndo(id, range, canManageDistribution);
   const tasksQuery = useSpaceTasks(id);
   const { open } = useOpenTask();
@@ -143,6 +145,7 @@ export const ActivityPage: React.FC = () => {
             })
           }
           isDistributing={distributeTasks.isPending}
+          onDistributeByTags={() => setIsDistributeByTagsOpen(true)}
           canDistribute={user?.plan === 'PRO' && ownerCanUpgrade}
           distributeDisabledReason={
             user?.plan !== 'PRO'
@@ -172,6 +175,12 @@ export const ActivityPage: React.FC = () => {
       ) : (
         <Skeleton className="h-[30rem]" />
       )}
+      <DistributeByTagsDialog
+        isOpen={isDistributeByTagsOpen}
+        onClose={() => setIsDistributeByTagsOpen(false)}
+        spaceId={id}
+        spaceName={currentSpace.name}
+      />
     </div>
   );
 };
@@ -206,6 +215,7 @@ function ActivityContent({
   tasks,
   onOpenTask,
   onDistribute,
+  onDistributeByTags,
   isDistributing,
   canDistribute,
   distributeDisabledReason,
@@ -217,6 +227,7 @@ function ActivityContent({
   tasks: ReturnType<typeof useSpaceTasks>['data'];
   onOpenTask: (id: string) => void;
   onDistribute: () => void;
+  onDistributeByTags?: () => void;
   isDistributing: boolean;
   canDistribute: boolean;
   distributeDisabledReason?: string;
@@ -254,6 +265,7 @@ function ActivityContent({
         analytics={analytics}
         range={analytics.range}
         onDistribute={onDistribute}
+        onDistributeByTags={onDistributeByTags}
         isDistributing={isDistributing}
         canDistribute={canDistribute}
         distributeDisabledReason={distributeDisabledReason}

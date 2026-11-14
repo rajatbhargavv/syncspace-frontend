@@ -66,8 +66,27 @@ export async function getSpaceAnalytics(
   };
 }
 
+export interface TagDistributionMapping {
+  tag: string;
+  userId: string;
+}
+
+export interface DistributeByTagsResponse {
+  updatedCount: number;
+  totalMatched: number;
+}
+
 export async function distributeTasksEqually(spaceId: string): Promise<DistributeTasksResponse> {
   return http.post<DistributeTasksResponse>(API_ENDPOINTS.SPACES.DISTRIBUTE_TASKS(spaceId));
+}
+
+export async function distributeTasksByTags(
+  spaceId: string,
+  mappings: TagDistributionMapping[],
+): Promise<DistributeByTagsResponse> {
+  return http.post<DistributeByTagsResponse>(API_ENDPOINTS.SPACES.DISTRIBUTE_BY_TAGS(spaceId), {
+    mappings,
+  });
 }
 
 export async function getDistributionUndoStatus(
