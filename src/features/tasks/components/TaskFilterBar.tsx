@@ -290,7 +290,7 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
             </div>
 
             {availableTags.length > 0 && (
-              <div className="border-t border-border/60 pt-3 sm:col-span-2 lg:col-span-4">
+              <div className="border-border/60 border-t pt-3 sm:col-span-2 lg:col-span-4">
                 <p className="mb-2 text-xs font-semibold text-text">Tags</p>
                 <div className="flex flex-wrap gap-1.5">
                   {availableTags.map((tag) => (

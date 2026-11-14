@@ -16,8 +16,8 @@ export const ErrorPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-bg p-6 text-text">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-elevated text-center space-y-4">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-error/15 text-2xl text-error">
+      <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-surface p-6 text-center shadow-elevated">
+        <div className="bg-error/15 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-error">
           ⚠️
         </div>
         <h1 className="font-heading text-xl font-bold text-text">Something went wrong</h1>
@@ -25,8 +25,8 @@ export const ErrorPage: React.FC = () => {
           We encountered an unexpected error while loading this page.
         </p>
 
-        <div className="rounded-lg bg-surface-hover/80 p-3 text-left border border-border/50 max-h-32 overflow-y-auto">
-          <p className="text-xs font-mono text-error break-words">{errorMessage}</p>
+        <div className="bg-surface-hover/80 border-border/50 max-h-32 overflow-y-auto rounded-lg border p-3 text-left">
+          <p className="break-words font-mono text-xs text-error">{errorMessage}</p>
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-2">

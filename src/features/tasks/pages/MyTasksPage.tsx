@@ -106,7 +106,7 @@ export const MyTasksPage: React.FC = () => {
                 {task.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent"
+                    className="border-accent/25 bg-accent/10 inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium text-accent"
                   >
                     {tag}
                   </span>

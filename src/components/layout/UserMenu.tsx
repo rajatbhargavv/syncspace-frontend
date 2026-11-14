@@ -4,7 +4,7 @@ import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
 import { useInstallPrompt, PwaInstallGuideModal } from '@/features/push';
 import { Avatar, PlanBadge } from '@/components/ui';
-import { startAppTour } from './AppOnboardingTour';
+import { startAppTour } from './tourUtils';
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();

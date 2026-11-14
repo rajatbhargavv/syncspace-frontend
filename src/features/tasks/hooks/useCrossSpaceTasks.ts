@@ -67,7 +67,7 @@ export function useCrossSpaceTasks() {
       // If created by user
       if (task.createdBy === user._id) return true;
       // If assigned to user
-      if (task.assignees?.some((a) => a.userId === user._id)) return true;
+      if (task.assignees.some((a) => a.userId === user._id)) return true;
       return false;
     });
   }, [allTasksWithSpace, user?._id]);
@@ -128,10 +128,11 @@ export function useCrossSpaceTasks() {
         existing.push(task);
         overallCompletedMap.set(completedDate, existing);
 
-        if (!bySpaceMap.has(space._id)) {
-          bySpaceMap.set(space._id, new Map());
+        let spaceMap = bySpaceMap.get(space._id);
+        if (!spaceMap) {
+          spaceMap = new Map();
+          bySpaceMap.set(space._id, spaceMap);
         }
-        const spaceMap = bySpaceMap.get(space._id)!;
         const spaceTasks = spaceMap.get(completedDate) ?? [];
         spaceTasks.push(task);
         spaceMap.set(completedDate, spaceTasks);
@@ -173,12 +174,12 @@ export function useCrossSpaceTasks() {
 
     // Current streak (walking backwards from today)
     const todayCount = overallCompletedMap.get(todayStr)?.length ?? 0;
-    let checkDate = new Date();
+    const checkDate = new Date();
     if (todayCount === 0) {
       // If user hasn't completed a task today yet, check yesterday to maintain active streak
       checkDate.setDate(checkDate.getDate() - 1);
     }
-    while (true) {
+    for (let step = 0; step < 365; step++) {
       const dStr = toLocalDateString(checkDate);
       const count = overallCompletedMap.get(dStr)?.length ?? 0;
       if (count > 0) {

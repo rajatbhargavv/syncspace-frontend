@@ -65,8 +65,8 @@ describe('TodayAgenda', () => {
       <TodayAgenda
         agenda={{
           overdue: [],
-          dueToday: [mockTasks[0]!],
-          inProgress: [mockTasks[1]!],
+          dueToday: mockTasks.slice(0, 1),
+          inProgress: mockTasks.slice(1, 2),
           completedToday: [],
           allActionable: mockTasks,
         }}
@@ -86,8 +86,8 @@ describe('TodayAgenda', () => {
       <TodayAgenda
         agenda={{
           overdue: [],
-          dueToday: [mockTasks[0]!],
-          inProgress: [mockTasks[1]!],
+          dueToday: mockTasks.slice(0, 1),
+          inProgress: mockTasks.slice(1, 2),
           completedToday: [],
           allActionable: mockTasks,
         }}

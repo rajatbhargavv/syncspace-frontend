@@ -99,7 +99,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - totalDays + (7 - today.getDay()));
 
-    let currentDay = new Date(startDate);
+    const currentDay = new Date(startDate);
     let currentWeek: Array<{ date: string; dayOfWeek: number }> = [];
 
     for (let i = 0; i < totalDays; i++) {
@@ -183,10 +183,10 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
     return (
       <section
         aria-labelledby="activity-heatmap-heading"
-        className="rounded-card border border-border bg-surface p-5 shadow-card space-y-4"
+        className="space-y-4 rounded-card border border-border bg-surface p-5 shadow-card"
       >
-        <div className="h-6 w-48 rounded bg-surface-hover animate-pulse" />
-        <div className="h-40 rounded-xl bg-surface-hover/60 animate-pulse" />
+        <div className="h-6 w-48 animate-pulse rounded bg-surface-hover" />
+        <div className="bg-surface-hover/60 h-40 animate-pulse rounded-xl" />
       </section>
     );
   }
@@ -194,10 +194,10 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
   return (
     <section
       aria-labelledby="activity-heatmap-heading"
-      className="rounded-card border border-border bg-surface p-5 shadow-card space-y-5"
+      className="space-y-5 rounded-card border border-border bg-surface p-5 shadow-card"
     >
       {/* Top Banner: Streaks & Metrics */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-4">
+      <div className="border-border/60 flex flex-col justify-between gap-4 border-b pb-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl">📊</span>
@@ -206,7 +206,8 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
             </h2>
           </div>
           <p className="mt-1 text-xs text-text-muted">
-            Track daily completed work like LeetCode & GitHub. Lighter green = less work than assigned; darker green = more work done.
+            Track daily completed work like LeetCode & GitHub. Lighter green = less work than
+            assigned; darker green = more work done.
           </p>
         </div>
 
@@ -215,15 +216,15 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
           <div className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 shadow-sm">
             <span className="text-base">🔥</span>
             <div>
-              <p className="text-[10px] uppercase font-bold text-amber-500">Current Streak</p>
+              <p className="text-[10px] font-bold uppercase text-amber-500">Current Streak</p>
               <p className="text-sm font-bold text-text">{activityData.currentStreak} Days</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-3 py-1.5 shadow-sm">
+          <div className="border-accent/30 bg-accent/10 flex items-center gap-2 rounded-xl border px-3 py-1.5 shadow-sm">
             <span className="text-base">🏆</span>
             <div>
-              <p className="text-[10px] uppercase font-bold text-accent">Longest Streak</p>
+              <p className="text-[10px] font-bold uppercase text-accent">Longest Streak</p>
               <p className="text-sm font-bold text-text">{activityData.longestStreak} Days</p>
             </div>
           </div>
@@ -231,7 +232,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
           <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 shadow-sm">
             <span className="text-base">✅</span>
             <div>
-              <p className="text-[10px] uppercase font-bold text-emerald-500">Total Completed</p>
+              <p className="text-[10px] font-bold uppercase text-emerald-500">Total Completed</p>
               <p className="text-sm font-bold text-text">{activityData.totalCompleted} Tasks</p>
             </div>
           </div>
@@ -239,7 +240,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
       </div>
 
       {/* Control Bar: Multiple Calendars (Space Selector + View Selector) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface-hover/40 p-2.5 rounded-xl border border-border/50">
+      <div className="bg-surface-hover/40 border-border/50 flex flex-wrap items-center justify-between gap-3 rounded-xl border p-2.5">
         {/* Calendar Switcher: Overall vs Specific Spaces */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-text-muted">Calendar:</span>
@@ -301,7 +302,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
         <div className="space-y-3">
           <div className="overflow-x-auto pb-2">
             <div className="min-w-[680px]">
-              <div className="flex gap-1.5 justify-between">
+              <div className="flex justify-between gap-1.5">
                 {continuousWeeks.map((week, wIdx) => (
                   <div key={wIdx} className="flex flex-col gap-1.5">
                     {week.map(({ date }) => {
@@ -328,15 +329,15 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-between text-xs text-text-muted pt-2 border-t border-border/40">
+          <div className="border-border/40 flex items-center justify-between border-t pt-2 text-xs text-text-muted">
             <span>Click any day to view completed tasks and output breakdown</span>
             <div className="flex items-center gap-1.5">
               <span>Less</span>
-              <span className="h-3 w-3 rounded-sm bg-surface-hover/70 border border-border/50" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-300 dark:bg-emerald-900 border border-emerald-400/40" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-400 dark:bg-emerald-700 border border-emerald-500/50" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-500 dark:bg-emerald-500 border border-emerald-400" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-700 dark:bg-emerald-300 border border-emerald-300" />
+              <span className="bg-surface-hover/70 border-border/50 h-3 w-3 rounded-sm border" />
+              <span className="h-3 w-3 rounded-sm border border-emerald-400/40 bg-emerald-300 dark:bg-emerald-900" />
+              <span className="h-3 w-3 rounded-sm border border-emerald-500/50 bg-emerald-400 dark:bg-emerald-700" />
+              <span className="h-3 w-3 rounded-sm border border-emerald-400 bg-emerald-500 dark:bg-emerald-500" />
+              <span className="h-3 w-3 rounded-sm border border-emerald-300 bg-emerald-700 dark:bg-emerald-300" />
               <span>More</span>
             </div>
           </div>
@@ -352,7 +353,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
               <button
                 type="button"
                 onClick={() => setMonthOffset((prev) => prev - 1)}
-                className="h-7 w-7 rounded-button border border-border flex items-center justify-center text-xs font-bold hover:bg-surface-hover"
+                className="flex h-7 w-7 items-center justify-center rounded-button border border-border text-xs font-bold hover:bg-surface-hover"
               >
                 ‹
               </button>
@@ -366,7 +367,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
               <button
                 type="button"
                 onClick={() => setMonthOffset((prev) => prev + 1)}
-                className="h-7 w-7 rounded-button border border-border flex items-center justify-center text-xs font-bold hover:bg-surface-hover"
+                className="flex h-7 w-7 items-center justify-center rounded-button border border-border text-xs font-bold hover:bg-surface-hover"
               >
                 ›
               </button>
@@ -375,7 +376,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
 
           <div className="grid grid-cols-7 gap-1.5 text-center text-xs">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-              <div key={d} className="font-bold text-text-muted py-1">
+              <div key={d} className="py-1 font-bold text-text-muted">
                 {d}
               </div>
             ))}
@@ -388,12 +389,12 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
                   key={date}
                   type="button"
                   onClick={() => setSelectedDate(date)}
-                  className={`flex h-12 flex-col items-center justify-between rounded-lg p-1.5 transition-all text-xs ${
+                  className={`flex h-12 flex-col items-center justify-between rounded-lg p-1.5 text-xs transition-all ${
                     isCurrentMonth ? '' : 'opacity-30'
                   } ${getLevelColorClass(metrics.level, isSelected)}`}
                   title={`${date}: ${metrics.label}`}
                 >
-                  <span className="font-semibold text-[11px] leading-none">{dayNumber}</span>
+                  <span className="text-[11px] font-semibold leading-none">{dayNumber}</span>
                   {metrics.completedCount > 0 && (
                     <span className="text-[10px] font-bold leading-none">
                       +{metrics.completedCount}
@@ -416,36 +417,37 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
               for (const tasks of spaceCompleted.values()) count += tasks.length;
             }
             return (
-              <div
+              <button
+                type="button"
                 key={s._id}
                 onClick={() => {
                   setSelectedSpaceId(s._id);
                   setViewMode('continuous');
                 }}
-                className="cursor-pointer rounded-card border border-border bg-surface p-4 transition-all hover:border-accent hover:shadow-card"
+                className="w-full cursor-pointer rounded-card border border-border bg-surface p-4 text-left transition-all hover:border-accent hover:shadow-card"
               >
                 <div className="flex items-center gap-2">
                   <SpaceThemeDot theme={s.theme} size="md" />
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-bold text-sm text-text truncate">{s.name}</h4>
+                    <h4 className="truncate text-sm font-bold text-text">{s.name}</h4>
                     <p className="text-[11px] text-text-muted">
                       {s.spaceType ?? (s.kind === 'MY_CORNER' ? 'Personal' : 'Shared')} Space
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs">
+                <div className="border-border/50 mt-3 flex items-center justify-between border-t pt-2 text-xs">
                   <span className="text-text-muted">Total tasks completed:</span>
                   <span className="font-bold text-accent">{count}</span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       )}
 
       {/* Day Inspector: Details of selected date */}
-      <div className="rounded-xl border border-border/70 bg-surface-hover/30 p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/40 pb-2.5">
+      <div className="border-border/70 bg-surface-hover/30 rounded-xl border p-4">
+        <div className="border-border/40 flex flex-col justify-between gap-2 border-b pb-2.5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-text">📅 {selectedDayFormatted}</span>
             <span
@@ -460,15 +462,15 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
           </div>
 
           <div className="text-xs text-text-muted">
-            <span className="font-semibold text-text">{selectedDayMetrics.completedCount}</span> completed •{' '}
-            <span className="font-semibold text-text">{selectedDayMetrics.assignedCount}</span> assigned for this day
+            <span className="font-semibold text-text">{selectedDayMetrics.completedCount}</span>{' '}
+            completed •{' '}
+            <span className="font-semibold text-text">{selectedDayMetrics.assignedCount}</span>{' '}
+            assigned for this day
           </div>
         </div>
 
         {selectedDayMetrics.completedTasks.length === 0 ? (
-          <p className="pt-3 text-xs text-text-muted italic">
-            No tasks completed on this date.
-          </p>
+          <p className="pt-3 text-xs italic text-text-muted">No tasks completed on this date.</p>
         ) : (
           <div className="mt-3 space-y-1.5">
             <p className="text-[11px] font-bold uppercase tracking-wider text-text-muted">
@@ -480,7 +482,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
                   key={t._id}
                   className="flex items-center gap-2 rounded-lg border border-border bg-surface px-2.5 py-1 text-xs text-text"
                 >
-                  <span className="text-success font-bold">✓</span>
+                  <span className="font-bold text-success">✓</span>
                   <span className="font-medium">{t.title}</span>
                   {t.tags && t.tags.length > 0 && (
                     <span className="text-[10px] text-accent">#{t.tags[0]}</span>

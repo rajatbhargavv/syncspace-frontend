@@ -33,31 +33,25 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 }) => {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
-  const percentage =
-    totalTasksCount > 0 ? Math.round((tasks.length / totalTasksCount) * 100) : 0;
+  const percentage = totalTasksCount > 0 ? Math.round((tasks.length / totalTasksCount) * 100) : 0;
 
   if (isCollapsed) {
     return (
       <section
         ref={setNodeRef}
         aria-label={`${label} column (collapsed)`}
-        onClick={onToggleCollapse}
-        className={`group relative flex min-h-[18rem] w-14 min-w-[3.5rem] cursor-pointer flex-col items-center justify-between rounded-card border p-2 transition-all ${
+        className={`group relative flex min-h-[18rem] w-14 min-w-[3.5rem] flex-col items-center justify-between rounded-card border p-2 transition-all ${
           isOver
             ? 'bg-accent/15 border-accent shadow-elevated ring-2 ring-accent'
-            : 'border-border/70 bg-surface/40 hover:bg-surface-hover/60 shadow-card'
+            : 'border-border/70 bg-surface/40 shadow-card'
         }`}
-        title={`Click to expand ${label} (${tasks.length} tasks)`}
       >
         <div className="flex flex-col items-center gap-2 pt-1">
           <button
             type="button"
             aria-label={`Expand ${label} column`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleCollapse?.();
-            }}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-text-muted hover:bg-accent/10 hover:text-accent"
+            onClick={onToggleCollapse}
+            className="hover:bg-accent/10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-text-muted hover:text-accent"
           >
             ↔
           </button>
@@ -66,9 +60,14 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
           </span>
         </div>
 
-        <div className="my-auto py-4 select-none [writing-mode:vertical-lr] rotate-180 text-xs font-bold uppercase tracking-wider text-text-muted group-hover:text-text">
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          aria-label={`Expand ${label} column`}
+          className="my-auto rotate-180 select-none py-4 text-xs font-bold uppercase tracking-wider text-text-muted [writing-mode:vertical-lr] hover:text-text"
+        >
           {label}
-        </div>
+        </button>
 
         <div className="pb-1 text-[10px] text-text-muted">{percentage}%</div>
       </section>
@@ -81,7 +80,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       aria-label={`${label} column`}
       className={`flex min-h-[18rem] min-w-[min(84vw,20rem)] snap-start flex-col rounded-card border p-3.5 transition-all md:min-w-0 ${
         isOver
-          ? 'bg-accent/10 border-accent shadow-elevated ring-2 ring-accent/30'
+          ? 'bg-accent/10 ring-accent/30 border-accent shadow-elevated ring-2'
           : 'border-border/80 bg-surface/50 shadow-card'
       }`}
     >
@@ -104,7 +103,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                 aria-label={`Collapse ${label} column`}
                 onClick={onToggleCollapse}
                 title="Collapse column"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-xs text-text-muted hover:bg-surface-hover hover:text-text transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-xs text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
               >
                 ⇤
               </button>
@@ -125,7 +124,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
         {/* Column completion / WIP progress bar */}
         {totalTasksCount > 0 && (
           <div className="flex items-center gap-2">
-            <div className="h-1 flex-1 overflow-hidden rounded-full bg-border/60">
+            <div className="bg-border/60 h-1 flex-1 overflow-hidden rounded-full">
               <div
                 className={`h-full transition-all duration-300 ${
                   status === 'COMPLETED'
@@ -150,7 +149,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
           task._id === activeTaskId ? (
             <div
               key={task._id}
-              className="border-accent/60 bg-accent-muted/20 min-h-32 rounded-card border border-dashed animate-pulse"
+              className="border-accent/60 bg-accent-muted/20 min-h-32 animate-pulse rounded-card border border-dashed"
               aria-label="Task being moved"
             />
           ) : (

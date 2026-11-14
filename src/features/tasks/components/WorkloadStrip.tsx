@@ -63,7 +63,7 @@ export const WorkloadStrip: React.FC<WorkloadStripProps> = ({ spaceId }) => {
             <button
               type="button"
               onClick={() => setIsDistributeOpen(true)}
-              className="rounded-button border border-accent/40 bg-accent/5 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/15 transition-colors"
+              className="border-accent/40 bg-accent/5 hover:bg-accent/15 rounded-button border px-2.5 py-1 text-xs font-medium text-accent transition-colors"
               title="Distribute tasks to members based on tags (PRO)"
             >
               🏷️ Distribute by tags

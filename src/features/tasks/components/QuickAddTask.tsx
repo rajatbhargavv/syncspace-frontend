@@ -15,7 +15,11 @@ function endOfToday(): string {
   return date.toISOString();
 }
 
-export const QuickAddTask: React.FC<QuickAddTaskProps> = ({ spaceId, disabled, status = 'TODO' }) => {
+export const QuickAddTask: React.FC<QuickAddTaskProps> = ({
+  spaceId,
+  disabled,
+  status = 'TODO',
+}) => {
   const [title, setTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const createTask = useCreateTask();

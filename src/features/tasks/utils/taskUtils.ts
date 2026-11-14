@@ -76,17 +76,11 @@ export function filterTasks(tasks: Task[], filters: TaskFilters, currentUserId?:
 
   // 4. Tags filter
   const effectiveTags =
-    filters.tags && filters.tags.length > 0
-      ? filters.tags
-      : filters.tag
-        ? [filters.tag]
-        : [];
+    filters.tags && filters.tags.length > 0 ? filters.tags : filters.tag ? [filters.tag] : [];
 
   if (effectiveTags.length > 0) {
     const tagSet = new Set(effectiveTags.map((t) => t.toLowerCase()));
-    result = result.filter((task) =>
-      task.tags?.some((t) => tagSet.has(t.toLowerCase())),
-    );
+    result = result.filter((task) => task.tags?.some((t) => tagSet.has(t.toLowerCase())));
   }
 
   // 5. Assignee filter (supports multiple assignee IDs, 'me', and 'unassigned')

@@ -29,7 +29,9 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   const removeAssignee = useRemoveAssignee();
   const spaceMembers = useSpaceMembers(spaceId);
   const { getName } = useMemberLookup(spaceId);
-  const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority' | 'tag'>('none');
+  const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority' | 'tag'>(
+    'none',
+  );
   const data = useMemo(() => {
     return filterTasks(rawTasks.data ?? [], filters, auth?.user?._id);
   }, [auth?.user?._id, filters, rawTasks.data]);

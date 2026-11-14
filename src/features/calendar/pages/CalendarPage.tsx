@@ -14,11 +14,7 @@ export const CalendarPage: React.FC = () => {
         description="Comprehensive productivity heatmap across all spaces. Track your daily work output, streaks, and target completions."
       />
 
-      <ActivityHeatmapCalendar
-        spaces={spaces}
-        activityData={activityData}
-        isLoading={isLoading}
-      />
+      <ActivityHeatmapCalendar spaces={spaces} activityData={activityData} isLoading={isLoading} />
 
       <TodayAgenda agenda={agenda} isLoading={isLoading} />
     </div>

@@ -90,32 +90,33 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
       className="rounded-card border border-border bg-surface p-5 shadow-card"
     >
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
+      <div className="border-border/60 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl">📅</span>
             <h2 id="today-agenda-heading" className="font-heading text-lg font-bold text-text">
               Today's Agenda & Cross-Space Tasks
             </h2>
-            <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-bold text-accent">
+            <span className="bg-accent/15 rounded-full px-2.5 py-0.5 text-xs font-bold text-accent">
               {todayLabel}
             </span>
           </div>
           <p className="mt-1 text-xs text-text-muted">
-            All your tasks due, in progress, or scheduled for today across every space — personal & shared.
+            All your tasks due, in progress, or scheduled for today across every space — personal &
+            shared.
           </p>
         </div>
 
         {/* Daily Completion Progress Bar */}
         {totalTasks > 0 && (
           <div className="flex min-w-[180px] flex-col gap-1 sm:text-right">
-            <div className="flex items-center justify-between sm:justify-end gap-2 text-xs">
+            <div className="flex items-center justify-between gap-2 text-xs sm:justify-end">
               <span className="font-semibold text-text">
                 {completedCount} of {totalTasks} completed
               </span>
-              <span className="text-accent font-bold">({progressPercent}%)</span>
+              <span className="font-bold text-accent">({progressPercent}%)</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-border/60">
+            <div className="bg-border/60 h-1.5 w-full overflow-hidden rounded-full">
               <div
                 className="h-full bg-accent transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
@@ -126,7 +127,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
       </div>
 
       {/* Filter Tabs */}
-      <div className="mt-4 flex flex-wrap items-center gap-1.5 border-b border-border/40 pb-3">
+      <div className="border-border/40 mt-4 flex flex-wrap items-center gap-1.5 border-b pb-3">
         <button
           type="button"
           onClick={() => setActiveTab('all')}
@@ -146,7 +147,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
             className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
               activeTab === 'overdue'
                 ? 'bg-error text-text-inverse'
-                : 'text-error hover:bg-error/10'
+                : 'hover:bg-error/10 text-error'
             }`}
           >
             🚨 Overdue ({agenda.overdue.length})
@@ -184,7 +185,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
             className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
               activeTab === 'completed'
                 ? 'bg-success text-text-inverse'
-                : 'text-success hover:bg-success/10'
+                : 'hover:bg-success/10 text-success'
             }`}
           >
             ✓ Completed ({agenda.completedToday.length})
@@ -196,8 +197,8 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
       <div className="mt-4 space-y-2.5">
         {isLoading ? (
           <div className="space-y-2 py-4">
-            <div className="h-14 rounded-card bg-surface-hover animate-pulse" />
-            <div className="h-14 rounded-card bg-surface-hover animate-pulse" />
+            <div className="h-14 animate-pulse rounded-card bg-surface-hover" />
+            <div className="h-14 animate-pulse rounded-card bg-surface-hover" />
           </div>
         ) : currentList.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border py-8 text-center">
@@ -222,14 +223,22 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
             return (
               <div
                 key={task._id}
+                role="button"
+                tabIndex={0}
                 onClick={() => open(task._id)}
-                className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-card border p-3.5 transition-all cursor-pointer ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    open(task._id);
+                  }
+                }}
+                className={`group flex cursor-pointer flex-col justify-between gap-3 rounded-card border p-3.5 transition-all sm:flex-row sm:items-center ${
                   isCompleted
                     ? 'border-border/60 bg-surface/40 opacity-75 hover:opacity-100'
                     : 'border-border bg-surface hover:border-accent hover:shadow-card'
                 }`}
               >
-                <div className="flex items-start gap-3 min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 items-start gap-3">
                   {/* Quick Status Toggle Button */}
                   <button
                     type="button"
@@ -242,7 +251,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                       isCompleted
                         ? 'border-success bg-success text-white'
                         : isInProgress
-                          ? 'border-accent bg-accent/20 text-accent font-bold'
+                          ? 'bg-accent/20 border-accent font-bold text-accent'
                           : 'border-border hover:border-accent hover:bg-surface-hover'
                     }`}
                   >
@@ -252,7 +261,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`text-sm font-semibold truncate ${
+                        className={`truncate text-sm font-semibold ${
                           isCompleted ? 'text-text-muted line-through' : 'text-text'
                         }`}
                       >
@@ -265,7 +274,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                           {task.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="rounded-full bg-accent/10 border border-accent/25 px-2 py-0.2 text-[10px] font-semibold text-accent"
+                              className="bg-accent/10 border-accent/25 py-0.2 rounded-full border px-2 text-[10px] font-semibold text-accent"
                             >
                               #{tag}
                             </span>
@@ -280,7 +289,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                       <Link
                         to={ROUTES.space(space._id)}
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-surface-hover/80 px-2 py-0.5 hover:text-accent transition-colors"
+                        className="bg-surface-hover/80 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 transition-colors hover:text-accent"
                       >
                         <SpaceThemeDot theme={space.theme} size="sm" />
                         <span className="font-medium text-text">{space.name}</span>
@@ -297,7 +306,7 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                 </div>
 
                 {/* Right side: Priority + Status Pill */}
-                <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
                   <Badge variant={priority.badgeVariant} size="sm">
                     {priority.label}
                   </Badge>

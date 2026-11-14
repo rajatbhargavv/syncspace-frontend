@@ -90,7 +90,7 @@ export const TagInput: React.FC<TagInputProps> = ({
         {value.map((tag, idx) => (
           <span
             key={`${tag}-${idx}`}
-            className="inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent"
+            className="border-accent/25 bg-accent/10 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium text-accent"
           >
             <span>{tag}</span>
             {!disabled && (
@@ -98,7 +98,7 @@ export const TagInput: React.FC<TagInputProps> = ({
                 type="button"
                 aria-label={`Remove tag ${tag}`}
                 onClick={() => removeTag(idx)}
-                className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-accent hover:bg-accent/20 focus:outline-none"
+                className="hover:bg-accent/20 ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-accent focus:outline-none"
               >
                 ×
               </button>

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { AppOnboardingTour, startAppTour } from './AppOnboardingTour';
+import { AppOnboardingTour } from './AppOnboardingTour';
+import { startAppTour } from './tourUtils';
 
 describe('AppOnboardingTour', () => {
   beforeEach(() => {

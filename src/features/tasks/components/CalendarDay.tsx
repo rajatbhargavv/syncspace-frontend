@@ -136,7 +136,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
                         {task.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-1.5 py-0.2 text-[9px] font-medium text-accent"
+                            className="border-accent/25 bg-accent/10 py-0.2 inline-flex items-center rounded-full border px-1.5 text-[9px] font-medium text-accent"
                           >
                             {tag}
                           </span>
@@ -144,7 +144,9 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
                       </div>
                     )}
                     {task.description && (
-                      <p className="mt-0.5 truncate text-[10px] text-text-muted">{task.description}</p>
+                      <p className="mt-0.5 truncate text-[10px] text-text-muted">
+                        {task.description}
+                      </p>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">

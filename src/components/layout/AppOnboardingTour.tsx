@@ -3,12 +3,6 @@ import { Button } from '@/components/ui/Button';
 
 const STORAGE_KEY = 'syncspace_onboarding_completed_v1';
 
-export function startAppTour() {
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('syncspace:start-tour'));
-  }
-}
-
 interface TourStep {
   title: string;
   badge: string;
@@ -18,20 +12,22 @@ interface TourStep {
   tips: string[];
 }
 
+const DEFAULT_STEP: TourStep = {
+  title: 'Welcome to SyncSpace',
+  badge: 'Dashboard & Agenda',
+  icon: '⚡',
+  highlight: 'Your all-in-one workspace command center',
+  description:
+    'SyncSpace unifies all your tasks, projects, and team spaces into one fluid interface. See your daily agenda, cross-space tasks, and activity streak right on your dashboard.',
+  tips: [
+    'View tasks due today across every space without switching tabs',
+    'Track your productivity with the GitHub-style activity streak heatmap',
+    'Access quick shortcuts to your favorite spaces',
+  ],
+};
+
 const TOUR_STEPS: TourStep[] = [
-  {
-    title: 'Welcome to SyncSpace',
-    badge: 'Dashboard & Agenda',
-    icon: '⚡',
-    highlight: 'Your all-in-one workspace command center',
-    description:
-      'SyncSpace unifies all your tasks, projects, and team spaces into one fluid interface. See your daily agenda, cross-space tasks, and activity streak right on your dashboard.',
-    tips: [
-      'View tasks due today across every space without switching tabs',
-      'Track your productivity with the GitHub-style activity streak heatmap',
-      'Access quick shortcuts to your favorite spaces',
-    ],
-  },
+  DEFAULT_STEP,
   {
     title: 'Spaces & Workspaces',
     badge: 'Collaboration',
@@ -141,24 +137,24 @@ export const AppOnboardingTour: React.FC = () => {
 
   if (!isOpen) return null;
 
-  const step = TOUR_STEPS[currentStep] ?? TOUR_STEPS[0]!;
+  const step = TOUR_STEPS[currentStep] ?? DEFAULT_STEP;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Product tour guide"
-      className="fixed inset-0 z-modal flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+      className="animate-in fade-in fixed inset-0 z-modal flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200"
     >
       <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-surface p-6 shadow-2xl transition-all">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <div className="border-border/60 flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/20 text-lg">
+            <span className="bg-accent/20 flex h-8 w-8 items-center justify-center rounded-xl text-lg">
               {step.icon}
             </span>
             <div>
-              <span className="rounded bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent uppercase tracking-wider">
+              <span className="bg-accent/15 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
                 {step.badge}
               </span>
               <h3 className="font-heading text-base font-bold text-text">{step.title}</h3>
@@ -174,10 +170,10 @@ export const AppOnboardingTour: React.FC = () => {
         </div>
 
         {/* Content Body */}
-        <div className="py-4 space-y-3">
-          <div className="rounded-lg bg-surface-hover/70 p-3 border border-border/50">
+        <div className="space-y-3 py-4">
+          <div className="bg-surface-hover/70 border-border/50 rounded-lg border p-3">
             <p className="text-xs font-semibold text-accent">{step.highlight}</p>
-            <p className="mt-1 text-xs text-text-muted leading-relaxed">{step.description}</p>
+            <p className="mt-1 text-xs leading-relaxed text-text-muted">{step.description}</p>
           </div>
 
           <div className="space-y-1.5 pt-1">
@@ -187,7 +183,7 @@ export const AppOnboardingTour: React.FC = () => {
             <ul className="space-y-1.5">
               {step.tips.map((tip, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-xs text-text">
-                  <span className="text-accent font-bold mt-0.5">✓</span>
+                  <span className="mt-0.5 font-bold text-accent">✓</span>
                   <span>{tip}</span>
                 </li>
               ))}
@@ -196,7 +192,7 @@ export const AppOnboardingTour: React.FC = () => {
         </div>
 
         {/* Step Indicator & Navigation */}
-        <div className="flex items-center justify-between border-t border-border/60 pt-4">
+        <div className="border-border/60 flex items-center justify-between border-t pt-4">
           {/* Step dots */}
           <div className="flex items-center gap-1.5">
             {TOUR_STEPS.map((_, idx) => (

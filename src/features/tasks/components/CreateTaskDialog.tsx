@@ -104,7 +104,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           label="Tags"
           placeholder="e.g. inventory module, billing"
           helperText="Press Enter or comma to add tags to classify this task"
-          value={form.watch('tags') ?? []}
+          value={form.watch('tags')}
           onChange={(tags) =>
             form.setValue('tags', tags, { shouldValidate: true, shouldDirty: true })
           }

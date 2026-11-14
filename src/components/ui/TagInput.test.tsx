@@ -78,7 +78,7 @@ describe('TagInput component', () => {
     expect(handleChange).toHaveBeenCalledWith(['inventory module']);
   });
 
-  it('handles paste with comma separated values', async () => {
+  it('handles paste with comma separated values', () => {
     const handleChange = vi.fn();
 
     render(<TagInput value={['existing']} onChange={handleChange} />);

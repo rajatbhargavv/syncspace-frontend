@@ -23,14 +23,15 @@ export const InstallBanner: React.FC = () => {
               📱
             </span>
             <span>
-              Install <strong className="font-semibold">SyncSpace</strong> on your phone or laptop for quick access and instant background notifications.
+              Install <strong className="font-semibold">SyncSpace</strong> on your phone or laptop
+              for quick access and instant background notifications.
             </span>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsGuideOpen(true)}
-              className="text-xs font-semibold text-accent hover:underline mr-1"
+              className="mr-1 text-xs font-semibold text-accent hover:underline"
             >
               How to install 📲
             </button>

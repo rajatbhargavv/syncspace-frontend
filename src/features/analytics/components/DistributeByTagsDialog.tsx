@@ -32,7 +32,7 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
   const activeMembers = useMemo(() => {
     return (
       membersQuery.data?.filter(
-        (m) => m.status === 'ACTIVE' && Boolean(m.userId?._id && m.userId?.name),
+        (m) => m.status === 'ACTIVE' && Boolean(m.userId._id && m.userId.name),
       ) ?? []
     );
   }, [membersQuery.data]);
@@ -68,13 +68,14 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
 
   const handleSelectMember = (tag: string, userId: string) => {
     setTagToUser((prev) => {
-      const next = { ...prev };
       if (!userId) {
-        delete next[tag];
-      } else {
-        next[tag] = userId;
+        const { [tag]: _removed, ...rest } = prev;
+        return rest;
       }
-      return next;
+      return {
+        ...prev,
+        [tag]: userId,
+      };
     });
   };
 
@@ -100,9 +101,8 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
   const affectedTasksCount = useMemo(() => {
     if (activeMappings.length === 0) return 0;
     const mappingTags = new Set(activeMappings.map((m) => m.tag.toLowerCase()));
-    return activeTasks.filter((task) =>
-      task.tags?.some((t) => mappingTags.has(t.toLowerCase())),
-    ).length;
+    return activeTasks.filter((task) => task.tags?.some((t) => mappingTags.has(t.toLowerCase())))
+      .length;
   }, [activeTasks, activeMappings]);
 
   const handleSubmit = async () => {
@@ -159,14 +159,20 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
         )}
 
         <div className="text-xs text-text-muted">
-          Select which team member owns which module tag (e.g. <span className="font-semibold text-text">#inventory</span> → Rajat, <span className="font-semibold text-text">#ui</span> → Mishthi). All matching active tasks will be reassigned.
+          Select which team member owns which module tag (e.g.{' '}
+          <span className="font-semibold text-text">#inventory</span> → Rajat,{' '}
+          <span className="font-semibold text-text">#ui</span> → Mishthi). All matching active tasks
+          will be reassigned.
         </div>
 
         {tagCounts.length === 0 ? (
           <div className="rounded-card border border-dashed border-border p-6 text-center">
             <p className="text-sm font-medium text-text">No tagged tasks found in this space</p>
             <p className="mt-1 text-xs text-text-muted">
-              Add tags like <code className="rounded bg-surface-hover px-1 py-0.5 text-accent">inventory</code> or <code className="rounded bg-surface-hover px-1 py-0.5 text-accent">ui</code> to your tasks first, or add custom rules below.
+              Add tags like{' '}
+              <code className="rounded bg-surface-hover px-1 py-0.5 text-accent">inventory</code> or{' '}
+              <code className="rounded bg-surface-hover px-1 py-0.5 text-accent">ui</code> to your
+              tasks first, or add custom rules below.
             </p>
           </div>
         ) : (
@@ -176,10 +182,10 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
               return (
                 <div
                   key={tag}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-card border border-border bg-surface p-3 transition-colors hover:border-accent/50"
+                  className="hover:border-accent/50 flex flex-col justify-between gap-2 rounded-card border border-border bg-surface p-3 transition-colors sm:flex-row sm:items-center"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+                    <span className="border-accent/30 bg-accent/10 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold text-accent">
                       #{tag}
                     </span>
                     <span className="text-xs text-text-muted">
@@ -209,7 +215,10 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
         )}
 
         {/* Custom Tag Rule Creator */}
-        <form onSubmit={handleAddCustomRule} className="rounded-card border border-border/70 bg-surface/50 p-3 space-y-2">
+        <form
+          onSubmit={handleAddCustomRule}
+          className="border-border/70 bg-surface/50 space-y-2 rounded-card border p-3"
+        >
           <span className="text-xs font-semibold text-text">Add custom tag assignment</span>
           <div className="flex flex-wrap items-center gap-2">
             <input
@@ -218,13 +227,13 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               disabled={!isPro || distributeMutation.isPending}
-              className="flex-1 min-w-[140px] rounded-input border border-border bg-surface px-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:border-accent focus:outline-none"
+              className="min-w-[140px] flex-1 rounded-input border border-border bg-surface px-3 py-1.5 text-xs text-text placeholder:text-text-muted focus:border-accent focus:outline-none"
             />
             <select
               value={customUserId}
               onChange={(e) => setCustomUserId(e.target.value)}
               disabled={!isPro || distributeMutation.isPending}
-              className="flex-1 min-w-[160px] rounded-input border border-border bg-surface px-3 py-1.5 text-xs text-text focus:border-accent focus:outline-none"
+              className="min-w-[160px] flex-1 rounded-input border border-border bg-surface px-3 py-1.5 text-xs text-text focus:border-accent focus:outline-none"
             >
               <option value="">Select team member</option>
               {activeMembers.map((member) => (
@@ -247,12 +256,19 @@ export const DistributeByTagsDialog: React.FC<DistributeByTagsDialogProps> = ({
         {/* Active Rules List if custom tags were added */}
         {activeMappings.length > 0 && (
           <div className="text-xs text-text-muted">
-            <span className="font-semibold text-text">{activeMappings.length}</span> active mapping{activeMappings.length === 1 ? '' : 's'} configured ({affectedTasksCount} task{affectedTasksCount === 1 ? '' : 's'} will be updated).
+            <span className="font-semibold text-text">{activeMappings.length}</span> active mapping
+            {activeMappings.length === 1 ? '' : 's'} configured ({affectedTasksCount} task
+            {affectedTasksCount === 1 ? '' : 's'} will be updated).
           </div>
         )}
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={distributeMutation.isPending}>
+        <div className="flex items-center justify-end gap-2 border-t border-border pt-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            disabled={distributeMutation.isPending}
+          >
             Cancel
           </Button>
           <Button

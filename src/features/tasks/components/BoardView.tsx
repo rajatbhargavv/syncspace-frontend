@@ -126,7 +126,7 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
       >
         <div
           data-testid="board-view"
-          className="flex snap-x gap-4 overflow-x-auto pb-3 md:overflow-visible items-start"
+          className="flex snap-x items-start gap-4 overflow-x-auto pb-3 md:overflow-visible"
         >
           {STATUSES.map((status) => (
             <div
@@ -134,7 +134,7 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
               className={
                 collapsedColumns[status]
                   ? 'shrink-0'
-                  : 'flex-1 min-w-[min(84vw,20rem)] transition-all'
+                  : 'min-w-[min(84vw,20rem)] flex-1 transition-all'
               }
             >
               <BoardColumn
