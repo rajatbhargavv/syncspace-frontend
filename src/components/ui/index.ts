@@ -17,3 +17,4 @@ export * from './EmptyState';
 export * from './ErrorState';
 export * from './NotchCard';
 export * from './Logo';
+export * from './TagInput';

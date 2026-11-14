@@ -24,6 +24,7 @@ export interface GetSpaceTasksParams {
   status?: TaskProgressStatus;
   assignee?: string;
   priority?: TaskPriority;
+  tag?: string;
 }
 
 // ── API functions ──
@@ -36,6 +37,7 @@ export async function getSpaceTasks(
   if (params?.status) queryParams.status = params.status;
   if (params?.assignee) queryParams.assignee = params.assignee;
   if (params?.priority) queryParams.priority = params.priority;
+  if (params?.tag) queryParams.tag = params.tag;
 
   const response = await http.get<TasksResponse>(API_ENDPOINTS.SPACES.TASKS(spaceId), {
     params: Object.keys(queryParams).length > 0 ? queryParams : undefined,

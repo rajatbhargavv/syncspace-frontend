@@ -19,6 +19,7 @@ export interface Task {
   createdBy: string;
   title: string;
   description?: string;
+  tags?: string[];
   priority: TaskPriority;
   deadline: string; // ISO string
   progressStatus: TaskProgressStatus;
@@ -33,13 +34,16 @@ export interface CreateTaskInput {
   spaceId: string;
   title: string;
   description?: string;
+  tags?: string[];
   priority?: TaskPriority;
   deadline: string; // ISO string, required
+  progressStatus?: TaskProgressStatus;
 }
 
 export interface UpdateTaskInput {
   title?: string;
   description?: string;
+  tags?: string[];
   priority?: TaskPriority;
   deadline?: string;
   progressStatus?: TaskProgressStatus;
@@ -58,6 +62,8 @@ export interface TaskFilters {
   search?: string;
   status?: TaskProgressStatus[];
   priority?: TaskPriority[];
+  tag?: string;
+  tags?: string[];
   assigneeId?: 'me' | (string & {});
   assigneeIds?: string[];
   sort?: 'deadline' | 'priority' | 'createdAt';

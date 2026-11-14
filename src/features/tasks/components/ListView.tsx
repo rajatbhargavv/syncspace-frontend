@@ -29,7 +29,7 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
   const removeAssignee = useRemoveAssignee();
   const spaceMembers = useSpaceMembers(spaceId);
   const { getName } = useMemberLookup(spaceId);
-  const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority'>('none');
+  const [groupBy, setGroupBy] = useState<'none' | 'status' | 'assignee' | 'priority' | 'tag'>('none');
   const data = useMemo(() => {
     return filterTasks(rawTasks.data ?? [], filters, auth?.user?._id);
   }, [auth?.user?._id, filters, rawTasks.data]);
@@ -43,9 +43,11 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
           ? task.progressStatus
           : groupBy === 'priority'
             ? task.priority
-            : task.assignees[0]
-              ? getName(task.assignees[0].userId)
-              : 'Unassigned';
+            : groupBy === 'tag'
+              ? (task.tags?.[0] ?? 'Untagged')
+              : task.assignees[0]
+                ? getName(task.assignees[0].userId)
+                : 'Unassigned';
       const current = grouped.get(key);
       if (current) current.push(task);
       else grouped.set(key, [task]);
@@ -149,6 +151,7 @@ export const ListView: React.FC<ListViewProps> = ({ spaceId }) => {
             { value: 'status', label: 'Group by status' },
             { value: 'assignee', label: 'Group by assignee' },
             { value: 'priority', label: 'Group by priority' },
+            { value: 'tag', label: 'Group by tag' },
           ]}
           onChange={(event) => setGroupBy(event.target.value as typeof groupBy)}
           className="w-auto py-1.5 text-xs"

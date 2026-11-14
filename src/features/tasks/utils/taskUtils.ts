@@ -51,13 +51,14 @@ export function sortTasks(
 export function filterTasks(tasks: Task[], filters: TaskFilters, currentUserId?: string): Task[] {
   let result = tasks.filter((t) => t.lifecycleStatus !== 'DELETED');
 
-  // 1. Text Search (title & description)
+  // 1. Text Search (title, description & tags)
   if (filters.search) {
     const q = filters.search.trim().toLowerCase();
     result = result.filter(
       (task) =>
         task.title.toLowerCase().includes(q) ||
-        Boolean(task.description && task.description.toLowerCase().includes(q)),
+        Boolean(task.description && task.description.toLowerCase().includes(q)) ||
+        Boolean(task.tags?.some((t) => t.toLowerCase().includes(q))),
     );
   }
 
@@ -73,7 +74,22 @@ export function filterTasks(tasks: Task[], filters: TaskFilters, currentUserId?:
     result = result.filter((task) => prioritySet.has(task.priority));
   }
 
-  // 4. Assignee filter (supports multiple assignee IDs, 'me', and 'unassigned')
+  // 4. Tags filter
+  const effectiveTags =
+    filters.tags && filters.tags.length > 0
+      ? filters.tags
+      : filters.tag
+        ? [filters.tag]
+        : [];
+
+  if (effectiveTags.length > 0) {
+    const tagSet = new Set(effectiveTags.map((t) => t.toLowerCase()));
+    result = result.filter((task) =>
+      task.tags?.some((t) => tagSet.has(t.toLowerCase())),
+    );
+  }
+
+  // 5. Assignee filter (supports multiple assignee IDs, 'me', and 'unassigned')
   const effectiveAssignees =
     filters.assigneeIds && filters.assigneeIds.length > 0
       ? filters.assigneeIds

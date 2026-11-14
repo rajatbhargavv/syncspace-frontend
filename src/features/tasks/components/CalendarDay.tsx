@@ -131,8 +131,20 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium text-text">{task.title}</p>
+                    {task.tags && task.tags.length > 0 && (
+                      <div className="mt-0.5 flex flex-wrap gap-1">
+                        {task.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-1.5 py-0.2 text-[9px] font-medium text-accent"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {task.description && (
-                      <p className="truncate text-[10px] text-text-muted">{task.description}</p>
+                      <p className="mt-0.5 truncate text-[10px] text-text-muted">{task.description}</p>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">

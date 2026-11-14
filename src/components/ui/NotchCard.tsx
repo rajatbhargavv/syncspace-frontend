@@ -33,6 +33,7 @@ export interface NotchCardTaskProps {
   actions?: React.ReactNode;
   onArrowClick?: () => void;
   subtasksContent?: React.ReactNode;
+  tags?: React.ReactNode;
 }
 
 export interface NotchCardCustomProps {
@@ -155,6 +156,9 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
             <h4 className="line-clamp-2 text-sm font-semibold text-text">{props.title}</h4>
             {props.subtitle && (
               <p className="mt-1 line-clamp-1 text-xs text-text-muted">{props.subtitle}</p>
+            )}
+            {props.tags && (
+              <div className="mt-2 flex flex-wrap items-center gap-1">{props.tags}</div>
             )}
           </div>
           {props.subtasksContent}

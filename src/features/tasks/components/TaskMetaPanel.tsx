@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'sonner';
-import { Select, Input } from '@/components/ui';
+import { Select, Input, TagInput } from '@/components/ui';
 import { useUpdateTask } from '../hooks/useUpdateTask';
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
 import { useMemberLookup } from '../hooks/useMemberLookup';
@@ -38,6 +38,15 @@ export const TaskMetaPanel: React.FC<TaskMetaPanelProps> = ({
       { onError: (error) => toast.error(error.message || 'Unable to update task') },
     );
   };
+  const saveTags = (tags: string[]) => {
+    update.mutate(
+      { id: task._id, data: { tags }, spaceId: task.spaceId },
+      {
+        onSuccess: () => toast.success('Tags updated'),
+        onError: (error) => toast.error(error.message || 'Unable to update tags'),
+      },
+    );
+  };
 
   return (
     <section aria-label="Task metadata" className="space-y-3 rounded-card border border-border p-4">
@@ -56,6 +65,14 @@ export const TaskMetaPanel: React.FC<TaskMetaPanelProps> = ({
             { onError: (error) => toast.error(error.message || 'Unable to update status') },
           )
         }
+      />
+      <TagInput
+        label="Tags"
+        placeholder="e.g. inventory module..."
+        value={task.tags ?? []}
+        onChange={saveTags}
+        disabled={readOnly || update.isPending}
+        helperText={readOnly ? undefined : 'Classify task by module or category (press Enter)'}
       />
       <Select
         label="Priority"

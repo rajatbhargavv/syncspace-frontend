@@ -99,7 +99,21 @@ export const MyTasksPage: React.FC = () => {
         <SpaceThemeDot theme={space.theme} />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-text">{task.title}</p>
-          <p className="mt-1 truncate text-xs text-text-muted">{space.name}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <p className="truncate text-xs text-text-muted">{space.name}</p>
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {task.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-3">

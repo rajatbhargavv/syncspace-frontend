@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { Button, Dialog, Input, Select, Textarea } from '@/components/ui';
+import { Button, Dialog, Input, Select, TagInput, Textarea } from '@/components/ui';
 import { useSpaceMembers } from '@/features/members';
 import { useAddAssignee } from '../hooks/useAssigneeMutations';
 import { useCreateTask } from '../hooks/useCreateTask';
@@ -29,6 +29,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       spaceId,
       title: '',
       description: '',
+      tags: [],
       priority: 'MEDIUM',
       deadline: endOfToday(),
       assignees: [],
@@ -49,6 +50,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         spaceId,
         title: '',
         description: '',
+        tags: [],
         priority: 'MEDIUM',
         deadline: endOfToday(),
         assignees: [],
@@ -63,6 +65,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         spaceId,
         title: values.title,
         description: values.description,
+        tags: values.tags,
         priority: values.priority,
         deadline: new Date(values.deadline).toISOString(),
       });
@@ -96,6 +99,16 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           label="Description"
           error={form.formState.errors.description?.message}
           {...form.register('description')}
+        />
+        <TagInput
+          label="Tags"
+          placeholder="e.g. inventory module, billing"
+          helperText="Press Enter or comma to add tags to classify this task"
+          value={form.watch('tags') ?? []}
+          onChange={(tags) =>
+            form.setValue('tags', tags, { shouldValidate: true, shouldDirty: true })
+          }
+          error={form.formState.errors.tags?.message}
         />
         <Select
           label="Priority"

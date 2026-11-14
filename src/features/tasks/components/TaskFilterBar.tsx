@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Select } from '@/components/ui';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSpace } from '@/features/spaces';
 import { useMemberLookup } from '../hooks/useMemberLookup';
+import { useSpaceTasks } from '../hooks/useSpaceTasks';
 import { useTaskFilters } from '../hooks/useTaskFilters';
 import { FilterChip } from './FilterChip';
 import type { TaskPriority, TaskProgressStatus } from '../types/task.types';
@@ -14,12 +15,26 @@ export interface TaskFilterBarProps {
 
 export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action }) => {
   const space = useSpace(spaceId);
+  const spaceTasks = useSpaceTasks(spaceId);
   const { members } = useMemberLookup(spaceId);
   const { filters, setFilters, resetFilters } = useTaskFilters();
   const [query, setQuery] = useState(filters.search ?? '');
   const debouncedQuery = useDebounce(query, 250);
   const [expanded, setExpanded] = useState(false);
   const filterBarRef = useRef<HTMLDivElement>(null);
+
+  const availableTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const t of spaceTasks.data ?? []) {
+      if (t.tags) {
+        for (const tag of t.tags) {
+          const trimmed = tag.trim();
+          if (trimmed) set.add(trimmed);
+        }
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [spaceTasks.data]);
 
   useEffect(() => {
     if (!expanded) return;
@@ -56,6 +71,7 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
   const activeCount =
     (filters.status?.length ?? 0) +
     (filters.priority?.length ?? 0) +
+    (filters.tags?.length ?? 0) +
     (filters.assigneeIds?.length ? filters.assigneeIds.length : filters.assigneeId ? 1 : 0) +
     (filters.search ? 1 : 0);
 
@@ -65,6 +81,13 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
       [key]: current.includes(value)
         ? current.filter((item) => item !== value)
         : [...current, value],
+    });
+  };
+
+  const toggleTag = (tag: string) => {
+    const current = filters.tags ?? [];
+    setFilters({
+      tags: current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag],
     });
   };
 
@@ -265,6 +288,22 @@ export const TaskFilterBar: React.FC<TaskFilterBarProps> = ({ spaceId, action })
                 {filters.dir === 'desc' ? 'Desc' : 'Asc'}
               </Button>
             </div>
+
+            {availableTags.length > 0 && (
+              <div className="border-t border-border/60 pt-3 sm:col-span-2 lg:col-span-4">
+                <p className="mb-2 text-xs font-semibold text-text">Tags</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {availableTags.map((tag) => (
+                    <FilterChip
+                      key={tag}
+                      label={tag}
+                      active={filters.tags?.includes(tag)}
+                      onClick={() => toggleTag(tag)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

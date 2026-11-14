@@ -65,4 +65,18 @@ describe('useTaskFilters', () => {
 
     expect(result.current.filters.assigneeIds).toEqual(['u2', 'u3']);
   });
+
+  it('reads and updates tags in filters', () => {
+    const wrapper = createWrapper('/spaces/s1?tags=inventory module,frontend');
+    const { result } = renderHook(() => useTaskFilters(), { wrapper });
+
+    expect(result.current.filters.tags).toEqual(['inventory module', 'frontend']);
+    expect(result.current.filters.tag).toBe('inventory module');
+
+    act(() => {
+      result.current.setFilters({ tags: ['backend'] });
+    });
+
+    expect(result.current.filters.tags).toEqual(['backend']);
+  });
 });

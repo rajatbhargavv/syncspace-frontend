@@ -168,6 +168,7 @@ describe('taskUtils', () => {
         progressStatus: 'TODO',
         priority: 'HIGH',
         assignees: [{ userId: 'u1', status: 'TODO' }],
+        tags: ['security', 'auth module'],
       },
       {
         ...baseTask,
@@ -176,14 +177,16 @@ describe('taskUtils', () => {
         progressStatus: 'IN_PROGRESS',
         priority: 'MEDIUM',
         assignees: [{ userId: 'u2', status: 'TODO' }],
+        tags: ['frontend', 'ui module'],
       },
       {
         ...baseTask,
         _id: 't3',
-        title: 'Write docs',
+        title: 'Fix the add inventory button',
         progressStatus: 'COMPLETED',
         priority: 'LOW',
         assignees: [{ userId: 'u3', status: 'DONE' }],
+        tags: ['inventory module'],
       },
       {
         ...baseTask,
@@ -224,6 +227,21 @@ describe('taskUtils', () => {
 
     it('filters by text search and status', () => {
       const result = filterTasks(tasks, { search: 'auth', status: ['TODO'] });
+      expect(result.map((t) => t._id)).toEqual(['t1']);
+    });
+
+    it('matches tasks by tag in text search', () => {
+      const result = filterTasks(tasks, { search: 'inventory' });
+      expect(result.map((t) => t._id)).toEqual(['t3']);
+    });
+
+    it('filters tasks by specific tags', () => {
+      const result = filterTasks(tasks, { tags: ['inventory module'] });
+      expect(result.map((t) => t._id)).toEqual(['t3']);
+    });
+
+    it('filters tasks by single tag property', () => {
+      const result = filterTasks(tasks, { tag: 'security' });
       expect(result.map((t) => t._id)).toEqual(['t1']);
     });
   });

@@ -9,6 +9,7 @@ export function useTaskFilters() {
     const q = searchParams.get('q') ?? undefined;
     const statusParam = searchParams.get('status');
     const priorityParam = searchParams.get('priority');
+    const tagsParam = searchParams.get('tags') ?? searchParams.get('tag');
     const assigneeParam = searchParams.get('assignee') ?? undefined;
     const sort = (searchParams.get('sort') as TaskFilters['sort']) ?? undefined;
     const dir = (searchParams.get('dir') as TaskFilters['dir']) ?? undefined;
@@ -19,12 +20,15 @@ export function useTaskFilters() {
     const priority = priorityParam
       ? (priorityParam.split(',').filter(Boolean) as TaskPriority[])
       : undefined;
+    const tags = tagsParam ? tagsParam.split(',').filter(Boolean) : undefined;
     const assigneeIds = assigneeParam ? assigneeParam.split(',').filter(Boolean) : undefined;
 
     return {
       search: q || undefined,
       status: status && status.length > 0 ? status : undefined,
       priority: priority && priority.length > 0 ? priority : undefined,
+      tag: tags && tags.length > 0 ? tags[0] : undefined,
+      tags: tags && tags.length > 0 ? tags : undefined,
       assigneeId: assigneeIds && assigneeIds.length > 0 ? assigneeIds[0] : undefined,
       assigneeIds: assigneeIds && assigneeIds.length > 0 ? assigneeIds : undefined,
       sort: sort || undefined,
@@ -38,10 +42,12 @@ export function useTaskFilters() {
         (prev) => {
           const statusParam = prev.get('status');
           const priorityParam = prev.get('priority');
+          const tagsParam = prev.get('tags') ?? prev.get('tag');
           const assigneeParam = prev.get('assignee');
           const prevAssigneeIds = assigneeParam
             ? assigneeParam.split(',').filter(Boolean)
             : undefined;
+          const prevTags = tagsParam ? tagsParam.split(',').filter(Boolean) : undefined;
 
           const currentFilters: TaskFilters = {
             search: prev.get('q') ?? undefined,
@@ -51,6 +57,8 @@ export function useTaskFilters() {
             priority: priorityParam
               ? (priorityParam.split(',').filter(Boolean) as TaskPriority[])
               : undefined,
+            tag: prevTags && prevTags.length > 0 ? prevTags[0] : undefined,
+            tags: prevTags && prevTags.length > 0 ? prevTags : undefined,
             assigneeId:
               prevAssigneeIds && prevAssigneeIds.length > 0 ? prevAssigneeIds[0] : undefined,
             assigneeIds:
@@ -78,6 +86,23 @@ export function useTaskFilters() {
             newParams.set('priority', next.priority.join(','));
           } else {
             newParams.delete('priority');
+          }
+
+          let effectiveTags: string[] | undefined;
+          if ('tags' in next) {
+            effectiveTags = next.tags && next.tags.length > 0 ? next.tags : undefined;
+          } else if ('tag' in next) {
+            effectiveTags = next.tag ? [next.tag] : undefined;
+          } else {
+            effectiveTags = currentFilters.tags;
+          }
+
+          if (effectiveTags && effectiveTags.length > 0) {
+            newParams.set('tags', effectiveTags.join(','));
+            newParams.delete('tag');
+          } else {
+            newParams.delete('tags');
+            newParams.delete('tag');
           }
 
           let effectiveAssignees: string[] | undefined;
@@ -117,6 +142,8 @@ export function useTaskFilters() {
         newParams.delete('q');
         newParams.delete('status');
         newParams.delete('priority');
+        newParams.delete('tags');
+        newParams.delete('tag');
         newParams.delete('assignee');
         newParams.delete('sort');
         newParams.delete('dir');

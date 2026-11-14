@@ -63,7 +63,21 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       className="border-border/60 hover:bg-surface-hover/50 grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors md:grid-cols-[minmax(0,2fr)_140px_130px_170px_120px] md:items-center"
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-text">{task.title}</p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <p className="truncate text-sm font-semibold text-text">{task.title}</p>
+          {task.tags && task.tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1" aria-label="Task tags">
+              {task.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full border border-accent/25 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
         {task.description && (
           <p className="mt-1 truncate text-xs text-text-muted">{task.description}</p>
         )}

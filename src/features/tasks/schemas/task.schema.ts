@@ -2,6 +2,12 @@ import { z } from 'zod';
 import { TASK_PRIORITY, TASK_PROGRESS_STATUS, ASSIGNEE_STATUS } from '@/config/constants';
 
 // ── Enum schemas ──
+export const taskTagSchema = z
+  .string()
+  .trim()
+  .min(1, 'Tag cannot be empty')
+  .max(30, 'Tag must be 30 characters or less');
+
 export const taskPrioritySchema = z.enum([
   TASK_PRIORITY.LOW,
   TASK_PRIORITY.MEDIUM,
@@ -35,6 +41,7 @@ export const createTaskSchema = z.object({
     .max(2000, 'Description must be 2000 characters or less')
     .optional()
     .default(''),
+  tags: z.array(taskTagSchema).default([]),
   priority: taskPrioritySchema.default(TASK_PRIORITY.MEDIUM),
   deadline: z
     .string()
@@ -42,6 +49,7 @@ export const createTaskSchema = z.object({
     .refine((val) => !isNaN(Date.parse(val)), {
       message: 'Invalid deadline format',
     }),
+  progressStatus: taskProgressStatusSchema.default(TASK_PROGRESS_STATUS.TODO).optional(),
   assignees: z.array(z.string().min(1)).default([]),
 });
 
@@ -61,6 +69,7 @@ export const updateTaskSchema = z
       .trim()
       .max(2000, 'Description must be 2000 characters or less')
       .optional(),
+    tags: z.array(taskTagSchema).optional(),
     priority: taskPrioritySchema.optional(),
     deadline: z
       .string()
@@ -74,6 +83,7 @@ export const updateTaskSchema = z
     (data) =>
       data.title !== undefined ||
       data.description !== undefined ||
+      data.tags !== undefined ||
       data.priority !== undefined ||
       data.deadline !== undefined ||
       data.progressStatus !== undefined,

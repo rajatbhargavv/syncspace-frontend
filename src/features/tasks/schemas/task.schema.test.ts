@@ -33,6 +33,29 @@ describe('task.schema', () => {
       });
       expect(parsed.priority).toBe('MEDIUM');
       expect(parsed.description).toBe('');
+      expect(parsed.tags).toEqual([]);
+    });
+
+    it('accepts and trims tags', () => {
+      const parsed = createTaskSchema.parse({
+        ...validCreate,
+        tags: ['  inventory module  ', 'bug'],
+      });
+      expect(parsed.tags).toEqual(['inventory module', 'bug']);
+    });
+
+    it('rejects empty tag or tag longer than 30 characters', () => {
+      const res1 = createTaskSchema.safeParse({
+        ...validCreate,
+        tags: ['   '],
+      });
+      expect(res1.success).toBe(false);
+
+      const res2 = createTaskSchema.safeParse({
+        ...validCreate,
+        tags: ['a'.repeat(31)],
+      });
+      expect(res2.success).toBe(false);
     });
 
     it('rejects empty title after trimming', () => {
@@ -82,6 +105,13 @@ describe('task.schema', () => {
       });
       expect(parsed.title).toBe('Updated title');
       expect(parsed.progressStatus).toBe('IN_PROGRESS');
+    });
+
+    it('accepts update with just tags', () => {
+      const parsed = updateTaskSchema.parse({
+        tags: ['inventory module'],
+      });
+      expect(parsed.tags).toEqual(['inventory module']);
     });
 
     it('rejects empty update object', () => {
