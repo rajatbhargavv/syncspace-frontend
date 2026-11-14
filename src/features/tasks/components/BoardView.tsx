@@ -40,6 +40,19 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
   const currentUserId = auth?.user?._id;
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [createStatus, setCreateStatus] = useState<TaskProgressStatus | null>(null);
+  const [collapsedColumns, setCollapsedColumns] = useState<Record<TaskProgressStatus, boolean>>({
+    TODO: false,
+    IN_PROGRESS: false,
+    COMPLETED: false,
+  });
+
+  const toggleColumn = (status: TaskProgressStatus) => {
+    setCollapsedColumns((prev) => ({
+      ...prev,
+      [status]: !prev[status],
+    }));
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
@@ -113,19 +126,30 @@ export const BoardView: React.FC<BoardViewProps> = ({ spaceId }) => {
       >
         <div
           data-testid="board-view"
-          className="grid snap-x auto-cols-[minmax(84vw,1fr)] grid-flow-col gap-4 overflow-x-auto pb-3 md:grid-flow-row md:grid-cols-3 md:overflow-visible"
+          className="flex snap-x gap-4 overflow-x-auto pb-3 md:overflow-visible items-start"
         >
           {STATUSES.map((status) => (
-            <BoardColumn
+            <div
               key={status}
-              spaceId={spaceId}
-              status={status}
-              label={meta[status].label}
-              tasks={groups[status]}
-              onCreate={setCreateStatus}
-              isInactive={space.status === 'Inactive'}
-              activeTaskId={activeTask?._id}
-            />
+              className={
+                collapsedColumns[status]
+                  ? 'shrink-0'
+                  : 'flex-1 min-w-[min(84vw,20rem)] transition-all'
+              }
+            >
+              <BoardColumn
+                spaceId={spaceId}
+                status={status}
+                label={meta[status].label}
+                tasks={groups[status]}
+                onCreate={setCreateStatus}
+                isInactive={space.status === 'Inactive'}
+                activeTaskId={activeTask?._id}
+                isCollapsed={collapsedColumns[status]}
+                onToggleCollapse={() => toggleColumn(status)}
+                totalTasksCount={filteredTasks.length}
+              />
+            </div>
           ))}
         </div>
         <DragOverlay dropAnimation={null}>

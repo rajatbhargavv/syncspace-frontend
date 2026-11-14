@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useCreateTask } from '../hooks/useCreateTask';
+import type { TaskProgressStatus } from '../types/task.types';
 
 interface QuickAddTaskProps {
   spaceId: string;
   disabled?: boolean;
+  status?: TaskProgressStatus;
 }
 
 function endOfToday(): string {
@@ -13,7 +15,7 @@ function endOfToday(): string {
   return date.toISOString();
 }
 
-export const QuickAddTask: React.FC<QuickAddTaskProps> = ({ spaceId, disabled }) => {
+export const QuickAddTask: React.FC<QuickAddTaskProps> = ({ spaceId, disabled, status = 'TODO' }) => {
   const [title, setTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const createTask = useCreateTask();
@@ -36,6 +38,7 @@ export const QuickAddTask: React.FC<QuickAddTaskProps> = ({ spaceId, disabled })
       title: trimmedTitle,
       priority: 'MEDIUM',
       deadline: endOfToday(),
+      progressStatus: status,
     });
     cancel();
   };
