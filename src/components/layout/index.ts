@@ -6,3 +6,4 @@ export * from './SpaceSwitcher';
 export * from './NotificationBell';
 export * from './UserMenu';
 export * from './MobileNav';
+export * from './AppOnboardingTour';

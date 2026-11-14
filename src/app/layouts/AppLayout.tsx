@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { MobileNav, Sidebar, Topbar } from '@/components/layout';
+import { AppOnboardingTour, MobileNav, Sidebar, Topbar } from '@/components/layout';
 import { useRealtimeSync } from '@/features/realtime';
 import { InstallBanner, OfflineBanner, useServiceWorkerMessages } from '@/features/push';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -52,6 +52,7 @@ export const AppLayout: React.FC = () => {
         </div>
         <MobileNav isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />
       </div>
+      <AppOnboardingTour />
     </div>
   );
 };
@@ -63,6 +64,7 @@ function getRouteTitle(pathname: string): string {
   if (pathname.includes('/activity')) return 'Activity';
   if (pathname.startsWith('/spaces/')) return 'Space';
   if (pathname === '/my-tasks') return 'My tasks';
+  if (pathname === '/calendar') return 'Activity Calendar';
   if (pathname === '/notifications') return 'Notifications';
   if (pathname === '/settings') return 'Settings';
   if (pathname === '/upgrade') return 'Upgrade';
