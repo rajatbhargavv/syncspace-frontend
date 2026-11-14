@@ -6,6 +6,7 @@ export * from './hooks/useInstallPrompt';
 export * from './hooks/useServiceWorkerMessages';
 export * from './components/IOSInstallDialog';
 export * from './components/InstallBanner';
+export * from './components/PwaInstallGuideModal';
 export * from './components/OfflineBanner';
 export * from './components/PushNotificationSoftPrompt';
 export * from './components/SettingsNotificationSection';

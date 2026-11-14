@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
-import { useInstallPrompt } from '@/features/push';
+import { useInstallPrompt, PwaInstallGuideModal } from '@/features/push';
 import { Avatar, PlanBadge } from '@/components/ui';
+import { startAppTour } from './AppOnboardingTour';
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isPwaGuideOpen, setIsPwaGuideOpen] = useState(false);
   const navigate = useNavigate();
   const { isInstallable, promptInstall } = useInstallPrompt();
 
@@ -44,6 +46,30 @@ export const UserMenu: React.FC = () => {
         >
           Settings
         </Link>
+        <button
+          type="button"
+          onClick={(e) => {
+            const details = e.currentTarget.closest('details');
+            if (details) details.removeAttribute('open');
+            startAppTour();
+          }}
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text hover:bg-surface-hover"
+        >
+          <span aria-hidden="true">🧭</span>
+          Product Tour
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            const details = e.currentTarget.closest('details');
+            if (details) details.removeAttribute('open');
+            setIsPwaGuideOpen(true);
+          }}
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text hover:bg-surface-hover"
+        >
+          <span aria-hidden="true">📲</span>
+          Download App Guide
+        </button>
         {isInstallable && (
           <button
             type="button"
@@ -68,6 +94,7 @@ export const UserMenu: React.FC = () => {
           {isLoggingOut ? 'Logging out...' : 'Log out'}
         </button>
       </div>
+      <PwaInstallGuideModal isOpen={isPwaGuideOpen} onClose={() => setIsPwaGuideOpen(false)} />
     </details>
   );
 };
