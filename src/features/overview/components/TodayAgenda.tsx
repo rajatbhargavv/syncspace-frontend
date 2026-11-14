@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { Badge } from '@/components/ui/Badge';
@@ -58,9 +58,46 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
   };
 
   const currentList = getFilteredList();
+  const clickTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const handleToggleStatus = (item: TaskWithSpace, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCardClick = (item: TaskWithSpace) => {
+    const id = item.task._id;
+    const existing = clickTimers.current.get(id);
+    if (existing) {
+      clearTimeout(existing);
+      clickTimers.current.delete(id);
+    }
+    const timer = setTimeout(() => {
+      const currentStatus = item.task.progressStatus;
+      const nextStatus: TaskProgressStatus = currentStatus === 'COMPLETED' ? 'TODO' : 'COMPLETED';
+      updateStatus.mutate({
+        taskId: item.task._id,
+        spaceId: item.space._id,
+        progressStatus: nextStatus,
+      });
+      clickTimers.current.delete(id);
+    }, 220);
+    clickTimers.current.set(id, timer);
+  };
+
+  const handleCardDoubleClick = (item: TaskWithSpace) => {
+    const id = item.task._id;
+    const existing = clickTimers.current.get(id);
+    if (existing) {
+      clearTimeout(existing);
+      clickTimers.current.delete(id);
+    }
+    open(item.task._id);
+  };
+
+  const handleToggleStatus = (item: TaskWithSpace, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const id = item.task._id;
+    const existing = clickTimers.current.get(id);
+    if (existing) {
+      clearTimeout(existing);
+      clickTimers.current.delete(id);
+    }
     const currentStatus = item.task.progressStatus;
     let nextStatus: TaskProgressStatus = 'COMPLETED';
     if (currentStatus === 'COMPLETED') {
@@ -225,11 +262,15 @@ export const TodayAgenda: React.FC<TodayAgendaProps> = ({ agenda, isLoading = fa
                 key={task._id}
                 role="button"
                 tabIndex={0}
-                onClick={() => open(task._id)}
+                onClick={() => handleCardClick({ task, space })}
+                onDoubleClick={() => handleCardDoubleClick({ task, space })}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === 'Enter') {
                     e.preventDefault();
                     open(task._id);
+                  } else if (e.key === ' ') {
+                    e.preventDefault();
+                    handleToggleStatus({ task, space });
                   }
                 }}
                 className={`group flex cursor-pointer flex-col justify-between gap-3 rounded-card border p-3.5 transition-all sm:flex-row sm:items-center ${

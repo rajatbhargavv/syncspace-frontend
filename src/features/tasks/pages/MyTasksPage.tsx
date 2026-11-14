@@ -96,9 +96,32 @@ export const MyTasksPage: React.FC = () => {
       className="flex w-full flex-col gap-3 rounded-card border border-border bg-surface p-4 text-left transition-colors hover:bg-surface-hover sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="flex min-w-0 items-center gap-3">
+        <input
+          type="checkbox"
+          checked={task.progressStatus === 'COMPLETED'}
+          aria-label={`Mark task ${task.title} as ${
+            task.progressStatus === 'COMPLETED' ? 'incomplete' : 'complete'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => {
+            e.stopPropagation();
+            updateStatus.mutate({
+              taskId: task._id,
+              spaceId: space._id,
+              progressStatus: e.target.checked ? 'COMPLETED' : 'TODO',
+            });
+          }}
+          className="h-4 w-4 shrink-0 cursor-pointer rounded border-border text-accent focus:ring-accent"
+        />
         <SpaceThemeDot theme={space.theme} />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-text">{task.title}</p>
+          <p
+            className={`truncate text-sm font-semibold ${
+              task.progressStatus === 'COMPLETED' ? 'text-text-muted line-through' : 'text-text'
+            }`}
+          >
+            {task.title}
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="truncate text-xs text-text-muted">{space.name}</p>
             {task.tags && task.tags.length > 0 && (

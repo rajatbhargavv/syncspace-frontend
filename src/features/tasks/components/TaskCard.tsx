@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { NotchCard } from '@/components/ui/NotchCard';
 import { SubtasksModal, useSubtasks, useUpdateSubtask } from '@/features/subtasks';
 import { useMemberLookup } from '../hooks/useMemberLookup';
 import { useOpenTask } from '../hooks/useOpenTask';
+import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus';
 import { formatDeadline, isOverdue, priorityMeta } from '../utils/taskUtils';
 import type { Task } from '../types/task.types';
 
@@ -36,7 +37,34 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const visibleAssignees = task.assignees.slice(0, 3);
   const overflow = task.assignees.length - visibleAssignees.length;
 
+  const updateStatus = useUpdateTaskStatus();
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const toggleStatus = () => {
+    const nextStatus = task.progressStatus === 'COMPLETED' ? 'TODO' : 'COMPLETED';
+    updateStatus.mutate({
+      taskId: task._id,
+      spaceId,
+      progressStatus: nextStatus,
+    });
+  };
+
+  const handleClick = () => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    clickTimerRef.current = setTimeout(() => {
+      toggleStatus();
+      clickTimerRef.current = null;
+    }, 220);
+  };
+
   const handleOpen = () => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
     open(task._id);
     onClick?.();
   };
@@ -125,7 +153,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         subtitle={task.description}
         deadline={formatDeadline(task.deadline)}
         isOverdue={overdue}
-        onClick={handleOpen}
+        onClick={handleClick}
+        onDoubleClick={handleOpen}
         onArrowClick={handleOpen}
         subtasksContent={subtasksContent}
         className={className}
@@ -145,6 +174,36 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         }
         statusBadge={
           <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              aria-label={`Mark task ${task.title} as ${
+                task.progressStatus === 'COMPLETED' ? 'incomplete' : 'complete'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (clickTimerRef.current) {
+                  clearTimeout(clickTimerRef.current);
+                  clickTimerRef.current = null;
+                }
+                toggleStatus();
+              }}
+              className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
+                task.progressStatus === 'COMPLETED'
+                  ? 'border-success bg-success text-white'
+                  : 'border-border hover:border-accent'
+              }`}
+            >
+              {task.progressStatus === 'COMPLETED' && (
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
+            </button>
             <Badge variant={priority.badgeVariant} size="sm">
               {priority.label}
             </Badge>

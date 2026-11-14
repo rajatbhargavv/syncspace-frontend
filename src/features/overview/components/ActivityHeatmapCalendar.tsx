@@ -90,29 +90,108 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
     }
   };
 
-  // 1. Continuous 24-week grid (GitHub style)
-  const continuousWeeks = useMemo(() => {
-    const weeks: Array<Array<{ date: string; dayOfWeek: number }>> = [];
-    const today = new Date();
-    // 24 weeks ~ 168 days
-    const totalDays = 24 * 7;
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() - totalDays + (7 - today.getDay()));
+  // 1. Full-Year 12-Month Grid (LeetCode style: Jan-Dec, month headers, 28-31 dots)
+  const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
 
-    const currentDay = new Date(startDate);
-    let currentWeek: Array<{ date: string; dayOfWeek: number }> = [];
+  const yearMonths = useMemo(() => {
+    const months: Array<{
+      monthIndex: number;
+      monthName: string;
+      monthShort: string;
+      daysCount: number;
+      weeks: Array<Array<{ date: string; dayNumber: number; dayOfWeek: number } | null>>;
+      totalCompletedInMonth: number;
+    }> = [];
+    const monthShortNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const monthFullNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
 
-    for (let i = 0; i < totalDays; i++) {
-      const dStr = toLocalDateString(currentDay);
-      currentWeek.push({ date: dStr, dayOfWeek: currentDay.getDay() });
-      if (currentWeek.length === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
+    for (let m = 0; m < 12; m++) {
+      const daysCount = new Date(selectedYear, m + 1, 0).getDate();
+      const firstDayDate = new Date(selectedYear, m, 1);
+      const firstDayOfWeek = firstDayDate.getDay(); // 0 = Sun, 6 = Sat
+
+      const weeks: Array<Array<{ date: string; dayNumber: number; dayOfWeek: number } | null>> = [];
+      let currentWeek: Array<{ date: string; dayNumber: number; dayOfWeek: number } | null> = [];
+
+      // Pad initial days of the first week before day 1
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        currentWeek.push(null);
       }
-      currentDay.setDate(currentDay.getDate() + 1);
+
+      let totalMonthCompleted = 0;
+
+      for (let d = 1; d <= daysCount; d++) {
+        const dObj = new Date(selectedYear, m, d);
+        const dStr = toLocalDateString(dObj);
+        const dayOfWeek = dObj.getDay();
+        const completed = completedMap.get(dStr)?.length ?? 0;
+        totalMonthCompleted += completed;
+
+        currentWeek.push({
+          date: dStr,
+          dayNumber: d,
+          dayOfWeek,
+        });
+
+        if (currentWeek.length === 7) {
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+      }
+
+      if (currentWeek.length > 0) {
+        while (currentWeek.length < 7) {
+          currentWeek.push(null);
+        }
+        weeks.push(currentWeek);
+      }
+
+      months.push({
+        monthIndex: m,
+        monthName: monthFullNames[m] ?? `Month ${m + 1}`,
+        monthShort: monthShortNames[m] ?? `M${m + 1}`,
+        daysCount,
+        weeks,
+        totalCompletedInMonth: totalMonthCompleted,
+      });
     }
-    if (currentWeek.length > 0) weeks.push(currentWeek);
-    return weeks;
+
+    return months;
+  }, [selectedYear, completedMap]);
+
+  const totalCompletedInYear = useMemo(() => {
+    return yearMonths.reduce((sum, m) => sum + m.totalCompletedInMonth, 0);
+  }, [yearMonths]);
+
+  const availableYears = useMemo(() => {
+    const current = new Date().getFullYear();
+    return [current, current - 1, current - 2];
   }, []);
 
   // 2. Month-by-month state (LeetCode style)
@@ -270,7 +349,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
                 : 'text-text-muted hover:text-text'
             }`}
           >
-            Continuous (24 Wks)
+            Year
           </button>
           <button
             type="button"
@@ -297,31 +376,83 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
         </div>
       </div>
 
-      {/* VIEW 1: Continuous 24-Week Heatmap (GitHub Style) */}
+      {/* VIEW 1: Full-Year Heatmap (LeetCode Style: 12 Months with Month Headers & 28-31 dots below) */}
       {viewMode === 'continuous' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {/* Header controls: Year selector & Year total */}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-text-muted">Year:</span>
+              <div className="flex items-center gap-1">
+                {availableYears.map((yr) => (
+                  <button
+                    key={yr}
+                    type="button"
+                    onClick={() => setSelectedYear(yr)}
+                    className={`rounded-button px-2.5 py-1 font-semibold transition-colors ${
+                      selectedYear === yr
+                        ? 'bg-accent text-text-inverse shadow-sm'
+                        : 'border border-border bg-surface text-text hover:bg-surface-hover'
+                    }`}
+                  >
+                    {yr}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="text-text-muted">
+              <span className="font-bold text-text">{totalCompletedInYear}</span> tasks completed in{' '}
+              {selectedYear}
+            </div>
+          </div>
+
           <div className="overflow-x-auto pb-2">
-            <div className="min-w-[680px]">
-              <div className="flex justify-between gap-1.5">
-                {continuousWeeks.map((week, wIdx) => (
-                  <div key={wIdx} className="flex flex-col gap-1.5">
-                    {week.map(({ date }) => {
-                      const metrics = getDayMetrics(date);
-                      const isSelected = selectedDate === date;
-                      return (
-                        <button
-                          key={date}
-                          type="button"
-                          onClick={() => setSelectedDate(date)}
-                          aria-label={`${date}: ${metrics.label}`}
-                          title={`${date}: ${metrics.label}`}
-                          className={`h-3.5 w-3.5 rounded-sm transition-transform duration-150 ${getLevelColorClass(
-                            metrics.level,
-                            isSelected,
-                          )}`}
-                        />
-                      );
-                    })}
+            <div className="inline-flex min-w-full items-start gap-3">
+              {/* Weekday Labels (Sun to Sat) */}
+              <div className="flex flex-col gap-1.5 pt-6 text-[10px] font-semibold text-text-muted">
+                <span className="h-3.5 leading-[14px]"></span>
+                <span className="h-3.5 leading-[14px]">Mon</span>
+                <span className="h-3.5 leading-[14px]"></span>
+                <span className="h-3.5 leading-[14px]">Wed</span>
+                <span className="h-3.5 leading-[14px]"></span>
+                <span className="h-3.5 leading-[14px]">Fri</span>
+                <span className="h-3.5 leading-[14px]"></span>
+              </div>
+
+              {/* 12 Months: Jan to Dec with Month Headers and below 28, 29, 30, 31 dots */}
+              <div className="flex flex-1 justify-between gap-3">
+                {yearMonths.map((m) => (
+                  <div key={m.monthIndex} className="flex flex-col items-center">
+                    {/* Month Header */}
+                    <span className="mb-2 text-xs font-bold text-text">{m.monthShort}</span>
+
+                    {/* Columns of dots for this month */}
+                    <div className="flex gap-1.5">
+                      {m.weeks.map((col, colIdx) => (
+                        <div key={colIdx} className="flex flex-col gap-1.5">
+                          {col.map((day, dIdx) => {
+                            if (!day) {
+                              return <div key={`pad-${dIdx}`} className="h-3.5 w-3.5" />;
+                            }
+                            const metrics = getDayMetrics(day.date);
+                            const isSelected = selectedDate === day.date;
+                            return (
+                              <button
+                                key={day.date}
+                                type="button"
+                                onClick={() => setSelectedDate(day.date)}
+                                aria-label={`${day.date}: ${metrics.label}`}
+                                title={`${day.date}: ${metrics.label}`}
+                                className={`h-3.5 w-3.5 rounded-sm transition-transform duration-150 ${getLevelColorClass(
+                                  metrics.level,
+                                  isSelected,
+                                )}`}
+                              />
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -330,7 +461,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
 
           {/* Legend */}
           <div className="border-border/40 flex items-center justify-between border-t pt-2 text-xs text-text-muted">
-            <span>Click any day to view completed tasks and output breakdown</span>
+            <span>Click any day dot to view completed tasks and output breakdown</span>
             <div className="flex items-center gap-1.5">
               <span>Less</span>
               <span className="bg-surface-hover/70 border-border/50 h-3 w-3 rounded-sm border" />

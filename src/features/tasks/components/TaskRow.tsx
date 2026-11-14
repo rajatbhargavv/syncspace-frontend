@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Avatar, Badge, Select } from '@/components/ui';
 import { useMemberLookup } from '../hooks/useMemberLookup';
 import { formatDeadline, isOverdue, priorityMeta, statusMeta } from '../utils/taskUtils';
@@ -48,39 +48,97 @@ export const TaskRow: React.FC<TaskRowProps> = ({
     onAssigneeChange(Array.from(nextIds));
   };
 
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleRowClick = () => {
+    if (disabled) return;
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    clickTimerRef.current = setTimeout(() => {
+      const nextStatus: TaskProgressStatus =
+        task.progressStatus === 'COMPLETED' ? 'TODO' : 'COMPLETED';
+      onStatusChange(nextStatus);
+      clickTimerRef.current = null;
+    }, 220);
+  };
+
+  const handleRowDoubleClick = () => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    onOpen();
+  };
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={onOpen}
+      onClick={handleRowClick}
+      onDoubleClick={handleRowDoubleClick}
       onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (event.key === 'Enter') {
           event.preventDefault();
           onOpen();
+        } else if (event.key === ' ') {
+          event.preventDefault();
+          if (!disabled) {
+            onStatusChange(task.progressStatus === 'COMPLETED' ? 'TODO' : 'COMPLETED');
+          }
         }
       }}
       onKeyUp={() => undefined}
       className="border-border/60 hover:bg-surface-hover/50 grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors md:grid-cols-[minmax(0,2fr)_140px_130px_170px_120px] md:items-center"
     >
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <p className="truncate text-sm font-semibold text-text">{task.title}</p>
-          {task.tags && task.tags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1" aria-label="Task tags">
-              {task.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="border-accent/25 bg-accent/10 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium text-accent"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+      <div className="flex min-w-0 items-center gap-3">
+        <input
+          type="checkbox"
+          checked={task.progressStatus === 'COMPLETED'}
+          aria-label={`Mark task ${task.title} as ${
+            task.progressStatus === 'COMPLETED' ? 'incomplete' : 'complete'
+          }`}
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (clickTimerRef.current) {
+              clearTimeout(clickTimerRef.current);
+              clickTimerRef.current = null;
+            }
+          }}
+          onChange={(e) => {
+            e.stopPropagation();
+            onStatusChange(e.target.checked ? 'COMPLETED' : 'TODO');
+          }}
+          className="h-4 w-4 shrink-0 cursor-pointer rounded border-border text-accent focus:ring-accent"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p
+              className={`truncate text-sm font-semibold ${
+                task.progressStatus === 'COMPLETED' ? 'text-text-muted line-through' : 'text-text'
+              }`}
+            >
+              {task.title}
+            </p>
+            {task.tags && task.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1" aria-label="Task tags">
+                {task.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="border-accent/25 bg-accent/10 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium text-accent"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          {task.description && (
+            <p className="mt-1 truncate text-xs text-text-muted">{task.description}</p>
           )}
         </div>
-        {task.description && (
-          <p className="mt-1 truncate text-xs text-text-muted">{task.description}</p>
-        )}
       </div>
       <Select
         aria-label={`Status for ${task.title}`}

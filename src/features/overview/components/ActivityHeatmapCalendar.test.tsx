@@ -42,7 +42,7 @@ describe('ActivityHeatmapCalendar', () => {
     expect(screen.getByText('5 Days')).toBeInTheDocument();
     expect(screen.getByText('12 Days')).toBeInTheDocument();
     expect(screen.getByText('42 Tasks')).toBeInTheDocument();
-    expect(screen.getByText('Continuous (24 Wks)')).toBeInTheDocument();
+    expect(screen.getByText('Year (LeetCode)')).toBeInTheDocument();
     expect(screen.getByText('Month Matrix')).toBeInTheDocument();
   });
 

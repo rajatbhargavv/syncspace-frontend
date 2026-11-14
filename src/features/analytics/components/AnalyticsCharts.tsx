@@ -59,6 +59,28 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
     (total, member) => total + member.completedCount,
     0,
   );
+
+  const tooltipProps = {
+    contentStyle: {
+      backgroundColor: colors.surfaceHover,
+      borderColor: colors.grid,
+      borderRadius: '8px',
+      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+      padding: '8px 12px',
+      color: colors.text,
+    },
+    itemStyle: {
+      color: colors.text,
+      fontSize: '12px',
+      fontWeight: 600,
+    },
+    labelStyle: {
+      color: colors.muted,
+      fontSize: '11px',
+      marginBottom: '4px',
+    },
+  };
+
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <ChartCard title="Tasks completed over time" summary="Completed tasks by day or week.">
@@ -81,7 +103,7 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
                 <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" />
                 <XAxis dataKey="date" tick={{ fill: colors.muted, fontSize: 11 }} />
                 <YAxis allowDecimals={false} tick={{ fill: colors.muted, fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: colors.surface, borderColor: colors.grid }} />
+                <Tooltip {...tooltipProps} />
                 <Area
                   type="monotone"
                   dataKey="count"
@@ -128,9 +150,7 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
                       />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{ background: colors.surface, borderColor: colors.grid }}
-                  />
+                  <Tooltip {...tooltipProps} />
                 </PieChart>
               </ResponsiveContainer>
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-xl font-bold text-text">
@@ -216,7 +236,7 @@ export const AnalyticsCharts: React.FC<ChartProps> = ({
                   width={80}
                   tick={{ fill: colors.text, fontSize: 11 }}
                 />
-                <Tooltip contentStyle={{ background: colors.surface, borderColor: colors.grid }} />
+                <Tooltip {...tooltipProps} />
                 <Bar dataKey="activeTasksCount" fill={colors.accent} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>

@@ -7,14 +7,15 @@ import { useAuth } from '@/app/providers/useAuth';
 import { ApiError } from '@/types';
 import { useUserProfile } from '../hooks/useUserProfile';
 import type { ProfileSpace } from '../types/profile.types';
-import { getSpaceKindConfig } from '@/features/spaces';
-import { ThemeScope } from '@/features/spaces';
+import { getSpaceKindConfig, ThemeScope, useSpaces } from '@/features/spaces';
 import { useEnrichedProfileSpace } from '../hooks/useEnrichedProfileSpace';
 
 export const ProfilePage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { user } = useAuth();
   const profile = useUserProfile(id);
+  const isSelf = Boolean(user && user._id === id);
+  const mySpacesQuery = useSpaces(isSelf);
   const [filter, setFilter] = useState<'ALL' | 'OWNER' | 'MEMBER'>('ALL');
   useEffect(() => {
     if (profile.data) {
@@ -58,6 +59,8 @@ export const ProfilePage: React.FC = () => {
   }
 
   const data = profile.data;
+  const myActiveSpaces = (mySpacesQuery.data ?? []).filter((s) => s.status === 'Active');
+
   const spaces = data.spaces
     .filter((space) => filter === 'ALL' || space.role === filter)
     .sort(
@@ -68,7 +71,21 @@ export const ProfilePage: React.FC = () => {
   const tasks =
     data.totalTasksCompleted ??
     data.spaces.reduce((sum, space) => sum + space.stats.tasksCompleted, 0);
-  const owned = data.spaces.filter((space) => space.role === 'OWNER').length;
+
+  const publicOwned = data.spaces.filter((space) => space.role === 'OWNER').length;
+  const publicJoined = Math.max(0, data.spaces.length - publicOwned);
+  const publicTotal = data.publicSpacesCount ?? data.spaces.length;
+
+  const owned =
+    isSelf && mySpacesQuery.data
+      ? myActiveSpaces.filter((space) => space.myRole === 'OWNER').length
+      : publicOwned;
+  const joined =
+    isSelf && mySpacesQuery.data
+      ? myActiveSpaces.filter((space) => space.myRole !== 'OWNER').length
+      : publicJoined;
+  const totalSpaces = isSelf && mySpacesQuery.data ? myActiveSpaces.length : publicTotal;
+
   const share = () => {
     const url = window.location.href;
     void navigator.clipboard.writeText(url);
@@ -108,20 +125,46 @@ export const ProfilePage: React.FC = () => {
       </header>
       <section className="grid gap-3 sm:grid-cols-4">
         {[
-          ['Public spaces', data.publicSpacesCount ?? data.spaces.length],
-          ['Tasks completed', tasks],
-          ['Spaces owned', owned],
-          ['Spaces joined', data.spaces.length - owned],
-        ].map(([label, value]) => (
+          {
+            label: isSelf ? 'Total spaces' : 'Public spaces',
+            value: totalSpaces,
+            subtext: isSelf ? `${publicTotal} public` : undefined,
+          },
+          {
+            label: 'Tasks completed',
+            value: tasks,
+          },
+          {
+            label: isSelf ? 'Spaces owned' : 'Public spaces owned',
+            value: owned,
+            subtext: isSelf ? `${publicOwned} public` : undefined,
+          },
+          {
+            label: isSelf ? 'Spaces joined' : 'Public spaces joined',
+            value: joined,
+            subtext: isSelf ? `${publicJoined} public` : undefined,
+          },
+        ].map(({ label, value, subtext }) => (
           <div key={label} className="rounded-card border border-border bg-surface p-4">
             <p className="text-sm text-text-muted">{label}</p>
             <p className="mt-2 text-2xl font-bold text-text">{value}</p>
+            {subtext && <p className="mt-1 text-xs text-text-muted">{subtext}</p>}
           </div>
         ))}
       </section>
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-heading text-2xl font-bold text-text">Public spaces</h2>
+          <div>
+            <h2 className="font-heading text-2xl font-bold text-text">Public spaces</h2>
+            {isSelf && myActiveSpaces.length > data.spaces.length && (
+              <p className="mt-1 text-xs text-text-muted">
+                Only your public spaces are shown here to other members. Your{' '}
+                {myActiveSpaces.length - data.spaces.length} private{' '}
+                {myActiveSpaces.length - data.spaces.length === 1 ? 'space is' : 'spaces are'}{' '}
+                accessible from your dashboard.
+              </p>
+            )}
+          </div>
           <div className="flex gap-2">
             {(['ALL', 'OWNER', 'MEMBER'] as const).map((value) => (
               <Button

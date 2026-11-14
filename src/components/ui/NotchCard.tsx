@@ -47,6 +47,7 @@ export type NotchCardProps = (
 ) & {
   className?: string;
   onClick?: () => void;
+  onDoubleClick?: () => void;
 };
 
 const DOT_COLORS = ['bg-red-500', 'bg-orange-500', 'bg-amber-400', 'bg-lime-400', 'bg-emerald-400'];
@@ -239,16 +240,21 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
     </>
   );
 
-  if (onClick) {
+  if (onClick || props.onDoubleClick) {
     return (
       <div
         role="button"
         tabIndex={0}
         onClick={onClick}
+        onDoubleClick={props.onDoubleClick}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === 'Enter') {
             e.preventDefault();
-            onClick();
+            if (props.onDoubleClick) props.onDoubleClick();
+            else if (onClick) onClick();
+          } else if (e.key === ' ') {
+            e.preventDefault();
+            if (onClick) onClick();
           }
         }}
         className={cardClassName}

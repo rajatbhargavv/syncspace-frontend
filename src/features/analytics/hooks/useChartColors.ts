@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 export interface ChartColors {
   accent: string;
   surface: string;
+  surfaceHover: string;
   text: string;
   muted: string;
   grid: string;
@@ -15,6 +16,7 @@ function readColors(): ChartColors {
   return {
     accent: read('--color-accent', '#ff8a1f'),
     surface: read('--color-surface', '#141416'),
+    surfaceHover: read('--color-surface-hover', '#1c1c1f'),
     text: read('--color-text', '#f5f5f5'),
     muted: read('--color-text-muted', '#8a8a8e'),
     grid: read('--color-border', '#2a2a2d'),
@@ -28,6 +30,7 @@ export function useChartColors(): ChartColors {
       ? {
           accent: '#ff8a1f',
           surface: '#141416',
+          surfaceHover: '#1c1c1f',
           text: '#f5f5f5',
           muted: '#8a8a8e',
           grid: '#2a2a2d',
