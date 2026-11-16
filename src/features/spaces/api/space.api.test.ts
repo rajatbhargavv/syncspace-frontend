@@ -9,8 +9,9 @@ import {
   createSpace,
   updateSpace,
   deactivateSpace,
+  searchDiscoverableSpaces,
 } from './space.api';
-import type { Space, SpaceSummary, PublicSpace } from '../types/space.types';
+import type { Space, SpaceSummary, PublicSpace, DiscoverableSpace } from '../types/space.types';
 
 const mockSpace: Space = {
   _id: 'space_123',
@@ -173,5 +174,42 @@ describe('space.api', () => {
 
     const deactivated = await deactivateSpace('space_123');
     expect(deactivated.status).toBe('Inactive');
+  });
+
+  it('searchDiscoverableSpaces returns matching spaces including by space ID', async () => {
+    const mockDiscoverable: DiscoverableSpace = {
+      _id: 'Space_42664c81-3844-4db9-af10-59c922538213',
+      name: 'Studio',
+      description: 'An open creative studio',
+      kind: 'STUDIO',
+      theme: { preset: 'IVORY_INK', mode: 'light' },
+      visibility: 'PUBLIC',
+      joinPolicy: 'OPEN',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      owner: { _id: 'user_999', name: 'Alice' },
+    };
+
+    server.use(
+      http.get(API_ENDPOINTS.SPACES.DISCOVER, ({ request }) => {
+        const url = new URL(request.url);
+        const search = url.searchParams.get('search');
+        if (search === 'Space_42664c81-3844-4db9-af10-59c922538213') {
+          return HttpResponse.json({
+            message: 'Discoverable spaces fetched successfully',
+            spaces: [mockDiscoverable],
+          });
+        }
+        return HttpResponse.json({
+          message: 'Discoverable spaces fetched successfully',
+          spaces: [],
+        });
+      }),
+    );
+
+    const results = await searchDiscoverableSpaces('Space_42664c81-3844-4db9-af10-59c922538213');
+    expect(results).toHaveLength(1);
+    expect(results[0]?._id).toBe('Space_42664c81-3844-4db9-af10-59c922538213');
+    expect(results[0]?.name).toBe('Studio');
   });
 });

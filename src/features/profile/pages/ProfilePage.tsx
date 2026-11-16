@@ -1,13 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Avatar, Badge, Button, EmptyState, ErrorState, Skeleton } from '@/components/ui';
+import {
+  Avatar,
+  Badge,
+  Button,
+  EmptyState,
+  ErrorState,
+  NotchCard,
+  Skeleton,
+} from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { useAuth } from '@/app/providers/useAuth';
+import { useTheme } from '@/app/providers/useTheme';
 import { ApiError } from '@/types';
 import { useUserProfile } from '../hooks/useUserProfile';
 import type { ProfileSpace } from '../types/profile.types';
-import { getSpaceKindConfig, ThemeScope, useSpaces } from '@/features/spaces';
+import {
+  getSpaceKindConfig,
+  SpaceIdBadge,
+  SpaceThemeDot,
+  ThemeScope,
+  useSpaces,
+} from '@/features/spaces';
 import { useEnrichedProfileSpace } from '../hooks/useEnrichedProfileSpace';
 
 export const ProfilePage: React.FC = () => {
@@ -200,50 +215,76 @@ export const ProfilePage: React.FC = () => {
 };
 
 function ProfileSpaceCard({ space, shouldEnrich }: { space: ProfileSpace; shouldEnrich: boolean }) {
+  const navigate = useNavigate();
+  const { effectiveMode } = useTheme();
   const enriched = useEnrichedProfileSpace(space, shouldEnrich);
   const displaySpace = enriched.space;
   const kind = displaySpace.kind ? getSpaceKindConfig(displaySpace.kind) : undefined;
+
   return (
-    <div ref={enriched.ref}>
+    <div ref={enriched.ref} className="h-full">
       <ThemeScope
         theme={displaySpace.theme?.preset ?? 'ORBIT'}
-        mode={displaySpace.theme?.mode ?? 'dark'}
-        className="rounded-card"
+        mode={effectiveMode}
+        className="h-full rounded-card"
       >
-        <Link
-          to={ROUTES.publicSpace(displaySpace._id)}
-          className="block rounded-card border border-border bg-surface p-5 transition hover:border-accent"
+        <NotchCard
+          variant="custom"
+          className="h-full cursor-pointer p-5 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-elevated"
+          onClick={() => navigate(ROUTES.publicSpace(displaySpace._id))}
         >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="font-heading text-lg font-semibold text-text">{displaySpace.name}</h3>
-              <p className="mt-1 text-xs uppercase tracking-wide text-text-muted">
-                {kind?.label ?? 'Public space'}
-              </p>
-              <p className="mt-1 line-clamp-2 text-sm text-text-muted">
-                {displaySpace.description || 'Public collaborative space'}
-              </p>
+          {/* Card Header & Body */}
+          <div className="pr-10">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <SpaceThemeDot theme={displaySpace.theme} />
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                  {kind?.label ?? 'Public space'}
+                </span>
+              </div>
+              <Badge variant={space.role === 'OWNER' ? 'accent' : 'outline'} size="sm">
+                {space.role === 'OWNER' ? 'Owner' : 'Member'}
+              </Badge>
             </div>
-            <Badge variant="outline">{space.role === 'OWNER' ? 'Owner' : 'Member'}</Badge>
+
+            <div className="mt-3 flex items-center gap-2">
+              <h3 className="truncate font-heading text-lg font-bold text-text transition-colors group-hover:text-accent">
+                {displaySpace.name}
+              </h3>
+              <SpaceIdBadge spaceId={displaySpace._id} size="sm" />
+            </div>
+
+            <p className="mt-1 line-clamp-2 min-h-10 text-sm text-text-muted">
+              {displaySpace.description || kind?.tagline || 'Public collaborative space'}
+            </p>
           </div>
-          <div className="mt-5 flex justify-between text-xs text-text-muted">
-            <span>
-              {displaySpace.memberCount === undefined
-                ? 'Members unavailable'
-                : `${displaySpace.memberCount} members`}
-            </span>
-            <span>{displaySpace.stats.tasksCompleted} tasks completed</span>
+
+          {/* Card Footer & Stats */}
+          <div className="border-border/60 mt-5 border-t pt-3">
+            <div className="flex items-center justify-between text-xs text-text-muted">
+              <span className="font-medium">
+                {displaySpace.memberCount === undefined
+                  ? 'Members unavailable'
+                  : `${displaySpace.memberCount} member${displaySpace.memberCount === 1 ? '' : 's'}`}
+              </span>
+              <span className="font-medium">
+                {displaySpace.stats.tasksCompleted} task
+                {displaySpace.stats.tasksCompleted === 1 ? '' : 's'} completed
+              </span>
+            </div>
+
+            <div className="border-border/50 mt-3 h-2 overflow-hidden rounded-full border bg-surface-hover">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-500"
+                style={{ width: `${Math.min(100, displaySpace.stats.contributionShare)}%` }}
+              />
+            </div>
+
+            <p className="mt-2 text-[11px] font-medium text-text-muted">
+              Contributed {displaySpace.stats.contributionShare}% of finished work
+            </p>
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-border">
-            <div
-              className="h-full bg-accent"
-              style={{ width: `${Math.min(100, displaySpace.stats.contributionShare)}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs text-text-muted">
-            Contributed {displaySpace.stats.contributionShare}% of finished work
-          </p>
-        </Link>
+        </NotchCard>
       </ThemeScope>
     </div>
   );

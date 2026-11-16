@@ -3,6 +3,7 @@ import { Badge, Avatar, Button } from '@/components/ui';
 import { getSpaceKindConfig } from '../utils/spaceKindConfig';
 import type { Space, SpaceSummary } from '../types/space.types';
 import { SpaceThemeDot } from './SpaceThemeDot';
+import { SpaceIdBadge } from './SpaceIdBadge';
 
 export interface SpaceHeaderProps {
   space: Space | SpaceSummary;
@@ -38,9 +39,12 @@ export const SpaceHeader: React.FC<SpaceHeaderProps> = ({
                   : 'Open to join'}
             </Badge>
           </div>
-          <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight text-text">
-            {space.name}
-          </h1>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <h1 className="font-heading text-3xl font-bold tracking-tight text-text">
+              {space.name}
+            </h1>
+            <SpaceIdBadge spaceId={space._id} size="sm" />
+          </div>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
             {space.description || kind.tagline}
           </p>

@@ -18,7 +18,9 @@ export const SpaceSwitcher: React.FC = () => {
     () =>
       (spacesQuery.data ?? []).filter(
         (space) =>
-          space.status === 'Active' && space.name.toLowerCase().includes(search.toLowerCase()),
+          space.status === 'Active' &&
+          (space.name.toLowerCase().includes(search.toLowerCase()) ||
+            space._id.toLowerCase().includes(search.toLowerCase())),
       ),
     [search, spacesQuery.data],
   );
@@ -96,7 +98,12 @@ export const SpaceSwitcher: React.FC = () => {
                   className="flex w-full items-center gap-2 rounded-button px-2 py-2 text-left text-sm text-text hover:bg-surface-hover"
                 >
                   <SpaceThemeDot theme={space.theme} size="sm" />
-                  <span className="flex-1 truncate">{space.name}</span>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate font-medium">{space.name}</span>
+                    <span className="truncate font-mono text-[10px] text-text-muted">
+                      ID: {space._id}
+                    </span>
+                  </div>
                   <span className="text-xs text-text-muted">
                     {space.joinPolicy === 'OPEN' ? 'Open' : 'Request'}
                   </span>

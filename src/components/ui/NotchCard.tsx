@@ -48,6 +48,7 @@ export type NotchCardProps = (
   className?: string;
   onClick?: () => void;
   onDoubleClick?: () => void;
+  hideArrow?: boolean;
 };
 
 const DOT_COLORS = ['bg-red-500', 'bg-orange-500', 'bg-amber-400', 'bg-lime-400', 'bg-emerald-400'];
@@ -68,69 +69,71 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
   const content = (
     <>
       {/* Top right notch button container */}
-      <div className="absolute right-3 top-3 z-[1]">
-        {props.variant === 'highlighted' ? (
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={(e) => {
-              e.stopPropagation();
-              props.onBellClick?.();
-            }}
-            className="bg-text-inverse/20 hover:bg-text-inverse/30 relative flex h-8 w-8 items-center justify-center rounded-full text-text-inverse transition-colors"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+      {!props.hideArrow && (
+        <div className="absolute right-3 top-3 z-[1]">
+          {props.variant === 'highlighted' ? (
+            <button
+              type="button"
+              aria-label="Notifications"
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onBellClick?.();
+              }}
+              className="bg-text-inverse/20 hover:bg-text-inverse/30 relative flex h-8 w-8 items-center justify-center rounded-full text-text-inverse transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            {props.hasUnread && (
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-white ring-2 ring-accent" />
-            )}
-          </button>
-        ) : (
-          <button
-            type="button"
-            aria-label="Open item"
-            onClick={(e) => {
-              e.stopPropagation();
-              if ('onArrowClick' in props && props.onArrowClick) {
-                props.onArrowClick();
-              } else if (onClick) {
-                onClick();
-              }
-            }}
-            className={cn(
-              'border-border/80 flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-200',
-              'bg-surface-hover/70 text-text-muted group-hover:border-accent group-hover:bg-accent group-hover:text-text-inverse',
-            )}
-          >
-            <svg
-              className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+              {props.hasUnread && (
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-white ring-2 ring-accent" />
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label="Open item"
+              onClick={(e) => {
+                e.stopPropagation();
+                if ('onArrowClick' in props && props.onArrowClick) {
+                  props.onArrowClick();
+                } else if (onClick) {
+                  onClick();
+                }
+              }}
+              className={cn(
+                'border-border/80 flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-200',
+                'bg-surface-hover/70 text-text-muted group-hover:border-accent group-hover:bg-accent group-hover:text-text-inverse',
+              )}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 17L17 7M17 7H7M17 7V17"
-              />
-            </svg>
-          </button>
-        )}
-      </div>
+              <svg
+                className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 17L17 7M17 7H7M17 7V17"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Card Content based on variant */}
       {props.variant === 'highlighted' && (
@@ -236,7 +239,9 @@ export const NotchCard: React.FC<NotchCardProps> = (props) => {
         </div>
       )}
 
-      {props.variant === 'custom' && <div>{props.children}</div>}
+      {props.variant === 'custom' && (
+        <div className="flex h-full flex-1 flex-col justify-between">{props.children}</div>
+      )}
     </>
   );
 

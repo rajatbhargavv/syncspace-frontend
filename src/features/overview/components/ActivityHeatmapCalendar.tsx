@@ -349,7 +349,7 @@ export const ActivityHeatmapCalendar: React.FC<ActivityHeatmapCalendarProps> = (
                 : 'text-text-muted hover:text-text'
             }`}
           >
-            Year
+            Year (LeetCode)
           </button>
           <button
             type="button"

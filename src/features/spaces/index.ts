@@ -62,3 +62,4 @@ export {
 // ── Space Components ──
 export { ThemeScope, type ThemeScopeProps } from './components/ThemeScope';
 export { SpaceThemeDot, type SpaceThemeDotProps } from './components/SpaceThemeDot';
+export { SpaceIdBadge, type SpaceIdBadgeProps } from './components/SpaceIdBadge';

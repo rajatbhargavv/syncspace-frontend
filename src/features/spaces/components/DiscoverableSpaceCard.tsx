@@ -5,6 +5,7 @@ import { ROUTES } from '@/config/routes';
 import { getSpaceKindConfig } from '../utils/spaceKindConfig';
 import type { DiscoverableSpace } from '../types/space.types';
 import { SpaceThemeDot } from './SpaceThemeDot';
+import { SpaceIdBadge } from './SpaceIdBadge';
 
 export const DiscoverableSpaceCard: React.FC<{ space: DiscoverableSpace }> = ({ space }) => {
   const navigate = useNavigate();
@@ -17,7 +18,10 @@ export const DiscoverableSpaceCard: React.FC<{ space: DiscoverableSpace }> = ({ 
         <SpaceThemeDot theme={space.theme} />
         <span className="text-xs font-medium text-text-muted">{kind.label}</span>
       </div>
-      <h2 className="mt-3 truncate font-heading text-lg font-semibold text-text">{space.name}</h2>
+      <div className="mt-3 flex items-center gap-2">
+        <h2 className="truncate font-heading text-lg font-semibold text-text">{space.name}</h2>
+        <SpaceIdBadge spaceId={space._id} size="sm" />
+      </div>
       <p className="mt-1 line-clamp-2 min-h-10 text-sm text-text-muted">
         {space.description || kind.tagline}
       </p>

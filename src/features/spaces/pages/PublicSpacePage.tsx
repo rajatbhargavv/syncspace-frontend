@@ -5,16 +5,20 @@ import { Avatar, Badge, Button, ErrorState, Skeleton } from '@/components/ui';
 import { ROUTES } from '@/config/routes';
 import { ApiError } from '@/types';
 import { ThemeScope } from '../components/ThemeScope';
+import { SpaceThemeDot } from '../components/SpaceThemeDot';
+import { SpaceIdBadge } from '../components/SpaceIdBadge';
 import { JoinSpaceButton } from '../components/JoinSpaceButton';
 import { usePublicSpace } from '../hooks/usePublicSpace';
 import { useSpaces } from '../hooks/useSpaces';
 import { getSpaceKindConfig } from '../utils/spaceKindConfig';
 import { useAuth } from '@/app/providers/useAuth';
+import { useTheme } from '@/app/providers/useTheme';
 
 export const PublicSpacePage: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
   const space = usePublicSpace(id);
   const { isAuthenticated } = useAuth();
+  const { effectiveMode } = useTheme();
   const spaces = useSpaces(isAuthenticated);
   const [shareOpen, setShareOpen] = useState(false);
   useEffect(() => {
@@ -68,25 +72,29 @@ export const PublicSpacePage: React.FC = () => {
   return (
     <ThemeScope
       theme={space.data.theme.preset}
-      mode={space.data.theme.mode}
-      className="min-h-screen"
+      mode={effectiveMode}
+      className="min-h-screen text-text"
     >
       <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
-        <header className="bg-surface/80 rounded-card border border-border p-6 shadow-card sm:p-10">
+        <header className="border-border/80 bg-surface/90 rounded-card border p-6 shadow-card backdrop-blur-sm sm:p-10">
           <div className="flex flex-wrap items-center gap-2">
+            <SpaceThemeDot theme={space.data.theme} size="md" />
             <Badge variant="accent">{kind.label}</Badge>
             <Badge variant="outline">{space.data.visibility.toLowerCase()}</Badge>
           </div>
-          <h1 className="mt-4 font-heading text-4xl font-bold tracking-tight text-text">
-            {space.data.name}
-          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <h1 className="font-heading text-4xl font-bold tracking-tight text-text">
+              {space.data.name}
+            </h1>
+            <SpaceIdBadge spaceId={space.data._id} size="md" />
+          </div>
           <p className="mt-3 max-w-2xl text-base leading-7 text-text-muted">
             {space.data.description || kind.tagline}
           </p>
           <p className="mt-5 flex items-center gap-2 text-sm text-text-muted">
             Owned by{' '}
             <Link
-              className="inline-flex items-center gap-2 font-semibold text-accent"
+              className="inline-flex items-center gap-2 font-semibold text-accent hover:underline"
               to={ROUTES.profile(space.data.owner._id)}
             >
               <Avatar name={space.data.owner.name} size="xs" />
@@ -101,7 +109,9 @@ export const PublicSpacePage: React.FC = () => {
                 year: 'numeric',
               })}
             </time>
-            {space.data.memberCount !== undefined && <span>{space.data.memberCount} members</span>}
+            {space.data.memberCount !== undefined && (
+              <span>· {space.data.memberCount} members</span>
+            )}
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
             {space.data.status === 'Inactive' ? (
@@ -155,64 +165,84 @@ export const PublicSpacePage: React.FC = () => {
             </div>
           </div>
         </header>
+
+        {/* Stat Cards */}
         <section className="grid gap-4 sm:grid-cols-3">
           {stats.map(([label, value]) => (
-            <div key={label} className="rounded-card border border-border bg-surface p-5">
-              <p className="text-sm text-text-muted">{label}</p>
+            <div
+              key={label}
+              className="border-border/80 bg-surface/90 rounded-card border p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                {label}
+              </p>
               <p className="mt-2 font-heading text-3xl font-bold text-text">{value}</p>
             </div>
           ))}
         </section>
-        <section className="rounded-card border border-border bg-surface p-5">
+
+        {/* Overall Completion Card */}
+        <section
+          aria-label="Overall completion"
+          className="border-border/80 bg-surface/90 rounded-card border p-5 shadow-card"
+        >
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl font-bold text-text">Overall completion</h2>
-            <span className="text-sm text-text-muted">
-              {space.data.contributorStats.completedTasks} /{' '}
-              {space.data.contributorStats.totalTasks}
+            <h2 className="font-heading text-lg font-bold text-text">Overall completion</h2>
+            <span className="text-xs font-semibold text-text-muted">
+              <span className="font-bold text-accent">
+                {space.data.contributorStats.completedTasks}
+              </span>{' '}
+              / {space.data.contributorStats.totalTasks}
             </span>
           </div>
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-border">
+          <div className="border-border/50 mt-4 h-3 overflow-hidden rounded-full border bg-surface-hover">
             <div
-              className="h-full bg-accent"
+              className="h-full rounded-full bg-accent transition-all duration-500"
               style={{
                 width: `${space.data.contributorStats.totalTasks ? (space.data.contributorStats.completedTasks / space.data.contributorStats.totalTasks) * 100 : 0}%`,
               }}
             />
           </div>
         </section>
+
+        {/* Contributors List */}
         {space.data.visibility === 'PUBLIC' &&
           (space.data.contributors?.length ? (
             <section className="space-y-3">
               <h2 className="font-heading text-2xl font-bold text-text">Who did the work</h2>
-              {space.data.contributors.map((contributor, index) => (
-                <div
-                  key={contributor.userId}
-                  className="flex items-center gap-3 rounded-card border border-border bg-surface p-4"
-                >
-                  <span className="w-6 text-sm text-text-muted">#{index + 1}</span>
-                  <Avatar name={contributor.name} size="sm" />
-                  <Link
-                    className="min-w-0 flex-1 truncate font-medium text-text hover:text-accent"
-                    to={ROUTES.profile(contributor.userId)}
+              <div className="space-y-2.5">
+                {space.data.contributors.map((contributor, index) => (
+                  <div
+                    key={contributor.userId}
+                    className="border-border/80 bg-surface/90 hover:bg-surface-hover/80 flex items-center gap-3 rounded-card border p-4 shadow-card transition-all hover:border-accent"
                   >
-                    {contributor.name}
-                  </Link>
-                  <span className="text-sm text-text-muted">
-                    {contributor.tasksCompleted} tasks · {contributor.share}%
-                  </span>
-                  <div className="hidden h-2 w-24 overflow-hidden rounded-full bg-border sm:block">
-                    <div
-                      className="h-full bg-accent"
-                      style={{ width: `${Math.min(100, contributor.share)}%` }}
-                    />
+                    <span className="w-6 text-center text-xs font-bold text-text-muted">
+                      #{index + 1}
+                    </span>
+                    <Avatar name={contributor.name} size="sm" />
+                    <Link
+                      className="min-w-0 flex-1 truncate font-medium text-text hover:text-accent hover:underline"
+                      to={ROUTES.profile(contributor.userId)}
+                    >
+                      {contributor.name}
+                    </Link>
+                    <span className="text-xs font-medium text-text-muted">
+                      {contributor.tasksCompleted} tasks · {contributor.share}%
+                    </span>
+                    <div className="border-border/50 hidden h-2 w-28 overflow-hidden rounded-full border bg-surface-hover sm:block">
+                      <div
+                        className="h-full rounded-full bg-accent transition-all duration-500"
+                        style={{ width: `${Math.min(100, contributor.share)}%` }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </section>
           ) : (
-            <p className="rounded-card border border-border bg-surface p-5 text-sm text-text-muted">
+            <div className="border-border/80 bg-surface/90 rounded-card border p-6 text-center text-sm text-text-muted shadow-card">
               Contributor details aren't shared yet.
-            </p>
+            </div>
           ))}
       </div>
     </ThemeScope>
